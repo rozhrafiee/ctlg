@@ -2,12 +2,15 @@ from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from .models import CognitiveTest, TestSession
+from analytics.views import IsTeacherRole
+from .models import CognitiveTest, TestSession, Question, Choice
 from .serializers import (
     CognitiveTestListSerializer,
     CognitiveTestDetailSerializer,
+    CognitiveTestCreateSerializer,
     TestSessionSerializer,
     SubmitSessionSerializer,
+    QuestionCreateSerializer,
 )
 from .services import grade_session
 
@@ -39,6 +42,14 @@ class TestSessionListView(generics.ListAPIView):
         )
 
 
+class TestSessionDetailView(generics.RetrieveAPIView):
+    serializer_class = TestSessionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return TestSession.objects.filter(user=self.request.user)
+
+
 @api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated])
 def start_session(request, pk: int):
@@ -57,5 +68,28 @@ def submit_session(request, session_id: int):
     serializer.is_valid(raise_exception=True)
     session = grade_session(session, serializer.validated_data["answers"])
     return Response(TestSessionSerializer(session).data)
+
+
+class CognitiveTestCreateView(generics.CreateAPIView):
+    queryset = CognitiveTest.objects.all()
+    serializer_class = CognitiveTestCreateSerializer
+    permission_classes = [IsTeacherRole]
+
+
+class CognitiveTestUpdateView(generics.UpdateAPIView):
+    queryset = CognitiveTest.objects.all()
+    serializer_class = CognitiveTestCreateSerializer
+    permission_classes = [IsTeacherRole]
+
+
+@api_view(["POST"])
+@permission_classes([IsTeacherRole])
+def add_question_to_test(request, test_id: int):
+    test = generics.get_object_or_404(CognitiveTest, pk=test_id)
+    serializer = QuestionCreateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    question = Question.objects.create(test=test, **serializer.validated_data)
+    from .serializers import QuestionSerializer
+    return Response(QuestionSerializer(question).data, status=status.HTTP_201_CREATED)
 
 

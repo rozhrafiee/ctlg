@@ -3,9 +3,11 @@ from rest_framework import generics, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from analytics.views import IsTeacherRole
 from .models import LearningContent, LearningScenario, UserContentProgress
 from .serializers import (
     LearningContentSerializer,
+    LearningContentCreateSerializer,
     LearningScenarioSerializer,
     UserContentProgressSerializer,
     ProgressUpdateSerializer,
@@ -58,5 +60,17 @@ def update_progress(request, content_id: int):
         progress.progress_percent = 100.0
     progress.save()
     return Response(UserContentProgressSerializer(progress).data)
+
+
+class LearningContentCreateView(generics.CreateAPIView):
+    queryset = LearningContent.objects.all()
+    serializer_class = LearningContentCreateSerializer
+    permission_classes = [IsTeacherRole]
+
+
+class LearningContentUpdateView(generics.UpdateAPIView):
+    queryset = LearningContent.objects.all()
+    serializer_class = LearningContentCreateSerializer
+    permission_classes = [IsTeacherRole]
 
 

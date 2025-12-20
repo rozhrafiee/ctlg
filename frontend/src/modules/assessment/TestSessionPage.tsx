@@ -49,8 +49,8 @@ export default function TestSessionPage() {
         text_answer: ""
       }))
     };
-    await api.post(`/api/assessment/sessions/${sessionId}/submit/`, payload);
-    navigate("/"); // می‌توانی آن را به صفحه نتیجه اختصاصی هم ببری
+    const res = await api.post(`/api/assessment/sessions/${sessionId}/submit/`, payload);
+    navigate(`/tests/result/${sessionId}`);
   };
 
   if (!test) return <div>در حال بارگذاری آزمون...</div>;

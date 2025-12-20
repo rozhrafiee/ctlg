@@ -64,3 +64,42 @@ class SubmitSessionSerializer(serializers.Serializer):
     answers = AnswerInputSerializer(many=True)
 
 
+class ChoiceCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Choice
+        fields = ["text", "is_correct", "score"]
+
+
+class QuestionCreateSerializer(serializers.ModelSerializer):
+    choices = ChoiceCreateSerializer(many=True, required=False)
+
+    class Meta:
+        model = Question
+        fields = ["text", "question_type", "order", "choices"]
+
+    def create(self, validated_data):
+        choices_data = validated_data.pop("choices", [])
+        question = Question.objects.create(**validated_data)
+        for choice_data in choices_data:
+            Choice.objects.create(question=question, **choice_data)
+        return question
+
+
+class CognitiveTestCreateSerializer(serializers.ModelSerializer):
+    questions = QuestionCreateSerializer(many=True, required=False)
+
+    class Meta:
+        model = CognitiveTest
+        fields = ["title", "description", "min_level", "max_level", "is_active", "questions"]
+
+    def create(self, validated_data):
+        questions_data = validated_data.pop("questions", [])
+        test = CognitiveTest.objects.create(**validated_data)
+        for question_data in questions_data:
+            choices_data = question_data.pop("choices", [])
+            question = Question.objects.create(test=test, **question_data)
+            for choice_data in choices_data:
+                Choice.objects.create(question=question, **choice_data)
+        return test
+
+

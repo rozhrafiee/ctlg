@@ -50,3 +50,17 @@ class ProgressUpdateSerializer(serializers.Serializer):
     completed = serializers.BooleanField(default=False)
 
 
+class LearningContentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LearningContent
+        fields = [
+            "title",
+            "description",
+            "content_type",
+            "body",
+            "min_level",
+            "max_level",
+            "is_active",
+        ]
+
+

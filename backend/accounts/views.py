@@ -3,6 +3,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 
+from analytics.views import IsAdminRole
 from .serializers import RegisterSerializer, UserSerializer
 
 
@@ -27,5 +28,14 @@ def health(request):
 
 TokenObtainPairView = TokenObtainPairView
 TokenRefreshView = TokenRefreshView
+
+
+class UserListView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminRole]
+
+    def get_queryset(self):
+        from .models import User
+        return User.objects.all()
 
 
