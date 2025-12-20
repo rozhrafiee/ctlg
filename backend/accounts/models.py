@@ -4,12 +4,12 @@ from django.db import models
 
 class User(AbstractUser):
     ROLE_CHOICES = (
-        ("citizen", "Citizen"),
+        ("student", "Student"),
+        ("teacher", "Teacher"),
         ("admin", "Admin"),
-        ("expert", "Expert"),
     )
 
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="citizen")
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="student")
     cognitive_level = models.IntegerField(default=1)
 
 

@@ -7,9 +7,10 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<"student" | "teacher">("student");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const register = useAuthStore((s) => (s as any).register);
+  const register = useAuthStore((s) => s.register);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -21,7 +22,7 @@ export default function SignupPage() {
     }
 
     try {
-      await register(username, email, password);
+      await register(username, email, password, role);
       navigate("/");
     } catch (err) {
       setError("ثبت‌نام ناموفق بود. لطفاً اطلاعات را بررسی کنید.");
@@ -47,6 +48,17 @@ export default function SignupPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+        </label>
+        <label>
+          نوع حساب کاربری
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value as "student" | "teacher")}
+            required
+          >
+            <option value="student">دانش‌آموز</option>
+            <option value="teacher">استاد</option>
+          </select>
         </label>
         <label>
           رمز عبور
@@ -77,5 +89,6 @@ export default function SignupPage() {
     </div>
   );
 }
+
 
 

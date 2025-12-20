@@ -14,7 +14,7 @@ interface AuthState {
   refreshToken: string | null;
   user: User | null;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string, role?: string) => Promise<void>;
   logout: () => void;
   fetchMe: () => Promise<void>;
 }
@@ -32,8 +32,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await get().fetchMe();
   },
 
-  async register(username, email, password) {
-    await api.post("/api/accounts/register/", { username, email, password });
+  async register(username, email, password, role = "student") {
+    await api.post("/api/accounts/register/", { username, email, password, role });
     await get().login(username, password);
   },
 
