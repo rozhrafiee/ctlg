@@ -393,10 +393,21 @@ The dashboard shows:
 - **Database errors**: Delete `db.sqlite3` and run migrations again
 
 ### Frontend Issues
-- **Port 5173 in use**: Vite will automatically use next available port
-- **API errors**: Make sure backend is running on port 8000
-- **CORS errors**: Already configured in backend settings
-
+- If you see build/lint/script errors:
+  1. From repo root run: `node tools/fix_frontend_common.js`
+  2. Then:
+     ```bash
+     cd frontend
+     npm ci
+     npm run lint
+     npm run build
+     ```
+  3. If API requests fail in the browser, create `frontend/.env.local` with:
+     ```
+     VITE_API_URL=http://127.0.0.1:8000
+     ```
+  4. Re-run the app and check browser console / network tab for CORS or JS errors.
+- Use the CI workflow "Frontend checks" to catch issues automatically.
 ### Common Issues
 - **Can't see tests**: Make sure you're logged in as Student
 - **Can't create tests**: Make sure you're logged in as Teacher/Admin
@@ -416,6 +427,67 @@ If you encounter any issues:
 
 ---
 
+## ✅ Automated service checks (new)
+
+You can run a quick automated check for backend/frontend APIs.
+
+1. Edit `tools/services.example.json` and set your base URLs and optional login credentials (or export env vars).
+2. Run locally:
+```bash
+python tools/check_services.py --config tools/services.example.json
+```
+Environment (optional):
+- CHECK_LOGIN_URL (overrides config.login.url)
+- CHECK_USERNAME
+- CHECK_PASSWORD
+
+3. In CI: use the included GitHub Actions workflow ".github/workflows/check-services.yml" (workflow_dispatch), and set secrets CHECK_LOGIN_URL, CHECK_USERNAME and CHECK_PASSWORD if auth is needed.
+
+---
+
+## ✅ Run full local checks (backend + frontend + APIs)
+
+From repo root:
+
+- Linux / macOS:
+```bash
+chmod +x tools/run_all_checks.sh
+./tools/run_all_checks.sh
+```
+
+- Windows (PowerShell):
+```powershell
+.\tools\run_all_checks.ps1
+```
+
+What it does:
+- runs Django migrations and starts the backend
+- builds frontend and serves the built site
+- waits for endpoints and runs tools/check_services.py
+- prints logs and exits non-zero on failures
+
+CI:
+- Trigger the workflow "Integration - start servers & run checks" (manual dispatch or on push/PR)
+
+---
+
 **Last Updated**: December 2025
 **Version**: 1.0.0
+
+## Frontend dev proxy (fixes CORS during development)
+
+If you're running the frontend with Vite, dev requests to /api/* are proxied to the backend at http://127.0.0.1:8000 automatically (see `frontend/vite.config.js`). Start backend then run the frontend dev server as usual.
+
+## Running smoke tests locally
+
+From the repo root:
+```bash
+# ensure backend is running (http://127.0.0.1:8000)
+# ensure frontend dev or preview is running (http://localhost:5173)
+node tools/smoke_all.js --config tools/services.example.json
+```
+
+## CI
+
+The "Frontend checks" workflow now serves the built frontend and runs the smoke tests (see .github/workflows/frontend-checks.yml).
 

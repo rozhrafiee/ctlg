@@ -2,6 +2,7 @@
 from typing import Iterable
 from django.utils import timezone
 from django.db import transaction
+from django.db.models import Max
 from .models import TestSession, Answer, Choice
 
 
@@ -32,7 +33,7 @@ def grade_session(session: TestSession, answers_payload: Iterable[dict]) -> Test
             # محاسبه بیشترین نمره ممکن برای این سوال
             question_max_score = Choice.objects.filter(
                 question_id=item["question"]
-            ).aggregate(models.Max('score'))['score__max'] or 0
+            ).aggregate(Max('score'))['score__max'] or 0
             max_possible_score += question_max_score
             
             Answer.objects.create(

@@ -1,0 +1,29 @@
+name: Service Checks
+
+on:
+  workflow_dispatch:
+    inputs:
+      config-path:
+        description: Path to services config
+        required: false
+        default: tools/services.example.json
+
+jobs:
+  check-services:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Run checks
+        env:
+          CHECK_LOGIN_URL: ${{ secrets.CHECK_LOGIN_URL }}
+          CHECK_USERNAME: ${{ secrets.CHECK_USERNAME }}
+          CHECK_PASSWORD: ${{ secrets.CHECK_PASSWORD }}
+        run: |
+          python tools/check_services.py --config "${{ github.event.inputs.config-path }}"

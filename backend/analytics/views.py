@@ -2,7 +2,7 @@ from collections import Counter
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
@@ -94,20 +94,6 @@ class MyAlertsListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        try:
-            return Alert.objects.filter(user=self.request.user).select_related("user").order_by("-created_at")
-        except Exception:
-            return Alert.objects.none()
-    
-    def list(self, request, *args, **kwargs):
-        try:
-            return super().list(request, *args, **kwargs)
-        except Exception as e:
-            from rest_framework.response import Response
-            from rest_framework import status
-            return Response(
-                {"detail": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        return Alert.objects.filter(user=self.request.user).select_related("user").order_by("-created_at")
 
 

@@ -1,0 +1,45 @@
+name: Frontend checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Run fixer to ensure scripts & config exist
+        run: node tools/fix_frontend_common.js
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint --if-present
+
+      - name: Run tests
+        working-directory: frontend
+        run: npm test --if-present
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Serve built frontend (background)
+        working-directory: frontend
+        run: npm run preview &
+
+      - name: Smoke test APIs
+        run: node tools/smoke_all.js --config tools/services.example.json

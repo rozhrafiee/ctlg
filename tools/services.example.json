@@ -1,0 +1,28 @@
+{
+  "login": {
+    "url": "http://127.0.0.1:8000/api/accounts/token/",
+    "username": "",
+    "password": ""
+  },
+  "services": [
+    {
+      "name": "backend",
+      "base": "http://127.0.0.1:8000",
+      "requires_auth": true,
+      "endpoints": [
+        { "path": "/api/health/", "method": "GET", "expected_status": 200 },
+        { "path": "/swagger.json", "method": "GET", "expected_status": 200 },
+        { "path": "/api/accounts/me/", "method": "GET", "expected_status": 200, "contains_key": "username" },
+        { "path": "/api/assessment/tests/", "method": "GET", "expected_status": 200 }
+      ]
+    },
+    {
+      "name": "frontend",
+      "base": "http://localhost:5173",
+      "requires_auth": false,
+      "endpoints": [
+        { "path": "/", "method": "GET", "expected_status": 200 }
+      ]
+    }
+  ]
+}

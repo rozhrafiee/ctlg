@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import CognitiveTest, Question, Choice, TestSession, Answer
+from .models import CognitiveTest, Question, Choice, TestSession
 
 
 class ChoiceSerializer(serializers.ModelSerializer):

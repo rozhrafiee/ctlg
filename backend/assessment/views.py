@@ -2,11 +2,11 @@
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from django.db.models import Avg, Max, Count
+from django.db.models import Avg, Max
 from django.shortcuts import get_object_or_404
 
 from analytics.views import IsTeacherRole
-from .models import CognitiveTest, TestSession, Question, Choice
+from .models import CognitiveTest, TestSession, Question
 from .serializers import (
     CognitiveTestListSerializer,
     CognitiveTestDetailSerializer,
@@ -120,6 +120,8 @@ def submit_session(request, session_id: int):
     
     # بررسی آیا سطح افزایش یافته
     old_level = getattr(request.user, "cognitive_level", 1)
+    # refresh the user instance to pick up updates made during grading
+    request.user.refresh_from_db()
     new_level = getattr(request.user, "cognitive_level", 1)  # کاربر آپدیت شده
     
     return Response({
