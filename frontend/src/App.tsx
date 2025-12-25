@@ -142,7 +142,7 @@ export default function App() {
             element={
               <PrivateRoute>
                 <PlacementTestGuard>
-                  <RecommendedContentPage />
+                <RecommendedContentPage />
                 </PlacementTestGuard>
               </PrivateRoute>
             }

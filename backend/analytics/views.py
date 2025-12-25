@@ -94,6 +94,20 @@ class MyAlertsListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Alert.objects.filter(user=self.request.user).select_related("user").order_by("-created_at")
+        try:
+            return Alert.objects.filter(user=self.request.user).select_related("user").order_by("-created_at")
+        except Exception:
+            return Alert.objects.none()
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            return super().list(request, *args, **kwargs)
+        except Exception as e:
+            from rest_framework.response import Response
+            from rest_framework import status
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 

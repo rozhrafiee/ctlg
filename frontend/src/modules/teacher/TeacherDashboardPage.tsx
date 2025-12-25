@@ -150,11 +150,30 @@ export default function TeacherDashboardPage() {
     setLoading(true);
     setError(null);
     try {
+      // فیلتر کردن choices خالی و سوالات بدون متن
+      const cleanedQuestions = testForm.questions
+        .filter(q => q.text.trim() !== "") // فقط سوالات با متن
+        .map(q => ({
+          ...q,
+          choices: q.question_type === "mcq" 
+            ? q.choices.filter(c => c.text.trim() !== "") // فقط choices با متن
+            : [] // برای سوالات متنی choices خالی
+        }))
+        .filter(q => {
+          // برای سوالات چندگزینه‌ای، حداقل 2 گزینه لازم است
+          if (q.question_type === "mcq") {
+            return q.choices.length >= 2;
+          }
+          return true;
+        });
+      
       // اطمینان از اینکه is_placement_test false است (برای آزمون‌های عادی)
       const payload = {
         ...testForm,
         is_placement_test: false,
+        questions: cleanedQuestions,
       };
+      
       await api.post("/api/assessment/tests/create/", payload);
       setShowTestForm(false);
       setTestForm({
@@ -169,7 +188,12 @@ export default function TeacherDashboardPage() {
       setCurrentQuestion(null);
       await loadTests();
     } catch (err: any) {
-      setError(err.response?.data?.detail || "خطا در ساخت آزمون");
+      console.error("Error creating test:", err);
+      const errorMsg = err.response?.data?.detail || 
+                      err.response?.data?.error ||
+                      err.response?.data?.non_field_errors?.[0] ||
+                      "خطا در ساخت آزمون";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

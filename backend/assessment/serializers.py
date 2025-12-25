@@ -69,14 +69,37 @@ class ChoiceCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
         fields = ["text", "is_correct", "score"]
+    
+    def validate_text(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("متن گزینه نمی‌تواند خالی باشد.")
+        return value
 
 
 class QuestionCreateSerializer(serializers.ModelSerializer):
-    choices = ChoiceCreateSerializer(many=True, required=False)
+    choices = ChoiceCreateSerializer(many=True, required=False, allow_empty=True)
 
     class Meta:
         model = Question
         fields = ["text", "question_type", "order", "choices"]
+    
+    def to_internal_value(self, data):
+        # فیلتر کردن choices خالی قبل از validation
+        if "choices" in data and isinstance(data["choices"], list):
+            data["choices"] = [c for c in data["choices"] if c.get("text", "").strip()]
+        return super().to_internal_value(data)
+    
+    def validate(self, data):
+        question_type = data.get("question_type", "mcq")
+        choices = data.get("choices", [])
+        
+        # برای سوالات چندگزینه‌ای، حداقل 2 گزینه لازم است
+        if question_type == "mcq" and len(choices) < 2:
+            raise serializers.ValidationError({
+                "choices": "برای سوالات چندگزینه‌ای حداقل 2 گزینه با متن لازم است."
+            })
+        
+        return data
 
     def create(self, validated_data):
         choices_data = validated_data.pop("choices", [])
