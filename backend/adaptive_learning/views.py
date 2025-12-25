@@ -66,6 +66,13 @@ class LearningContentCreateView(generics.CreateAPIView):
     queryset = LearningContent.objects.all()
     serializer_class = LearningContentCreateSerializer
     permission_classes = [IsTeacherRole]
+    
+    def perform_create(self, serializer):
+        try:
+            serializer.save()
+        except Exception as e:
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError({"detail": str(e)})
 
 
 class LearningContentUpdateView(generics.UpdateAPIView):

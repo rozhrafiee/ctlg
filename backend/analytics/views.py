@@ -94,6 +94,6 @@ class MyAlertsListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Alert.objects.filter(user=self.request.user).order_by("-created_at")
+        return Alert.objects.filter(user=self.request.user).select_related("user").order_by("-created_at")
 
 

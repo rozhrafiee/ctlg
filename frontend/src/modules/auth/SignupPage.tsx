@@ -23,7 +23,12 @@ export default function SignupPage() {
 
     try {
       await register(username, email, password, role);
-      navigate("/");
+      // اگر student است، به آزمون تعیین سطح هدایت می‌شود
+      if (role === "student") {
+        navigate("/placement-test");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError("ثبت‌نام ناموفق بود. لطفاً اطلاعات را بررسی کنید.");
     }

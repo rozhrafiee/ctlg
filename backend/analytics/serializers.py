@@ -4,9 +4,12 @@ from .models import Alert
 
 
 class AlertSerializer(serializers.ModelSerializer):
+    user_username = serializers.CharField(source="user.username", read_only=True)
+    user_id = serializers.IntegerField(source="user.id", read_only=True)
+    
     class Meta:
         model = Alert
-        fields = ["id", "user", "message", "created_at", "is_read", "severity"]
+        fields = ["id", "user_id", "user_username", "message", "created_at", "is_read", "severity"]
         read_only_fields = ["id", "created_at"]
 
 

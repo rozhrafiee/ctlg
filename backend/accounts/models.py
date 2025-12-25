@@ -11,5 +11,6 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="student")
     cognitive_level = models.IntegerField(default=1)
+    has_taken_placement_test = models.BooleanField(default=False)
 
 

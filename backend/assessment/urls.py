@@ -10,10 +10,12 @@ from .views import (
     start_session,
     submit_session,
     add_question_to_test,
+    get_placement_test,
 )
 
 urlpatterns = [
     path("tests/", CognitiveTestListView.as_view(), name="tests-list"),
+    path("tests/placement/", get_placement_test, name="placement-test"),
     path("tests/create/", CognitiveTestCreateView.as_view(), name="tests-create"),
     path("tests/<int:pk>/", CognitiveTestDetailView.as_view(), name="tests-detail"),
     path("tests/<int:pk>/update/", CognitiveTestUpdateView.as_view(), name="tests-update"),

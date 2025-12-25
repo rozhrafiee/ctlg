@@ -11,6 +11,7 @@ import TeacherDashboardPage from "./modules/teacher/TeacherDashboardPage";
 import AddQuestionPage from "./modules/teacher/AddQuestionPage";
 import AlertsPage from "./modules/user/AlertsPage";
 import TestResultPage from "./modules/assessment/TestResultPage";
+import PlacementTestPage from "./modules/assessment/PlacementTestPage";
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const token = useAuthStore((s) => s.accessToken);
@@ -28,6 +29,34 @@ function TeacherRoute({ children }: { children: JSX.Element }) {
   const { user } = useAuthStore();
   if (!user || (user.role !== "teacher" && user.role !== "admin"))
     return <Navigate to="/" replace />;
+  return children;
+}
+
+function PlacementTestGuard({ children }: { children: JSX.Element }) {
+  const { user } = useAuthStore();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const checkPlacementTest = async () => {
+      if (user && user.role === "student") {
+        try {
+          const { api } = await import("./utils/api");
+          const res = await api.get("/api/accounts/needs-placement-test/");
+          if (res.data.needs_placement_test) {
+            window.location.href = "/placement-test";
+            return;
+          }
+        } catch (err) {
+          console.error("خطا در بررسی آزمون تعیین سطح:", err);
+        }
+      }
+      setChecking(false);
+    };
+
+    checkPlacementTest();
+  }, [user]);
+
+  if (checking) return <div>در حال بررسی...</div>;
   return children;
 }
 
@@ -66,9 +95,10 @@ export default function App() {
           {user && (
             <>
               <span className="nav-user">
-                {user.username} (سطح: {user.cognitive_level})
+                {user.username}
+                {user.role === "student" && ` (سطح: ${user.cognitive_level})`}
               </span>
-              <Link to="/tests">آزمون‌ها</Link>
+              {user.role === "student" && <Link to="/tests">آزمون‌ها</Link>}
               <Link to="/learning">آموزش‌ها</Link>
               <Link to="/alerts">
                 هشدارها
@@ -111,12 +141,22 @@ export default function App() {
             path="/"
             element={
               <PrivateRoute>
-                <RecommendedContentPage />
+                <PlacementTestGuard>
+                  <RecommendedContentPage />
+                </PlacementTestGuard>
               </PrivateRoute>
             }
           />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route
+            path="/placement-test"
+            element={
+              <PrivateRoute>
+                <PlacementTestPage />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/tests"
             element={

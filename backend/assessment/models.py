@@ -8,6 +8,7 @@ class CognitiveTest(models.Model):
     min_level = models.IntegerField(default=1)
     max_level = models.IntegerField(default=10)
     is_active = models.BooleanField(default=True)
+    is_placement_test = models.BooleanField(default=False, help_text="آزمون تعیین سطح اولیه")
 
     def __str__(self) -> str:
         return self.title

@@ -23,20 +23,27 @@ export default function TestResultPage() {
   const [previousLevel, setPreviousLevel] = useState<number | null>(null);
 
   useEffect(() => {
+    // فقط student می‌تواند نتیجه آزمون را ببیند
+    if (user && user.role !== "student") {
+      navigate("/");
+      return;
+    }
     if (sessionId) {
       loadResult();
-      if (user) {
+      if (user && user.role === "student") {
         setPreviousLevel(user.cognitive_level);
       }
     }
-  }, [sessionId]);
+  }, [sessionId, user, navigate]);
 
   const loadResult = async () => {
     try {
       const res = await api.get(`/api/assessment/sessions/${sessionId}/`);
       setResult(res.data);
-      // به‌روزرسانی اطلاعات کاربر برای دریافت سطح جدید
-      await fetchMe();
+      // به‌روزرسانی اطلاعات کاربر برای دریافت سطح جدید (فقط برای student)
+      if (user && user.role === "student") {
+        await fetchMe();
+      }
     } catch (err) {
       console.error("خطا در بارگذاری نتیجه:", err);
     } finally {
@@ -46,10 +53,11 @@ export default function TestResultPage() {
 
   if (loading) return <div>در حال بارگذاری نتیجه...</div>;
   if (!result) return <div>نتیجه یافت نشد.</div>;
+  if (!user || user.role !== "student") return <div>دسترسی غیرمجاز</div>;
 
   const newLevel = result.resulting_level;
   const levelUp = previousLevel !== null && newLevel > previousLevel;
-  const currentUserLevel = user?.cognitive_level || newLevel;
+  const currentUserLevel = user.cognitive_level || newLevel;
 
   // محاسبه درصد نمره (فرض: حداکثر نمره 100)
   const scorePercentage = Math.min((result.total_score / 100) * 100, 100);

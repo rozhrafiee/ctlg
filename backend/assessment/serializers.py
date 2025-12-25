@@ -20,7 +20,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 class CognitiveTestListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CognitiveTest
-        fields = ["id", "title", "description", "min_level", "max_level", "is_active"]
+        fields = ["id", "title", "description", "min_level", "max_level", "is_active", "is_placement_test"]
 
 
 class CognitiveTestDetailSerializer(serializers.ModelSerializer):
@@ -35,6 +35,7 @@ class CognitiveTestDetailSerializer(serializers.ModelSerializer):
             "min_level",
             "max_level",
             "is_active",
+            "is_placement_test",
             "questions",
         ]
 
@@ -79,9 +80,12 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         choices_data = validated_data.pop("choices", [])
+        question_type = validated_data.get("question_type", "mcq")
         question = Question.objects.create(**validated_data)
-        for choice_data in choices_data:
-            Choice.objects.create(question=question, **choice_data)
+        # فقط برای سوالات چندگزینه‌ای گزینه اضافه می‌کنیم
+        if question_type == "mcq" and choices_data:
+            for choice_data in choices_data:
+                Choice.objects.create(question=question, **choice_data)
         return question
 
 
@@ -90,16 +94,26 @@ class CognitiveTestCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CognitiveTest
-        fields = ["title", "description", "min_level", "max_level", "is_active", "questions"]
+        fields = ["title", "description", "min_level", "max_level", "is_active", "is_placement_test", "questions"]
+        extra_kwargs = {
+            "is_placement_test": {"default": False, "required": False},
+        }
 
     def create(self, validated_data):
         questions_data = validated_data.pop("questions", [])
         test = CognitiveTest.objects.create(**validated_data)
+        
         for question_data in questions_data:
+            # استخراج choices قبل از ایجاد سوال
             choices_data = question_data.pop("choices", [])
+            question_type = question_data.get("question_type", "mcq")
+            # ایجاد سوال با test
             question = Question.objects.create(test=test, **question_data)
-            for choice_data in choices_data:
-                Choice.objects.create(question=question, **choice_data)
+            # فقط برای سوالات چندگزینه‌ای گزینه اضافه می‌کنیم
+            if question_type == "mcq" and choices_data:
+                for choice_data in choices_data:
+                    Choice.objects.create(question=question, **choice_data)
+        
         return test
 
 

@@ -20,9 +20,16 @@ class CognitiveTestListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # فقط student می‌تواند آزمون ببیند
+        if getattr(self.request.user, "role", "") != "student":
+            return CognitiveTest.objects.none()
         user_level = getattr(self.request.user, "cognitive_level", 1)
+        # آزمون‌های تعیین سطح را جدا می‌کنیم
         return CognitiveTest.objects.filter(
-            is_active=True, min_level__lte=user_level, max_level__gte=user_level
+            is_active=True, 
+            is_placement_test=False,  # آزمون‌های تعیین سطح در لیست عادی نیستند
+            min_level__lte=user_level, 
+            max_level__gte=user_level
         )
 
 
@@ -53,6 +60,12 @@ class TestSessionDetailView(generics.RetrieveAPIView):
 @api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated])
 def start_session(request, pk: int):
+    # فقط student می‌تواند آزمون بدهد
+    if getattr(request.user, "role", "") != "student":
+        return Response(
+            {"detail": "فقط دانش‌آموزان می‌توانند آزمون بدهند."},
+            status=status.HTTP_403_FORBIDDEN
+        )
     test = generics.get_object_or_404(CognitiveTest, pk=pk, is_active=True)
     session = TestSession.objects.create(user=request.user, test=test)
     return Response(TestSessionSerializer(session).data, status=status.HTTP_201_CREATED)
@@ -61,6 +74,12 @@ def start_session(request, pk: int):
 @api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated])
 def submit_session(request, session_id: int):
+    # فقط student می‌تواند آزمون بدهد
+    if getattr(request.user, "role", "") != "student":
+        return Response(
+            {"detail": "فقط دانش‌آموزان می‌توانند آزمون بدهند."},
+            status=status.HTTP_403_FORBIDDEN
+        )
     session = generics.get_object_or_404(
         TestSession, pk=session_id, user=request.user
     )
@@ -91,5 +110,29 @@ def add_question_to_test(request, test_id: int):
     question = Question.objects.create(test=test, **serializer.validated_data)
     from .serializers import QuestionSerializer
     return Response(QuestionSerializer(question).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["GET"])
+@permission_classes([permissions.IsAuthenticated])
+def get_placement_test(request):
+    """دریافت آزمون تعیین سطح اولیه"""
+    if getattr(request.user, "role", "") != "student":
+        return Response(
+            {"detail": "فقط دانش‌آموزان می‌توانند آزمون تعیین سطح بدهند."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    # پیدا کردن آزمون تعیین سطح
+    placement_test = CognitiveTest.objects.filter(
+        is_active=True, is_placement_test=True
+    ).first()
+    
+    if not placement_test:
+        return Response(
+            {"detail": "آزمون تعیین سطح یافت نشد."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    serializer = CognitiveTestDetailSerializer(placement_test)
+    return Response(serializer.data)
 
 

@@ -62,5 +62,34 @@ class LearningContentCreateSerializer(serializers.ModelSerializer):
             "max_level",
             "is_active",
         ]
+        extra_kwargs = {
+            "title": {"required": True},
+            "content_type": {"required": True},
+            "min_level": {"required": True},
+            "max_level": {"required": True},
+        }
+
+    def validate_content_type(self, value):
+        valid_types = ["text", "image", "video", "scenario"]
+        if value not in valid_types:
+            raise serializers.ValidationError(
+                f"content_type must be one of: {', '.join(valid_types)}"
+            )
+        return value
+
+    def validate(self, data):
+        min_level = data.get("min_level", 1)
+        max_level = data.get("max_level", 10)
+        
+        if min_level < 1 or min_level > 10:
+            raise serializers.ValidationError("min_level must be between 1 and 10")
+        
+        if max_level < 1 or max_level > 10:
+            raise serializers.ValidationError("max_level must be between 1 and 10")
+        
+        if min_level > max_level:
+            raise serializers.ValidationError("min_level cannot be greater than max_level")
+        
+        return data
 
 

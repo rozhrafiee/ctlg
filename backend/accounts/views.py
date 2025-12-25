@@ -26,6 +26,16 @@ def health(request):
     return Response({"status": "ok"})
 
 
+@api_view(["GET"])
+@permission_classes([permissions.IsAuthenticated])
+def needs_placement_test(request):
+    """بررسی نیاز به آزمون تعیین سطح"""
+    user = request.user
+    if user.role != "student":
+        return Response({"needs_placement_test": False})
+    return Response({"needs_placement_test": not user.has_taken_placement_test})
+
+
 TokenObtainPairView = TokenObtainPairView
 TokenRefreshView = TokenRefreshView
 

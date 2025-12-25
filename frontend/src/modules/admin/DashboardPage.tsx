@@ -18,7 +18,8 @@ interface User {
 
 interface Alert {
   id: number;
-  user: User;
+  user_id: number;
+  user_username: string;
   message: string;
   severity: "info" | "warning" | "critical";
   created_at: string;
@@ -206,7 +207,7 @@ export default function DashboardPage() {
                 >
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <div>
-                      <strong>{alert.user.username}</strong>
+                      <strong>{alert.user_username}</strong>
                       <span
                         style={{
                           marginLeft: "10px",

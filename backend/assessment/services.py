@@ -49,8 +49,14 @@ def grade_session(session: TestSession, answers_payload: Iterable[dict]) -> Test
     session.save(update_fields=["total_score", "finished_at", "resulting_level"])
 
     user = session.user
-    user.cognitive_level = session.resulting_level or user.cognitive_level
-    user.save(update_fields=["cognitive_level"])
+    # فقط student سطح دارد و آپدیت می‌شود
+    if getattr(user, "role", "") == "student":
+        user.cognitive_level = session.resulting_level or user.cognitive_level
+        # اگر آزمون تعیین سطح باشد، flag را set می‌کنیم
+        test = session.test
+        if test.is_placement_test:
+            user.has_taken_placement_test = True
+        user.save(update_fields=["cognitive_level", "has_taken_placement_test"])
 
     return session
 
