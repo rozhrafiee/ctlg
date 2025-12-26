@@ -1,7 +1,9 @@
+# adaptive_learning/views.py
 from django.utils import timezone
 from rest_framework import generics, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 from analytics.views import IsTeacherRole
 from .models import LearningContent, LearningScenario, UserContentProgress
@@ -31,6 +33,16 @@ class LearningContentDetailView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
+class TeacherContentListView(generics.ListAPIView):
+    """لیست تمام محتواهای ایجاد شده (برای استاد)"""
+    serializer_class = LearningContentSerializer
+    permission_classes = [IsTeacherRole]
+    
+    def get_queryset(self):
+        # استاد همه محتواها رو می‌بینه (فعال و غیرفعال)
+        return LearningContent.objects.all().order_by('-id')
+    
+    
 class LearningScenarioDetailView(generics.RetrieveAPIView):
     queryset = LearningScenario.objects.all()
     serializer_class = LearningScenarioSerializer
@@ -48,7 +60,7 @@ class UserProgressListView(generics.ListAPIView):
 @api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated])
 def update_progress(request, content_id: int):
-    content = generics.get_object_or_404(LearningContent, pk=content_id, is_active=True)
+    content = get_object_or_404(LearningContent, pk=content_id, is_active=True)
     serializer = ProgressUpdateSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     progress, _ = UserContentProgress.objects.get_or_create(
@@ -81,3 +93,7 @@ class LearningContentUpdateView(generics.UpdateAPIView):
     permission_classes = [IsTeacherRole]
 
 
+class LearningContentDeleteView(generics.DestroyAPIView):
+    queryset = LearningContent.objects.all()
+    serializer_class = LearningContentSerializer
+    permission_classes = [IsTeacherRole]

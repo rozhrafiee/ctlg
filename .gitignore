@@ -85,3 +85,5 @@ logs/
 
 db.sqlite3
 *.sqlite3
+.venv
+.vs

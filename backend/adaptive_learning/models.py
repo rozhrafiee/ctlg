@@ -1,6 +1,7 @@
+# adaptive_learning/models.py
 from django.conf import settings
 from django.db import models
-
+from django.utils import timezone
 
 class LearningContent(models.Model):
     CONTENT_TYPES = (
@@ -20,6 +21,8 @@ class LearningContent(models.Model):
     min_level = models.IntegerField(default=1)
     max_level = models.IntegerField(default=10)
     is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
         return self.title
@@ -45,5 +48,3 @@ class UserContentProgress(models.Model):
 
     class Meta:
         unique_together = ("user", "content")
-
-

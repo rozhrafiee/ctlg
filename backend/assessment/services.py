@@ -2,83 +2,77 @@
 from typing import Iterable
 from django.utils import timezone
 from django.db import transaction
-from django.db.models import Max
 from .models import TestSession, Answer, Choice
 
 
 def grade_session(session: TestSession, answers_payload: Iterable[dict]) -> TestSession:
     """
-    تصحیح آزمون و افزایش سطح فقط با آزمون
-    answers_payload: list of {question: id, selected_choice: id | None, text_answer: str | None}
+    تصحیح آزمون - هر آزمون نمره از 100
+    منطق: هر سوال 10 نمره (برای 10 سوال = 100)
     """
-    total_score = 0.0
-    max_possible_score = 0
+    total_correct = 0
+    total_questions = len(answers_payload)
     
     with transaction.atomic():
-        # 1. ذخیره پاسخ‌ها و محاسبه نمره
         for item in answers_payload:
-            choice_obj = None
-            score = 0.0
+            is_correct = False
+            selected_choice = None
             
             if item.get("selected_choice"):
                 try:
-                    choice_obj = Choice.objects.get(
+                    selected_choice = Choice.objects.get(
                         id=item["selected_choice"], 
                         question_id=item["question"]
                     )
-                    score = choice_obj.score
+                    is_correct = selected_choice.is_correct  # فقط بررسی درست/غلط
                 except Choice.DoesNotExist:
-                    score = 0
+                    is_correct = False
             
-            # محاسبه بیشترین نمره ممکن برای این سوال
-            question_max_score = Choice.objects.filter(
-                question_id=item["question"]
-            ).aggregate(Max('score'))['score__max'] or 0
-            max_possible_score += question_max_score
-            
+            # ذخیره پاسخ - هر سوال 10 نمره اگر درست باشد
             Answer.objects.create(
                 session=session,
                 question_id=item["question"],
-                selected_choice=choice_obj,
+                selected_choice=selected_choice,
                 text_answer=item.get("text_answer") or "",
-                score=score,
+                score=10 if is_correct else 0  # هر سوال 10 نمره
             )
-            total_score += score
+            
+            if is_correct:
+                total_correct += 1
         
-        # 2. محاسبه درصد نمره
-        if max_possible_score > 0:
-            score_percentage = (total_score / max_possible_score) * 100
+        # محاسبه نمره از 100
+        if total_questions > 0:
+            score_percentage = (total_correct / total_questions) * 100
         else:
             score_percentage = 0
         
-        session.total_score = score_percentage
+        session.total_score = round(score_percentage, 2)
         session.finished_at = timezone.now()
         
-        # 3. منطق افزایش سطح (فقط با آزمون)
+        # منطق افزایش سطح
         user = session.user
         old_level = getattr(user, "cognitive_level", 1)
         
         if session.test.is_placement_test:
-            # آزمون تعیین سطح: سطح را مستقیماً تنظیم کن
+            # آزمون تعیین سطح
             new_level = _calculate_placement_level(score_percentage)
             session.resulting_level = new_level
             
-            # به‌روزرسانی کاربر
             if hasattr(user, 'cognitive_level'):
                 user.cognitive_level = new_level
                 user.has_taken_placement_test = True
                 user.save(update_fields=['cognitive_level', 'has_taken_placement_test'])
         
         else:
-            # آزمون عادی: فقط در شرایط خاص سطح افزایش می‌یابد
+            # آزمون عادی - افزایش سطح
             session.resulting_level = old_level
             
-            # شرط افزایش سطح: نمره بالا + آزمون چالشی
+            # شرط افزایش سطح: نمره بالای 80% + آزمون چالشی
             if (score_percentage >= 80 and 
                 session.test.max_level >= old_level):
                 
                 # فقط یک سطح افزایش
-                new_level = min(old_level + 1, 10)  # حداکثر سطح ۱۰
+                new_level = min(old_level + 1, 10)
                 
                 # مطمئن شو سطح جدید در محدوده آزمون است
                 if new_level <= session.test.max_level:

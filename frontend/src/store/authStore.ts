@@ -7,6 +7,7 @@ export interface User {
   email: string;
   role: string;
   cognitive_level: number;
+  has_taken_placement_test: boolean;
 }
 
 interface AuthState {
