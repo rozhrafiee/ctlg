@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.db import transaction
 from .models import TestSession, Answer, Choice, Question
 import logging
+from django.db.models import Count, Avg, Sum, Max, Min, Q
 
 logger = logging.getLogger(__name__)
 
