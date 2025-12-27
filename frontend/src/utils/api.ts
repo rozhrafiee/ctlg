@@ -35,3 +35,34 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+// api.ts - در انتهای فایل
+// 🔧 حل‌کننده خودکار URLهای اشتباه
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  
+  // 🔥 این بخش جدید: اصلاح خودکار URLهای اشتباه
+  if (config.url && config.url.startsWith('/api/')) {
+    // حذف /api/ اضافی
+    const correctedUrl = config.url.substring(4); // حذف 4 کاراکتر اول (/api/)
+    console.warn(`⚠️ اصلاح خودکار URL: ${config.url} → ${correctedUrl}`);
+    config.url = correctedUrl;
+  }
+  
+  console.log(`📤 ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => {
+    console.log(`✅ ${response.status} ${response.config.url}`);
+    return response;
+  },
+  (error) => {
+    console.error(`❌ ${error.response?.status || 'NO RESPONSE'} ${error.config?.url}`);
+    console.error('پیام:', error.response?.data?.detail || error.message);
+    return Promise.reject(error);
+  }
+);

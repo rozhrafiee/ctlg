@@ -12,6 +12,7 @@ import AddQuestionPage from "./modules/teacher/AddQuestionPage";
 import AlertsPage from "./modules/user/AlertsPage";
 import TestResultPage from "./modules/assessment/TestResultPage";
 import PlacementTestPage from "./modules/assessment/PlacementTestPage";
+import { api } from "./utils/api"; // ✅ import مستقیم api
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const token = useAuthStore((s) => s.accessToken);
@@ -40,14 +41,23 @@ function PlacementTestGuard({ children }: { children: JSX.Element }) {
     const checkPlacementTest = async () => {
       if (user && user.role === "student") {
         try {
-          const { api } = await import("./utils/api");
-          const res = await api.get("/api/accounts/needs-placement-test/");
+          console.log("🔍 بررسی نیاز به آزمون تعیین سطح...");
+          
+          // ✅ اصلاح شده - بدون /api/ اضافی
+          const res = await api.get("/accounts/needs-placement-test/");
+          
+          console.log("✅ پاسخ بررسی:", res.data);
+          
           if (res.data.needs_placement_test) {
             window.location.href = "/placement-test";
             return;
           }
-        } catch (err) {
+        } catch (err: any) {
           console.error("خطا در بررسی آزمون تعیین سطح:", err);
+          // اگر endpoint وجود ندارد، ادامه بده
+          if (err.response?.status === 404) {
+            console.log("⚠️ endpoint آزمون تعیین سطح وجود ندارد، ادامه...");
+          }
         }
       }
       setChecking(false);
@@ -56,7 +66,7 @@ function PlacementTestGuard({ children }: { children: JSX.Element }) {
     checkPlacementTest();
   }, [user]);
 
-  if (checking) return <div>در حال بررسی...</div>;
+  if (checking) return <div style={{ padding: "40px", textAlign: "center" }}>در حال بررسی...</div>;
   return children;
 }
 
@@ -67,19 +77,28 @@ export default function App() {
   useEffect(() => {
     if (user) {
       loadUnreadAlertsCount();
-      const interval = setInterval(loadUnreadAlertsCount, 30000); // هر 30 ثانیه
+      const interval = setInterval(loadUnreadAlertsCount, 30000);
       return () => clearInterval(interval);
     }
   }, [user]);
 
   const loadUnreadAlertsCount = async () => {
     try {
-      const { api } = await import("./utils/api");
-      const res = await api.get("/api/analytics/my-alerts/");
+      console.log("🔔 درخواست alertها...");
+      
+      // ✅ اصلاح شده - بدون /api/ اضافی
+      const res = await api.get("/analytics/my-alerts/");
+      
       const unread = res.data.filter((a: any) => !a.is_read).length;
       setUnreadAlertsCount(unread);
-    } catch (err) {
-      // ignore
+      
+      console.log(`🔔 ${unread} alert خوانده نشده`);
+      
+    } catch (err: any) {
+      console.error("خطا در دریافت alertها:", err);
+      if (err.response?.status === 404) {
+        console.log("⚠️ endpoint analytics وجود ندارد");
+      }
     }
   };
 
@@ -142,7 +161,7 @@ export default function App() {
             element={
               <PrivateRoute>
                 <PlacementTestGuard>
-                <RecommendedContentPage />
+                  <RecommendedContentPage />
                 </PlacementTestGuard>
               </PrivateRoute>
             }
@@ -208,7 +227,7 @@ export default function App() {
             }
           />
           <Route
-            path="/teacher/tests/:id"
+            path="/teacher/tests/:testId" // ✅ testId به جای id برای شفافیت
             element={
               <PrivateRoute>
                 <TeacherRoute>
@@ -232,5 +251,3 @@ export default function App() {
     </div>
   );
 }
-
-

@@ -14,6 +14,8 @@ class CognitiveTest(models.Model):
     total_questions = models.IntegerField(default=10, help_text="تعداد سوالات آزمون")
     passing_score = models.IntegerField(default=70, help_text="حداقل نمره قبولی (درصد)")
     time_limit_minutes = models.IntegerField(default=60, help_text="مدت زمان آزمون (دقیقه)")
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
     # ارتباط با محتوا
     related_content = models.ForeignKey(
         'adaptive_learning.LearningContent', 
@@ -42,7 +44,7 @@ class Question(models.Model):
     text = models.TextField()
     question_type = models.CharField(max_length=20, choices=QUESTION_TYPES, default="mcq")
     order = models.IntegerField(default=0)
-    # اضافه کردن فیلد امتیاز
+    explanation = models.TextField(blank=True, null=True)
     points = models.IntegerField(default=10, help_text="امتیاز این سوال")
 
     class Meta:
