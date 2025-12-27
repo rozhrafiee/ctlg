@@ -1,4 +1,3 @@
-# assessment/models.py
 from django.conf import settings
 from django.db import models
 
@@ -10,12 +9,12 @@ class CognitiveTest(models.Model):
     max_level = models.IntegerField(default=10)
     is_active = models.BooleanField(default=True)
     is_placement_test = models.BooleanField(default=False, help_text="آزمون تعیین سطح اولیه")
-    # اضافه کردن فیلدهای جدید
     total_questions = models.IntegerField(default=10, help_text="تعداد سوالات آزمون")
     passing_score = models.IntegerField(default=70, help_text="حداقل نمره قبولی (درصد)")
     time_limit_minutes = models.IntegerField(default=60, help_text="مدت زمان آزمون (دقیقه)")
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
     # ارتباط با محتوا
     related_content = models.ForeignKey(
         'adaptive_learning.LearningContent', 
@@ -60,6 +59,10 @@ class Choice(models.Model):
     )
     text = models.CharField(max_length=255)
     is_correct = models.BooleanField(default=False)
+    order = models.IntegerField(default=0)  # ✅ اضافه شده
+    
+    class Meta:
+        ordering = ['order', 'id']  # ✅ اضافه شده
 
     def __str__(self) -> str:
         return self.text
@@ -72,7 +75,6 @@ class TestSession(models.Model):
     finished_at = models.DateTimeField(null=True, blank=True)
     total_score = models.FloatField(default=0)
     resulting_level = models.IntegerField(null=True, blank=True)
-    # اضافه کردن فیلدهای جدید
     status = models.CharField(
         max_length=20, 
         default='in_progress',
@@ -87,9 +89,23 @@ class TestSession(models.Model):
     passed = models.BooleanField(default=False)
     correct_answers = models.IntegerField(default=0)
     wrong_answers = models.IntegerField(default=0)
+    time_spent_seconds = models.IntegerField(default=0, help_text="زمان صرف شده در کل آزمون (ثانیه)")
+    expires_at = models.DateTimeField(null=True, blank=True)  # ✅ اضافه شده
 
     def __str__(self) -> str:
         return f"{self.user} - {self.test} ({self.started_at})"
+    
+    @property
+    def percentage(self):
+        """محاسبه درصد نمره"""
+        if self.total_points > 0:
+            return (self.points_earned / self.total_points) * 100
+        return 0
+    
+    @property
+    def time_spent_minutes(self):
+        """زمان صرف شده به دقیقه"""
+        return self.time_spent_seconds // 60
 
 
 class Answer(models.Model):
@@ -102,10 +118,10 @@ class Answer(models.Model):
     )
     text_answer = models.TextField(blank=True, null=True)
     score = models.FloatField(default=0)
-    # اضافه کردن فیلد زمان پاسخ
     time_spent_seconds = models.IntegerField(default=0, help_text="زمان صرف شده برای پاسخ (ثانیه)")
+    answered_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
-# مدل جدید برای پیگیری پیشرفت محتوا و آزمون
+
 class ContentTestProgress(models.Model):
     """پیگیری اینکه کدام آزمون‌های محتواها توسط کاربر گذرانده شده"""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

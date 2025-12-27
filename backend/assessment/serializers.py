@@ -1,4 +1,3 @@
-# assessment/serializers.py
 from rest_framework import serializers
 from .models import CognitiveTest, Question, Choice, TestSession, Answer, ContentTestProgress
 from adaptive_learning.models import LearningContent
@@ -97,6 +96,7 @@ class TestSessionSerializer(serializers.ModelSerializer):
     answers_count = serializers.SerializerMethodField()
     time_remaining = serializers.SerializerMethodField()
     duration = serializers.SerializerMethodField()
+    percentage = serializers.SerializerMethodField()
     
     class Meta:
         model = TestSession
@@ -113,10 +113,9 @@ class TestSessionSerializer(serializers.ModelSerializer):
             "percentage",
             "passed",
             "resulting_level",
-            "previous_level",
             "correct_answers",
             "wrong_answers",
-            "skipped_questions",
+            "time_spent_seconds",
             "time_spent_minutes",
             "answers_count",
             "time_remaining",
@@ -141,6 +140,9 @@ class TestSessionSerializer(serializers.ModelSerializer):
             seconds = int(delta.total_seconds() % 60)
             return f"{minutes} دقیقه و {seconds} ثانیه"
         return "در حال انجام"
+    
+    def get_percentage(self, obj):
+        return obj.percentage
 
 
 class AnswerInputSerializer(serializers.Serializer):
@@ -227,7 +229,7 @@ class AnswerSerializer(serializers.ModelSerializer):
         model = Answer
         fields = ['id', 'question', 'question_text', 'question_type',
                  'selected_choice', 'selected_choice_text', 
-                 'text_answer', 'is_correct', 'score', 
+                 'text_answer', 'score', 
                  'answered_at', 'time_spent_seconds']
     
     def get_selected_choice_text(self, obj):
@@ -238,10 +240,14 @@ class TestResultSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
     test = serializers.CharField(source='test.title', read_only=True)
     answers = AnswerSerializer(many=True, read_only=True)
+    percentage = serializers.SerializerMethodField()
     
     class Meta:
         model = TestSession
         fields = ['id', 'user', 'test', 'status', 'started_at', 'finished_at', 
                  'total_score', 'percentage', 'passed', 'resulting_level', 
-                 'previous_level', 'correct_answers', 'wrong_answers', 
-                 'skipped_questions', 'time_spent_minutes', 'answers']
+                 'correct_answers', 'wrong_answers', 
+                 'time_spent_seconds', 'time_spent_minutes', 'answers']
+    
+    def get_percentage(self, obj):
+        return obj.percentage

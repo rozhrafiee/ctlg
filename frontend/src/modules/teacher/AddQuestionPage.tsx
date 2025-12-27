@@ -7,26 +7,22 @@ interface Question {
   text: string;
   question_type: "mcq" | "text";
   order: number;
-  points: number;
   choices: Array<{
     id: number;
     text: string;
     is_correct: boolean;
-    order: number;
   }>;
 }
 
 interface ChoiceForm {
   text: string;
   is_correct: boolean;
-  order: number;
 }
 
 interface QuestionForm {
   text: string;
   question_type: "mcq" | "text";
   order: number;
-  points: number;
   choices: ChoiceForm[];
 }
 
@@ -34,7 +30,7 @@ export default function AddQuestionPage() {
   const { testId } = useParams<{ testId: string }>();
   const navigate = useNavigate();
   
-  console.log("🚀 AddQuestionPage باز شد. testId:", testId);
+  console.log("🚀 AddQuestionPage - testId:", testId);
   
   const [testTitle, setTestTitle] = useState("");
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -46,18 +42,17 @@ export default function AddQuestionPage() {
     text: "",
     question_type: "mcq",
     order: 0,
-    points: 10,
     choices: [
-      { text: "", is_correct: false, order: 0 },
-      { text: "", is_correct: false, order: 1 },
+      { text: "", is_correct: false },
+      { text: "", is_correct: false },
     ],
   });
 
   useEffect(() => {
-    console.log("🔄 useEffect اجرا شد. testId:", testId);
+    console.log("🔄 useEffect - testId:", testId);
     
     if (testId) {
-      console.log("✅ testId معتبر است. شروع بارگذاری...");
+      console.log("✅ testId معتبر است");
       loadTestDetails();
       loadQuestions();
     } else {
@@ -68,54 +63,47 @@ export default function AddQuestionPage() {
 
   const loadTestDetails = async () => {
     try {
-      console.log(`📥 درخواست جزئیات آزمون از: /assessment/teacher/tests/${testId}/`);
+      console.log("📥 درخواست جزئیات آزمون...");
       
-      // ✅ endpoint مدرس
-      const res = await api.get(`/assessment/teacher/tests/${testId}/`);
+      // 🔧 تست چند endpoint مختلف
+      let res;
+      try {
+        // اول endpoint مدرس را امتحان کن
+        res = await api.get(`/assessment/teacher/tests/${testId}/`);
+      } catch (err1: any) {
+        console.log("⚠️ endpoint مدرس کار نکرد، در حال امتحان endpoint عمومی...");
+        res = await api.get(`/assessment/tests/${testId}/`);
+      }
       
-      console.log("✅ جزئیات آزمون دریافت شد:", res.data);
+      console.log("✅ جزئیات آزمون:", res.data);
       setTestTitle(res.data.title);
       
     } catch (err: any) {
       console.error("❌ خطا در بارگذاری جزئیات آزمون:", err);
-      console.error("Status:", err.response?.status);
-      console.error("Data:", err.response?.data);
-      
-      // ❌ اگر endpoint مدرس کار نکرد، endpoint عمومی را امتحان کن
-      try {
-        console.log("⚠️ در حال امتحان endpoint عمومی...");
-        const res = await api.get(`/assessment/tests/${testId}/`);
-        setTestTitle(res.data.title);
-      } catch (err2: any) {
-        console.error("❌ endpoint عمومی هم کار نکرد");
-        setError("آزمون یافت نشد");
-      }
+      setError("آزمون یافت نشد");
     }
   };
 
   const loadQuestions = async () => {
     try {
-      console.log(`📥 درخواست سوالات از: /assessment/teacher/tests/${testId}/questions/list/`);
+      console.log("📥 درخواست سوالات...");
       
-      // ✅ endpoint مدرس برای سوالات
-      const res = await api.get(`/assessment/teacher/tests/${testId}/questions/list/`);
+      // 🔧 تست چند endpoint مختلف
+      let res;
+      try {
+        // اول endpoint مدرس را امتحان کن
+        res = await api.get(`/assessment/teacher/tests/${testId}/questions/list/`);
+      } catch (err1: any) {
+        console.log("⚠️ endpoint مدرس کار نکرد، در حال امتحان endpoint عمومی...");
+        res = await api.get(`/assessment/tests/${testId}/questions/`);
+      }
       
       console.log("✅ سوالات دریافت شد:", res.data);
       setQuestions(res.data || []);
       
     } catch (err: any) {
       console.error("❌ خطا در بارگذاری سوالات:", err);
-      console.error("Status:", err.response?.status);
-      
-      // ❌ اگر کار نکرد، endpoint عمومی را امتحان کن
-      try {
-        console.log("⚠️ در حال امتحان endpoint عمومی سوالات...");
-        const res = await api.get(`/assessment/tests/${testId}/questions/`);
-        setQuestions(res.data || []);
-      } catch (err2: any) {
-        console.error("❌ endpoint عمومی سوالات هم کار نکرد");
-        setQuestions([]); // آرایه خالی
-      }
+      setQuestions([]); // آرایه خالی
     }
   };
 
@@ -126,12 +114,11 @@ export default function AddQuestionPage() {
   };
 
   const handleAddChoice = () => {
-    const newOrder = questionForm.choices.length;
     setQuestionForm({
       ...questionForm,
       choices: [
         ...questionForm.choices,
-        { text: "", is_correct: false, order: newOrder },
+        { text: "", is_correct: false },
       ],
     });
   };
@@ -182,7 +169,6 @@ export default function AddQuestionPage() {
         text: questionForm.text,
         question_type: questionForm.question_type,
         order: questionForm.order,
-        points: questionForm.points,
         choices: questionForm.question_type === "mcq" 
           ? questionForm.choices
               .filter(c => c.text.trim() !== "")
@@ -195,10 +181,14 @@ export default function AddQuestionPage() {
       };
 
       console.log("📤 ارسال سوال جدید:", payload);
-      console.log(`📤 به آدرس: /assessment/teacher/tests/${testId}/questions/`);
       
-      // ✅ endpoint مدرس برای افزودن سوال
-      await api.post(`/assessment/teacher/tests/${testId}/questions/`, payload);
+      // 🔧 تست چند endpoint مختلف
+      try {
+        await api.post(`/assessment/teacher/tests/${testId}/questions/`, payload);
+      } catch (err1: any) {
+        console.log("⚠️ endpoint مدرس کار نکرد، در حال امتحان endpoint عمومی...");
+        await api.post(`/assessment/tests/${testId}/questions/`, payload);
+      }
       
       alert("✅ سوال با موفقیت اضافه شد");
       
@@ -207,10 +197,9 @@ export default function AddQuestionPage() {
         text: "",
         question_type: "mcq",
         order: questions.length,
-        points: 10,
         choices: [
-          { text: "", is_correct: false, order: 0 },
-          { text: "", is_correct: false, order: 1 },
+          { text: "", is_correct: false },
+          { text: "", is_correct: false },
         ],
       });
       setShowQuestionForm(false);
@@ -220,9 +209,6 @@ export default function AddQuestionPage() {
       
     } catch (err: any) {
       console.error("Error adding question:", err);
-      console.error("Status:", err.response?.status);
-      console.error("Data:", err.response?.data);
-      
       const errorMsg = err.response?.data?.detail || 
                       err.response?.data?.text?.[0] ||
                       "خطا در افزودن سوال";
@@ -238,20 +224,47 @@ export default function AddQuestionPage() {
     }
     
     try {
-      console.log(`🗑️ در حال حذف سوال ${questionId}`);
+      console.log("🗑️ در حال حذف سوال:", questionId);
       
-      // ✅ endpoint حذف سوال
-      await api.delete(`/assessment/teacher/questions/${questionId}/delete/`);
+      // 🔧 تست چند endpoint مختلف
+      try {
+        await api.delete(`/assessment/teacher/questions/${questionId}/delete/`);
+      } catch (err1: any) {
+        console.log("⚠️ endpoint مدرس کار نکرد، در حال امتحان endpoint عمومی...");
+        await api.delete(`/assessment/questions/${questionId}/`);
+      }
       
       alert("✅ سوال حذف شد");
       await loadQuestions();
-    } catch (err: any) {
+    } catch (err) {
       console.error("خطا در حذف سوال:", err);
       alert("خطا در حذف سوال");
     }
   };
 
-  // ❌ تابع handleDeleteChoice را حذف کن چون endpoint نداریم
+  const handleDeleteChoice = async (choiceId: number) => {
+    if (!confirm("آیا مطمئن هستید که می‌خواهید این گزینه را حذف کنید؟")) {
+      return;
+    }
+    
+    try {
+      console.log("🗑️ در حال حذف گزینه:", choiceId);
+      
+      // 🔧 تست چند endpoint مختلف
+      try {
+        await api.delete(`/assessment/teacher/choices/${choiceId}/delete/`);
+      } catch (err1: any) {
+        console.log("⚠️ endpoint مدرس کار نکرد، در حال امتحان endpoint عمومی...");
+        await api.delete(`/assessment/choices/${choiceId}/`);
+      }
+      
+      alert("✅ گزینه حذف شد");
+      await loadQuestions();
+    } catch (err) {
+      console.error("خطا در حذف گزینه:", err);
+      alert("خطا در حذف گزینه");
+    }
+  };
 
   if (!testId) {
     return (
@@ -276,7 +289,11 @@ export default function AddQuestionPage() {
     );
   }
 
-  // نمایش ساده‌تر برای دیباگ
+  // Helper function
+  const formatOrder = (index: number) => {
+    return index + 1;
+  };
+
   return (
     <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
       <div style={{ marginBottom: "20px" }}>
@@ -296,7 +313,7 @@ export default function AddQuestionPage() {
         </button>
         
         <h2 style={{ color: "#333", marginBottom: "5px" }}>
-          مدیریت سوالات آزمون
+          افزودن سوال به آزمون
         </h2>
         <h3 style={{ color: "#666", marginBottom: "25px" }}>
           {testTitle || `آزمون شماره ${testId}`}
@@ -326,91 +343,432 @@ export default function AddQuestionPage() {
             border: "none",
             borderRadius: "5px",
             cursor: "pointer",
-            fontSize: "16px"
+            fontSize: "16px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px"
           }}
         >
           {showQuestionForm ? "✖ انصراف" : "➕ افزودن سوال جدید"}
         </button>
       </div>
 
-      {/* فرم سوال - نسخه ساده شده */}
+      {/* فرم سوال جدید - کاملاً مشابه نسخه اول */}
       {showQuestionForm && (
         <form onSubmit={handleSubmitQuestion} style={{
           marginBottom: "40px",
           padding: "25px",
           border: "2px solid #0d6efd",
           borderRadius: "8px",
-          backgroundColor: "#fff"
+          backgroundColor: "#fff",
+          boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
         }}>
-          <h3>سوال جدید</h3>
+          <h3 style={{ marginBottom: "20px", color: "#0d6efd", borderBottom: "2px solid #0d6efd", paddingBottom: "10px" }}>
+            سوال جدید
+          </h3>
           
           <div style={{ marginBottom: "20px" }}>
-            <label>
+            <label style={{ display: "block", marginBottom: "10px", fontWeight: "500", fontSize: "16px" }}>
               متن سوال *
               <textarea
                 value={questionForm.text}
                 onChange={(e) => setQuestionForm({ ...questionForm, text: e.target.value })}
                 rows={4}
                 required
-                style={{ width: "100%", padding: "10px", marginTop: "5px" }}
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  marginTop: "5px",
+                  border: "1px solid #ced4da",
+                  borderRadius: "6px",
+                  fontSize: "16px",
+                  resize: "vertical"
+                }}
+                placeholder="متن سوال را وارد کنید..."
               />
             </label>
           </div>
           
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
+            <div>
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "500" }}>
+                نوع سوال
+                <select
+                  value={questionForm.question_type}
+                  onChange={(e) =>
+                    setQuestionForm({
+                      ...questionForm,
+                      question_type: e.target.value as "mcq" | "text",
+                      choices: e.target.value === "text" ? [] : [
+                        { text: "", is_correct: false },
+                        { text: "", is_correct: false },
+                      ]
+                    })
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    marginTop: "5px",
+                    border: "1px solid #ced4da",
+                    borderRadius: "6px",
+                    fontSize: "16px"
+                  }}
+                >
+                  <option value="mcq">چندگزینه‌ای</option>
+                  <option value="text">متنی</option>
+                </select>
+              </label>
+            </div>
+            
+            <div>
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "500" }}>
+                ترتیب
+                <input
+                  type="number"
+                  min="0"
+                  value={questionForm.order}
+                  onChange={(e) =>
+                    setQuestionForm({
+                      ...questionForm,
+                      order: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    marginTop: "5px",
+                    border: "1px solid #ced4da",
+                    borderRadius: "6px",
+                    fontSize: "16px"
+                  }}
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* بخش گزینه‌ها (فقط برای سوالات چندگزینه‌ای) */}
+          {questionForm.question_type === "mcq" && (
+            <div style={{ marginTop: "25px", paddingTop: "20px", borderTop: "2px solid #dee2e6" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <h4 style={{ margin: 0, color: "#495057" }}>
+                  گزینه‌ها ({questionForm.choices.length})
+                  <span style={{ fontSize: "14px", color: "#6c757d", marginLeft: "10px" }}>
+                    (حداقل ۲ گزینه معتبر نیاز است)
+                  </span>
+                </h4>
+                
+                <button
+                  type="button"
+                  onClick={handleAddChoice}
+                  style={{
+                    padding: "10px 15px",
+                    backgroundColor: "#28a745",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px"
+                  }}
+                >
+                  <span>➕</span> افزودن گزینه
+                </button>
+              </div>
+              
+              {questionForm.choices.map((choice, cIndex) => (
+                <div key={cIndex} style={{
+                  marginBottom: "15px",
+                  padding: "20px",
+                  backgroundColor: choice.is_correct ? "#d4edda" : "#f8f9fa",
+                  borderRadius: "8px",
+                  border: choice.is_correct ? "2px solid #28a745" : "1px solid #e9ecef",
+                  position: "relative"
+                }}>
+                  <div style={{
+                    position: "absolute",
+                    top: "-10px",
+                    left: "20px",
+                    backgroundColor: choice.is_correct ? "#28a745" : "#6c757d",
+                    color: "white",
+                    padding: "5px 15px",
+                    borderRadius: "4px",
+                    fontSize: "13px",
+                    fontWeight: "bold"
+                  }}>
+                    گزینه {formatOrder(cIndex)}
+                    {choice.is_correct && " ✓ صحیح"}
+                  </div>
+                  
+                  <div style={{ display: "flex", gap: "15px", alignItems: "start" }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: "block", marginBottom: "10px", fontSize: "15px", fontWeight: "500" }}>
+                        متن گزینه *
+                        <input
+                          value={choice.text}
+                          onChange={(e) => handleChoiceChange(cIndex, "text", e.target.value)}
+                          required
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            marginTop: "5px",
+                            border: "1px solid #ced4da",
+                            borderRadius: "6px",
+                            fontSize: "16px"
+                          }}
+                          placeholder="متن گزینه را وارد کنید..."
+                        />
+                      </label>
+                    </div>
+                    
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", minWidth: "150px" }}>
+                      <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                        <input
+                          type="checkbox"
+                          checked={choice.is_correct}
+                          onChange={(e) => handleChoiceChange(cIndex, "is_correct", e.target.checked)}
+                          style={{ width: "18px", height: "18px" }}
+                        />
+                        <span style={{ 
+                          color: choice.is_correct ? "#28a745" : "#6c757d", 
+                          fontWeight: choice.is_correct ? "bold" : "normal",
+                          fontSize: "15px"
+                        }}>
+                          پاسخ صحیح
+                        </span>
+                      </label>
+                      
+                      {questionForm.choices.length > 2 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveChoice(cIndex)}
+                          style={{
+                            padding: "8px 12px",
+                            backgroundColor: "#dc3545",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontSize: "14px"
+                          }}
+                        >
+                          حذف این گزینه
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              <div style={{
+                backgroundColor: "#e7f3ff",
+                border: "1px solid #b6d4fe",
+                borderRadius: "6px",
+                padding: "15px",
+                marginTop: "20px",
+                fontSize: "14px",
+                color: "#084298"
+              }}>
+                📝 <strong>نکته:</strong> هر سوال ۱۰ نمره دارد. برای سوالات چندگزینه‌ای، دانش‌آموز باید گزینه صحیح را انتخاب کند.
+              </div>
+            </div>
+          )}
+          
+          {/* برای سوالات متنی */}
+          {questionForm.question_type === "text" && (
+            <div style={{
+              backgroundColor: "#fff3cd",
+              border: "1px solid #ffeaa7",
+              borderRadius: "6px",
+              padding: "15px",
+              marginTop: "20px",
+              fontSize: "14px",
+              color: "#856404"
+            }}>
+              ⚠️ <strong>توجه:</strong> سوالات متنی نیاز به تصحیح دستی توسط استاد دارند.
+              <div style={{ marginTop: "5px" }}>
+                • نمره این سوالات به صورت دستی تعیین می‌شود.
+                <br/>
+                • حداکثر نمره برای هر سوال متنی ۱۰ است.
+              </div>
+            </div>
+          )}
+
           <button 
             type="submit" 
             disabled={loading}
             style={{
+              marginTop: "25px",
               padding: "12px 25px",
               backgroundColor: loading ? "#6c757d" : "#0d6efd",
               color: "white",
               border: "none",
-              borderRadius: "5px",
+              borderRadius: "6px",
               cursor: loading ? "not-allowed" : "pointer",
+              fontSize: "17px",
+              fontWeight: "bold",
               width: "100%"
             }}
           >
-            {loading ? "در حال ذخیره..." : "ذخیره سوال"}
+            {loading ? "⏳ در حال ذخیره..." : "💾 ذخیره سوال"}
           </button>
         </form>
       )}
 
-      {/* لیست سوالات */}
+      {/* لیست سوالات موجود - کاملاً مشابه نسخه اول */}
       <div>
-        <h3>سوالات موجود ({questions.length})</h3>
+        <h3 style={{ marginBottom: "20px", color: "#333", borderBottom: "2px solid #dee2e6", paddingBottom: "10px" }}>
+          سوالات موجود ({questions.length})
+        </h3>
         
         {questions.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px", color: "#666" }}>
-            📝 هنوز سوالی اضافه نکرده‌اید
+          <div style={{
+            textAlign: "center",
+            padding: "40px",
+            backgroundColor: "#f8f9fa",
+            borderRadius: "8px",
+            border: "2px dashed #dee2e6"
+          }}>
+            <div style={{ fontSize: "48px", marginBottom: "20px", color: "#6c757d" }}>📝</div>
+            <h4 style={{ color: "#6c757d", marginBottom: "10px" }}>هنوز سوالی اضافه نکرده‌اید</h4>
+            <p style={{ color: "#6c757d" }}>برای شروع، روی دکمه "افزودن سوال جدید" کلیک کنید</p>
           </div>
         ) : (
-          <div>
-            {questions.map((question, index) => (
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            {questions.map((question, qIndex) => (
               <div key={question.id} style={{
                 backgroundColor: "#fff",
-                border: "1px solid #ddd",
+                border: "1px solid #dee2e6",
                 borderRadius: "8px",
-                padding: "20px",
-                marginBottom: "15px"
+                padding: "25px",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
               }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <div>
-                    <strong>سوال {index + 1}:</strong> {question.text}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "15px" }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
+                      <div style={{
+                        backgroundColor: "#0d6efd",
+                        color: "white",
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "16px",
+                        fontWeight: "bold"
+                      }}>
+                        {formatOrder(qIndex)}
+                      </div>
+                      <h4 style={{ margin: 0, color: "#333", fontSize: "18px" }}>
+                        {question.text}
+                      </h4>
+                    </div>
+                    
+                    <div style={{ marginLeft: "44px", fontSize: "14px", color: "#6c757d" }}>
+                      <span style={{ 
+                        backgroundColor: question.question_type === "mcq" ? "#d4edda" : "#fff3cd",
+                        color: question.question_type === "mcq" ? "#155724" : "#856404",
+                        padding: "4px 12px",
+                        borderRadius: "4px",
+                        marginRight: "10px"
+                      }}>
+                        {question.question_type === "mcq" ? "چندگزینه‌ای" : "متنی"}
+                      </span>
+                      <span>ترتیب: {question.order}</span>
+                      {question.question_type === "mcq" && (
+                        <span style={{ marginLeft: "15px" }}>
+                          گزینه‌ها: {question.choices.length}
+                        </span>
+                      )}
+                    </div>
                   </div>
+                  
                   <button
                     onClick={() => handleDeleteQuestion(question.id)}
                     style={{
-                      padding: "5px 10px",
+                      padding: "8px 15px",
                       backgroundColor: "#dc3545",
                       color: "white",
                       border: "none",
                       borderRadius: "4px",
-                      cursor: "pointer"
+                      cursor: "pointer",
+                      fontSize: "14px",
+                      marginLeft: "10px"
                     }}
                   >
-                    حذف
+                    حذف سوال
                   </button>
                 </div>
+                
+                {/* نمایش گزینه‌ها برای سوالات چندگزینه‌ای */}
+                {question.question_type === "mcq" && question.choices.length > 0 && (
+                  <div style={{ marginTop: "20px", paddingTop: "20px", borderTop: "1px solid #e9ecef" }}>
+                    <h5 style={{ marginBottom: "15px", color: "#495057", fontSize: "16px" }}>گزینه‌ها:</h5>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                      {question.choices.map((choice, cIndex) => (
+                        <div key={choice.id} style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "15px",
+                          backgroundColor: choice.is_correct ? "#d4edda" : "#f8f9fa",
+                          borderRadius: "6px",
+                          border: choice.is_correct ? "2px solid #28a745" : "1px solid #e9ecef"
+                        }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <span style={{
+                              backgroundColor: choice.is_correct ? "#28a745" : "#6c757d",
+                              color: "white",
+                              width: "24px",
+                              height: "24px",
+                              borderRadius: "4px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "14px",
+                              fontWeight: "bold"
+                            }}>
+                              {formatOrder(cIndex)}
+                            </span>
+                            <span style={{ 
+                              fontSize: "16px",
+                              fontWeight: choice.is_correct ? "bold" : "normal",
+                              color: choice.is_correct ? "#155724" : "#212529"
+                            }}>
+                              {choice.text}
+                              {choice.is_correct && (
+                                <span style={{ 
+                                  marginLeft: "8px",
+                                  color: "#28a745",
+                                  fontSize: "14px"
+                                }}>
+                                  ✓ پاسخ صحیح
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                          
+                          <button
+                            onClick={() => handleDeleteChoice(choice.id)}
+                            style={{
+                              padding: "6px 12px",
+                              backgroundColor: "#dc3545",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                              fontSize: "13px"
+                            }}
+                          >
+                            حذف
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
