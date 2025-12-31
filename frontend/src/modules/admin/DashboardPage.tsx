@@ -1,6 +1,8 @@
 import { useEffect, useState, FormEvent } from "react";
 import { api } from "../../utils/api";
 
+/* ===================== TYPES ===================== */
+
 interface Overview {
   total_users: number;
   levels_distribution: Record<string, number>;
@@ -19,12 +21,14 @@ interface User {
 interface Alert {
   id: number;
   user_id: number;
-  user_username: string;
+  user_label: string; // ✅ FIXED
   message: string;
   severity: "info" | "warning" | "critical";
   created_at: string;
   is_read: boolean;
 }
+
+/* ===================== COMPONENT ===================== */
 
 export default function DashboardPage() {
   const [data, setData] = useState<Overview | null>(null);
@@ -40,47 +44,40 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadData();
+    loadOverview();
     loadAlerts();
     loadUsers();
   }, []);
 
-  const loadData = async () => {
-    try {
-      const res = await api.get("/api/analytics/overview/");
-      setData(res.data);
-    } catch (err) {
-      console.error("خطا در بارگذاری آمار:", err);
-    }
+  /* ===================== LOADERS ===================== */
+
+  const loadOverview = async () => {
+    const res = await api.get("/api/analytics/overview/");
+    setData(res.data);
   };
 
   const loadAlerts = async () => {
-    try {
-      const res = await api.get("/api/analytics/alerts/");
-      setAlerts(res.data);
-    } catch (err) {
-      console.error("خطا در بارگذاری هشدارها:", err);
-    }
+    const res = await api.get("/api/analytics/alerts/");
+    setAlerts(res.data);
   };
 
   const loadUsers = async () => {
-    try {
-      const res = await api.get("/api/accounts/users/");
-      setUsers(res.data);
-    } catch (err) {
-      console.error("خطا در بارگذاری کاربران:", err);
-    }
+    const res = await api.get("/api/accounts/users/");
+    setUsers(res.data);
   };
+
+  /* ===================== ALERT ===================== */
 
   const handleSendAlert = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
     try {
       await api.post("/api/analytics/alerts/", alertForm);
-      setShowAlertForm(false);
       setAlertForm({ user: "", message: "", severity: "info" });
-      await loadAlerts();
+      setShowAlertForm(false);
+      loadAlerts();
     } catch (err: any) {
       setError(err.response?.data?.detail || "خطا در ارسال هشدار");
     } finally {
@@ -88,11 +85,15 @@ export default function DashboardPage() {
     }
   };
 
+  /* ===================== RENDER ===================== */
+
   if (!data) return <div>در حال بارگذاری داشبورد...</div>;
 
   return (
     <div>
       <h2>داشبورد مدیریتی</h2>
+
+      {/* Overview */}
       <div className="grid">
         <div className="card">
           <h3>تعداد کل کاربران</h3>
@@ -111,6 +112,8 @@ export default function DashboardPage() {
           <p>{data.completed_contents}</p>
         </div>
       </div>
+
+      {/* Levels */}
       <div className="card">
         <h3>توزیع سطح شناختی کاربران</h3>
         <ul>
@@ -122,21 +125,19 @@ export default function DashboardPage() {
         </ul>
       </div>
 
-      <div className="card" style={{ marginTop: "30px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+      {/* Alerts */}
+      <div className="card" style={{ marginTop: 30 }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <h3>مدیریت هشدارها</h3>
-          <button
-            className="btn-primary"
-            onClick={() => setShowAlertForm(!showAlertForm)}
-          >
-            {showAlertForm ? "انصراف" : "ارسال هشدار جدید"}
+          <button className="btn-primary" onClick={() => setShowAlertForm(!showAlertForm)}>
+            {showAlertForm ? "انصراف" : "ارسال هشدار"}
           </button>
         </div>
 
         {showAlertForm && (
-          <form onSubmit={handleSendAlert} className="card" style={{ marginBottom: "20px" }}>
-            <h4>ارسال هشدار به کاربر</h4>
+          <form onSubmit={handleSendAlert} className="card">
             {error && <div className="error">{error}</div>}
+
             <label>
               کاربر
               <select
@@ -152,6 +153,7 @@ export default function DashboardPage() {
                 ))}
               </select>
             </label>
+
             <label>
               سطح اهمیت
               <select
@@ -159,7 +161,7 @@ export default function DashboardPage() {
                 onChange={(e) =>
                   setAlertForm({
                     ...alertForm,
-                    severity: e.target.value as "info" | "warning" | "critical",
+                    severity: e.target.value as Alert["severity"],
                   })
                 }
               >
@@ -168,6 +170,7 @@ export default function DashboardPage() {
                 <option value="critical">مهم</option>
               </select>
             </label>
+
             <label>
               پیام
               <textarea
@@ -175,79 +178,24 @@ export default function DashboardPage() {
                 onChange={(e) => setAlertForm({ ...alertForm, message: e.target.value })}
                 rows={4}
                 required
-                placeholder="متن هشدار را وارد کنید..."
               />
             </label>
+
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? "در حال ارسال..." : "ارسال هشدار"}
+              {loading ? "در حال ارسال..." : "ارسال"}
             </button>
           </form>
         )}
 
-        <div>
-          <h4>هشدارهای ارسال شده ({alerts.length})</h4>
-          {alerts.length === 0 ? (
-            <p>هیچ هشداری ارسال نشده است.</p>
-          ) : (
-            <div style={{ maxHeight: "400px", overflowY: "auto" }}>
-              {alerts.map((alert) => (
-                <div
-                  key={alert.id}
-                  className="card"
-                  style={{
-                    marginBottom: "10px",
-                    borderLeft: `4px solid ${
-                      alert.severity === "critical"
-                        ? "#dc3545"
-                        : alert.severity === "warning"
-                        ? "#ffc107"
-                        : "#17a2b8"
-                    }`,
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <div>
-                      <strong>{alert.user_username}</strong>
-                      <span
-                        style={{
-                          marginLeft: "10px",
-                          padding: "2px 6px",
-                          borderRadius: "4px",
-                          fontSize: "12px",
-                          backgroundColor:
-                            alert.severity === "critical"
-                              ? "#dc3545"
-                              : alert.severity === "warning"
-                              ? "#ffc107"
-                              : "#17a2b8",
-                          color: "white",
-                        }}
-                      >
-                        {alert.severity === "critical"
-                          ? "مهم"
-                          : alert.severity === "warning"
-                          ? "هشدار"
-                          : "اطلاعیه"}
-                      </span>
-                      {!alert.is_read && (
-                        <span style={{ color: "#007bff", fontSize: "12px", marginLeft: "10px" }}>
-                          خوانده نشده
-                        </span>
-                      )}
-                    </div>
-                    <small style={{ color: "#666" }}>
-                      {new Date(alert.created_at).toLocaleString("fa-IR")}
-                    </small>
-                  </div>
-                  <p style={{ marginTop: "10px" }}>{alert.message}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <h4>هشدارها ({alerts.length})</h4>
+        {alerts.map((alert) => (
+          <div key={alert.id} className="card">
+            <strong>{alert.user_label}</strong>
+            <p>{alert.message}</p>
+            <small>{new Date(alert.created_at).toLocaleString("fa-IR")}</small>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
-
-

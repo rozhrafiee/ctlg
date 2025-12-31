@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { api } from "../../utils/api";
 
 export default function SignupPage() {
   const [username, setUsername] = useState("");
@@ -9,6 +10,8 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<"student" | "teacher">("student");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const register = useAuthStore((s) => s.register);
 
@@ -22,21 +25,37 @@ export default function SignupPage() {
     }
 
     try {
+      setLoading(true);
+
+      // register (and login)
       await register(username, email, password, role);
-      // اگر student است، به آزمون تعیین سطح هدایت می‌شود
+
+      // 🔑 check placement test (only for students)
       if (role === "student") {
-        navigate("/placement-test");
-      } else {
-        navigate("/");
+        const res = await api.get("/api/accounts/needs-placement-test/");
+        if (res.data.needs_placement_test) {
+          navigate("/placement-test");
+          return;
+        }
       }
-    } catch (err) {
-      setError("ثبت‌نام ناموفق بود. لطفاً اطلاعات را بررسی کنید.");
+
+      navigate("/");
+    } catch (err: any) {
+      setError(
+        err.response?.data?.detail ||
+        err.response?.data?.username?.[0] ||
+        err.response?.data?.password?.[0] ||
+        "ثبت‌نام ناموفق بود. لطفاً اطلاعات را بررسی کنید."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="auth-container">
       <h2>ساخت حساب کاربری</h2>
+
       <form onSubmit={handleSubmit} className="card">
         <label>
           نام کاربری
@@ -46,6 +65,7 @@ export default function SignupPage() {
             required
           />
         </label>
+
         <label>
           ایمیل (اختیاری)
           <input
@@ -54,17 +74,18 @@ export default function SignupPage() {
             onChange={(e) => setEmail(e.target.value)}
           />
         </label>
+
         <label>
           نوع حساب کاربری
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as "student" | "teacher")}
-            required
           >
             <option value="student">دانش‌آموز</option>
             <option value="teacher">استاد</option>
           </select>
         </label>
+
         <label>
           رمز عبور
           <input
@@ -74,6 +95,7 @@ export default function SignupPage() {
             required
           />
         </label>
+
         <label>
           تکرار رمز عبور
           <input
@@ -83,10 +105,17 @@ export default function SignupPage() {
             required
           />
         </label>
+
         {error && <div className="error">{error}</div>}
-        <button type="submit" className="btn-primary">
-          ثبت‌نام
+
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={loading}
+        >
+          {loading ? "در حال ثبت‌نام..." : "ثبت‌نام"}
         </button>
+
         <div className="auth-footer">
           قبلاً ثبت‌نام کرده‌اید؟ <Link to="/login">ورود</Link>
         </div>
@@ -94,6 +123,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
-
-

@@ -7,9 +7,15 @@ from analytics.views import IsAdminRole
 from .serializers import RegisterSerializer, UserSerializer
 
 
+from rest_framework import generics, permissions
+from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from .serializers import RegisterSerializer
+
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []  # 🔥 THIS LINE FIXES IT
 
 
 class MeView(generics.RetrieveAPIView):

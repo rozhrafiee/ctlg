@@ -1,151 +1,180 @@
 import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "./store/authStore";
+import { api } from "./utils/api";
+
+// auth
 import LoginPage from "./modules/auth/LoginPage";
 import SignupPage from "./modules/auth/SignupPage";
+
+// student
+import RecommendedContentPage from "./modules/learning/RecommendedContentPage";
 import TestsListPage from "./modules/assessment/TestsListPage";
 import TestSessionPage from "./modules/assessment/TestSessionPage";
-import RecommendedContentPage from "./modules/learning/RecommendedContentPage";
-import DashboardPage from "./modules/admin/DashboardPage";
-import TeacherDashboardPage from "./modules/teacher/TeacherDashboardPage";
-import AddQuestionPage from "./modules/teacher/AddQuestionPage";
-import AlertsPage from "./modules/user/AlertsPage";
 import TestResultPage from "./modules/assessment/TestResultPage";
 import PlacementTestPage from "./modules/assessment/PlacementTestPage";
-import { api } from "./utils/api"; // ✅ import مستقیم api
+import AlertsPage from "./modules/user/AlertsPage";
+
+// teacher
+import TeacherDashboardPage from "./modules/teacher/TeacherDashboardPage";
+import AddQuestionPage from "./modules/teacher/AddQuestionPage";
+import ContentManagementPage from "./modules/teacher/ContentManagementPage";
+
+// admin
+import DashboardPage from "./modules/admin/DashboardPage";
+
+/* =========================
+   ROUTE GUARDS
+========================= */
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const token = useAuthStore((s) => s.accessToken);
-  if (!token) return <Navigate to="/login" replace />;
-  return children;
-}
+  const loading = useAuthStore((s) => s.loading);
 
-function AdminRoute({ children }: { children: JSX.Element }) {
-  const { user } = useAuthStore();
-  if (!user || user.role !== "admin") return <Navigate to="/" replace />;
+  if (loading) {
+    return <div style={{ padding: 40 }}>در حال بارگذاری...</div>;
+  }
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
   return children;
 }
 
 function TeacherRoute({ children }: { children: JSX.Element }) {
-  const { user } = useAuthStore();
-  if (!user || (user.role !== "teacher" && user.role !== "admin"))
+  const user = useAuthStore((s) => s.user);
+  const loading = useAuthStore((s) => s.loading);
+
+  if (loading) {
+    return <div style={{ padding: 40 }}>در حال بارگذاری...</div>;
+  }
+
+  if (!user || (user.role !== "teacher" && user.role !== "admin")) {
     return <Navigate to="/" replace />;
+  }
+
   return children;
 }
 
+function AdminRoute({ children }: { children: JSX.Element }) {
+  const user = useAuthStore((s) => s.user);
+  const loading = useAuthStore((s) => s.loading);
+
+  if (loading) {
+    return <div style={{ padding: 40 }}>در حال بارگذاری...</div>;
+  }
+
+  if (!user || user.role !== "admin") {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
+/* =========================
+   PLACEMENT TEST GUARD
+========================= */
+
 function PlacementTestGuard({ children }: { children: JSX.Element }) {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const checkPlacementTest = async () => {
+    const check = async () => {
       if (user && user.role === "student") {
         try {
-          console.log("🔍 بررسی نیاز به آزمون تعیین سطح...");
-          
-          // ✅ اصلاح شده - بدون /api/ اضافی
-          const res = await api.get("/accounts/needs-placement-test/");
-          
-          console.log("✅ پاسخ بررسی:", res.data);
-          
+          const res = await api.get("/api/accounts/needs-placement-test/");
           if (res.data.needs_placement_test) {
             window.location.href = "/placement-test";
             return;
           }
-        } catch (err: any) {
-          console.error("خطا در بررسی آزمون تعیین سطح:", err);
-          // اگر endpoint وجود ندارد، ادامه بده
-          if (err.response?.status === 404) {
-            console.log("⚠️ endpoint آزمون تعیین سطح وجود ندارد، ادامه...");
-          }
+        } catch {
+          // اگر endpoint خطا داشت، ادامه بده
         }
       }
       setChecking(false);
     };
 
-    checkPlacementTest();
+    check();
   }, [user]);
 
-  if (checking) return <div style={{ padding: "40px", textAlign: "center" }}>در حال بررسی...</div>;
+  if (checking) {
+    return <div style={{ padding: 40 }}>در حال بررسی...</div>;
+  }
+
   return children;
 }
 
+/* =========================
+   APP
+========================= */
+
 export default function App() {
   const { user, logout } = useAuthStore();
-  const [unreadAlertsCount, setUnreadAlertsCount] = useState(0);
+  const [unreadAlerts, setUnreadAlerts] = useState(0);
 
   useEffect(() => {
     if (user) {
-      loadUnreadAlertsCount();
-      const interval = setInterval(loadUnreadAlertsCount, 30000);
+      loadUnreadAlerts();
+      const interval = setInterval(loadUnreadAlerts, 30000);
       return () => clearInterval(interval);
     }
   }, [user]);
 
-  const loadUnreadAlertsCount = async () => {
+  const loadUnreadAlerts = async () => {
     try {
-      console.log("🔔 درخواست alertها...");
-      
-      // ✅ اصلاح شده - بدون /api/ اضافی
-      const res = await api.get("/analytics/my-alerts/");
-      
-      const unread = res.data.filter((a: any) => !a.is_read).length;
-      setUnreadAlertsCount(unread);
-      
-      console.log(`🔔 ${unread} alert خوانده نشده`);
-      
-    } catch (err: any) {
-      console.error("خطا در دریافت alertها:", err);
-      if (err.response?.status === 404) {
-        console.log("⚠️ endpoint analytics وجود ندارد");
-      }
+      const res = await api.get("/api/analytics/my-alerts/");
+      const count = res.data.filter((a: any) => !a.is_read).length;
+      setUnreadAlerts(count);
+    } catch {
+      // ignore
     }
   };
 
   return (
     <div className="app">
+      {/* =========================
+         NAVBAR
+      ========================= */}
       <header className="navbar">
         <div className="navbar-left">
           <Link to="/" className="logo">
             سامانه یادگیری شناختی
           </Link>
         </div>
+
         <nav className="navbar-right">
-          {user && (
+          {user ? (
             <>
-              <span className="nav-user">
+              <span>
                 {user.username}
-                {user.role === "student" && ` (سطح: ${user.cognitive_level})`}
+                {user.role === "student" && ` (سطح ${user.cognitive_level})`}
               </span>
+
               {user.role === "student" && <Link to="/tests">آزمون‌ها</Link>}
               <Link to="/learning">آموزش‌ها</Link>
+
               <Link to="/alerts">
                 هشدارها
-                {unreadAlertsCount > 0 && (
-                  <span
-                    style={{
-                      marginLeft: "5px",
-                      backgroundColor: "#dc3545",
-                      color: "white",
-                      borderRadius: "50%",
-                      padding: "2px 6px",
-                      fontSize: "12px",
-                    }}
-                  >
-                    {unreadAlertsCount}
-                  </span>
+                {unreadAlerts > 0 && (
+                  <span className="badge">{unreadAlerts}</span>
                 )}
               </Link>
+
               {(user.role === "teacher" || user.role === "admin") && (
                 <Link to="/teacher">پنل استاد</Link>
               )}
-              {user.role === "admin" && <Link to="/admin">داشبورد</Link>}
+
+              {user.role === "admin" && (
+                <Link to="/admin">داشبورد مدیر</Link>
+              )}
+
               <button onClick={logout} className="btn-secondary">
                 خروج
               </button>
             </>
-          )}
-          {!user && (
+          ) : (
             <>
               <Link to="/login">ورود</Link>
               <Link to="/signup">ثبت‌نام</Link>
@@ -154,8 +183,12 @@ export default function App() {
         </nav>
       </header>
 
+      {/* =========================
+         ROUTES
+      ========================= */}
       <main className="main">
         <Routes>
+          {/* Home */}
           <Route
             path="/"
             element={
@@ -166,8 +199,12 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          {/* Auth */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+
+          {/* Student */}
           <Route
             path="/placement-test"
             element={
@@ -176,6 +213,7 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/tests"
             element={
@@ -184,6 +222,7 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/tests/:id"
             element={
@@ -192,6 +231,7 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/tests/result/:sessionId"
             element={
@@ -200,6 +240,7 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/learning"
             element={
@@ -208,6 +249,7 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/alerts"
             element={
@@ -216,6 +258,8 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          {/* Teacher */}
           <Route
             path="/teacher"
             element={
@@ -226,8 +270,9 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
           <Route
-            path="/teacher/tests/:testId" // ✅ testId به جای id برای شفافیت
+            path="/teacher/tests/:testId"
             element={
               <PrivateRoute>
                 <TeacherRoute>
@@ -236,6 +281,19 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          <Route
+            path="/teacher/content"
+            element={
+              <PrivateRoute>
+                <TeacherRoute>
+                  <ContentManagementPage />
+                </TeacherRoute>
+              </PrivateRoute>
+            }
+          />
+
+          {/* Admin */}
           <Route
             path="/admin"
             element={
@@ -246,6 +304,9 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>

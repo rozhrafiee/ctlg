@@ -1,28 +1,44 @@
 import { FormEvent, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { api } from "../../utils/api";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+
     try {
+      setLoading(true);
+
       await login(username, password);
-      navigate("/");
+
+      // 🔑 check placement test (backend is source of truth)
+      const res = await api.get("/api/accounts/needs-placement-test/");
+      if (res.data.needs_placement_test) {
+        navigate("/placement-test");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError("ورود ناموفق بود. نام کاربری یا رمز عبور را بررسی کنید.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="auth-container">
       <h2>ورود به سامانه</h2>
+
       <form onSubmit={handleSubmit} className="card">
         <label>
           نام کاربری
@@ -32,6 +48,7 @@ export default function LoginPage() {
             required
           />
         </label>
+
         <label>
           رمز عبور
           <input
@@ -41,10 +58,17 @@ export default function LoginPage() {
             required
           />
         </label>
+
         {error && <div className="error">{error}</div>}
-        <button type="submit" className="btn-primary">
-          ورود
+
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={loading}
+        >
+          {loading ? "در حال ورود..." : "ورود"}
         </button>
+
         <div className="auth-footer">
           حساب کاربری ندارید؟ <Link to="/signup">ثبت‌نام کنید</Link>
         </div>
@@ -52,5 +76,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-
