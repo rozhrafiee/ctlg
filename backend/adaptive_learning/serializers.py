@@ -1,44 +1,17 @@
 from rest_framework import serializers
-from django.utils import timezone
-
 from .models import (
     LearningContent,
     LearningPath,
     LearningPathItem,
     UserContentProgress,
     ContentRecommendation,
-    LearningAnalytics,
 )
-
-# =====================================================
-# LEARNING CONTENT
-# =====================================================
 
 
 class LearningContentSerializer(serializers.ModelSerializer):
-    """
-    Serializer for learning content (student-facing)
-    """
     class Meta:
         model = LearningContent
-        fields = [
-            "id",
-            "title",
-            "description",
-            "content_type",
-            "body",
-            "min_level",
-            "max_level",
-            "difficulty",
-            "is_active",
-            "created_at",
-        ]
-        read_only_fields = ["id", "created_at"]
-
-
-# =====================================================
-# LEARNING PATH
-# =====================================================
+        fields = "__all__"
 
 
 class LearningPathItemSerializer(serializers.ModelSerializer):
@@ -46,19 +19,12 @@ class LearningPathItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LearningPathItem
-        fields = [
-            "id",
-            "content",
-            "order",
-            "unlocked",
-        ]
+        fields = ["id", "content", "order", "unlocked"]
 
 
 class LearningPathSerializer(serializers.ModelSerializer):
     items = LearningPathItemSerializer(
-        many=True,
-        read_only=True,
-        source="learningpathitem_set"
+        many=True, read_only=True, source="learningpathitem_set"
     )
     progress_percent = serializers.SerializerMethodField()
 
@@ -82,15 +48,10 @@ class LearningPathSerializer(serializers.ModelSerializer):
         completed = UserContentProgress.objects.filter(
             user=obj.user,
             completed_at__isnull=False,
-            content__learningpathitem__learning_path=obj
-        ).count()
+            content__learningpathitem__learning_path=obj,
+        ).distinct().count()
 
         return round((completed / total) * 100, 1)
-
-
-# =====================================================
-# USER PROGRESS
-# =====================================================
 
 
 class UserContentProgressSerializer(serializers.ModelSerializer):
@@ -98,27 +59,12 @@ class UserContentProgressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserContentProgress
-        fields = [
-            "id",
-            "content",
-            "progress_percent",
-            "completed_at",
-            "last_accessed",
-        ]
-        read_only_fields = ["id", "completed_at", "last_accessed"]
+        fields = "__all__"
 
 
 class ProgressUpdateSerializer(serializers.Serializer):
-    """
-    Input serializer for updating content progress
-    """
     progress_percent = serializers.FloatField(min_value=0, max_value=100)
-    completed = serializers.BooleanField(required=False, default=False)
-
-
-# =====================================================
-# RECOMMENDATIONS
-# =====================================================
+    completed = serializers.BooleanField(default=False)
 
 
 class ContentRecommendationSerializer(serializers.ModelSerializer):
@@ -126,28 +72,4 @@ class ContentRecommendationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ContentRecommendation
-        fields = [
-            "id",
-            "content",
-            "reason",
-            "priority",
-            "created_at",
-        ]
-        read_only_fields = ["id", "created_at"]
-
-
-# =====================================================
-# ANALYTICS (OPTIONAL / INTERNAL)
-# =====================================================
-
-
-class LearningAnalyticsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = LearningAnalytics
-        fields = [
-            "id",
-            "event_type",
-            "event_data",
-            "timestamp",
-        ]
-        read_only_fields = ["id", "timestamp"]
+        fields = "__all__"

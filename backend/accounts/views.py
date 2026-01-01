@@ -15,7 +15,7 @@ from .serializers import RegisterSerializer
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
-    authentication_classes = []  # 🔥 THIS LINE FIXES IT
+    authentication_classes = []  
 
 
 class MeView(generics.RetrieveAPIView):

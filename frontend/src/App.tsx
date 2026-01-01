@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "./store/authStore";
 import { api } from "./utils/api";
 
-// auth
+/* ========= Auth ========= */
 import LoginPage from "./modules/auth/LoginPage";
 import SignupPage from "./modules/auth/SignupPage";
 
-// student
+/* ========= Student ========= */
 import RecommendedContentPage from "./modules/learning/RecommendedContentPage";
 import TestsListPage from "./modules/assessment/TestsListPage";
 import TestSessionPage from "./modules/assessment/TestSessionPage";
@@ -15,17 +15,18 @@ import TestResultPage from "./modules/assessment/TestResultPage";
 import PlacementTestPage from "./modules/assessment/PlacementTestPage";
 import AlertsPage from "./modules/user/AlertsPage";
 
-// teacher
+/* ========= Teacher ========= */
 import TeacherDashboardPage from "./modules/teacher/TeacherDashboardPage";
+//import TeacherTestsPage from "./modules/teacher/TeacherTestsPage";
 import AddQuestionPage from "./modules/teacher/AddQuestionPage";
 import ContentManagementPage from "./modules/teacher/ContentManagementPage";
 
-// admin
+/* ========= Admin ========= */
 import DashboardPage from "./modules/admin/DashboardPage";
 
-/* =========================
+/* =====================
    ROUTE GUARDS
-========================= */
+===================== */
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const token = useAuthStore((s) => s.accessToken);
@@ -72,9 +73,9 @@ function AdminRoute({ children }: { children: JSX.Element }) {
   return children;
 }
 
-/* =========================
+/* =====================
    PLACEMENT TEST GUARD
-========================= */
+===================== */
 
 function PlacementTestGuard({ children }: { children: JSX.Element }) {
   const user = useAuthStore((s) => s.user);
@@ -90,7 +91,7 @@ function PlacementTestGuard({ children }: { children: JSX.Element }) {
             return;
           }
         } catch {
-          // اگر endpoint خطا داشت، ادامه بده
+          // ignore
         }
       }
       setChecking(false);
@@ -106,9 +107,9 @@ function PlacementTestGuard({ children }: { children: JSX.Element }) {
   return children;
 }
 
-/* =========================
+/* =====================
    APP
-========================= */
+===================== */
 
 export default function App() {
   const { user, logout } = useAuthStore();
@@ -134,9 +135,7 @@ export default function App() {
 
   return (
     <div className="app">
-      {/* =========================
-         NAVBAR
-      ========================= */}
+      {/* ========= NAVBAR ========= */}
       <header className="navbar">
         <div className="navbar-left">
           <Link to="/" className="logo">
@@ -183,9 +182,7 @@ export default function App() {
         </nav>
       </header>
 
-      {/* =========================
-         ROUTES
-      ========================= */}
+      {/* ========= ROUTES ========= */}
       <main className="main">
         <Routes>
           {/* Home */}
@@ -259,29 +256,55 @@ export default function App() {
             }
           />
 
-          {/* Teacher */}
-          <Route
-            path="/teacher"
-            element={
-              <PrivateRoute>
-                <TeacherRoute>
-                  <TeacherDashboardPage />
-                </TeacherRoute>
-              </PrivateRoute>
-            }
-          />
+          {/* Teacher */}  
+<Route
+  path="/teacher"
+  element={
+    <PrivateRoute>
+      <TeacherRoute>
+        <TeacherDashboardPage />
+      </TeacherRoute>
+    </PrivateRoute>
+  }
+/>
 
-          <Route
-            path="/teacher/tests/:testId"
-            element={
-              <PrivateRoute>
-                <TeacherRoute>
-                  <AddQuestionPage />
-                </TeacherRoute>
-              </PrivateRoute>
-            }
-          />
+<Route
+  path="/teacher/tests"
+  element={
+    <PrivateRoute>
+      <TeacherRoute>
+        <TeacherDashboardPage />
+      </TeacherRoute>
+    </PrivateRoute>
+  }
+/>
 
+<Route
+  path="/teacher/tests/:testId"
+  element={
+    <PrivateRoute>
+      <TeacherRoute>
+        <AddQuestionPage />
+      </TeacherRoute>
+    </PrivateRoute>
+  }
+/>
+
+<Route
+  path="/teacher/content"
+  element={
+    <PrivateRoute>
+      <TeacherRoute>
+        <ContentManagementPage />
+      </TeacherRoute>
+    </PrivateRoute>
+  }
+/>
+
+
+              
+          
+          {/* 🔥 مدیریت محتوا */}
           <Route
             path="/teacher/content"
             element={
