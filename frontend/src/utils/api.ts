@@ -9,52 +9,25 @@ export const api = axios.create({
   },
 });
 
-// ❗ این interceptor را اضافه کن (اگر توکن استفاده می‌کنی):
+// ❗ اصلاح درخواست‌ها برای توکن JWT
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("accessToken"); // یا localStorage.getItem("token")
   if (token) {
-    config.headers.Authorization = `Token ${token}`;
+    config.headers.Authorization = `Bearer ${token}`; // تغییر به Bearer
   }
-  return config;
-});
 
-// ❗ برای دیباگ، این را اضافه کن:
-api.interceptors.response.use(
-  (response) => {
-    // console.log("✅ Response:", response.config.url, response.status);
-    return response;
-  },
-  (error) => {
-    console.error("❌ API Error:", {
-      url: error.config?.url,
-      method: error.config?.method,
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message
-    });
-    return Promise.reject(error);
-  }
-);
-// api.ts - در انتهای فایل
-// 🔧 حل‌کننده خودکار URLهای اشتباه
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  
-  // 🔥 این بخش جدید: اصلاح خودکار URLهای اشتباه
+  // 🔥 اصلاح خودکار URLهای اشتباه
   if (config.url && config.url.startsWith('/api/')) {
-    // حذف /api/ اضافی
     const correctedUrl = config.url.substring(4); // حذف 4 کاراکتر اول (/api/)
     console.warn(`⚠️ اصلاح خودکار URL: ${config.url} → ${correctedUrl}`);
     config.url = correctedUrl;
   }
-  
+
   console.log(`📤 ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
   return config;
 });
 
+// ❗ لاگ کردن پاسخ‌ها و خطاها
 api.interceptors.response.use(
   (response) => {
     console.log(`✅ ${response.status} ${response.config.url}`);

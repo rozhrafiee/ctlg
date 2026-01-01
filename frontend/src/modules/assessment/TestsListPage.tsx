@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../utils/api";
@@ -29,7 +30,7 @@ export default function TestsListPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'placement' | 'content'>('all');
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
     loadTests();
@@ -41,7 +42,7 @@ export default function TestsListPage() {
       const endpoint = "/api/assessment/tests/";
       const res = await api.get(endpoint);
       
-      // فیلتر کردن بر اساس تب فعال
+      // filter based on active tab
       let filteredTests = res.data;
       
       if (activeTab === 'placement') {
@@ -100,7 +101,19 @@ export default function TestsListPage() {
 
   return (
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
-      <h2 style={{ marginBottom: "20px", color: "#333" }}>آزمون‌های در دسترس</h2>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "18px" }}>
+        <h2 style={{ margin: 0, color: "#333" }}>آزمون‌های در دسترس</h2>
+        {/* If teacher/admin, show Create Test button (you may implement create page later) */}
+        {(user?.role === "teacher" || user?.role === "admin") && (
+          <button
+            onClick={() => navigate("/teacher/tests/create")}
+            className="btn-primary"
+            style={{ marginLeft: "auto", padding: "8px 14px" }}
+          >
+            ➕ ساخت آزمون جدید
+          </button>
+        )}
+      </div>
       
       {error && (
         <div style={{
@@ -115,7 +128,7 @@ export default function TestsListPage() {
         </div>
       )}
 
-      {/* تب‌های فیلتر */}
+      {/* tabs */}
       <div style={{ marginBottom: "30px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
         <button
           onClick={() => setActiveTab('all')}
@@ -175,7 +188,7 @@ export default function TestsListPage() {
         </Link>
       </div>
 
-      {/* پیام اگر آزمون تعیین سطح نداده‌اید */}
+      {/* placement hint */}
       {!user?.has_taken_placement_test && activeTab === 'all' && (
         <div style={{
           backgroundColor: "#fff3cd",
@@ -213,7 +226,7 @@ export default function TestsListPage() {
         </div>
       )}
 
-      {/* لیست آزمون‌ها */}
+      {/* list */}
       {tests.length === 0 ? (
         <div style={{
           textAlign: "center",
@@ -273,7 +286,7 @@ export default function TestsListPage() {
                     {test.description}
                   </p>
                   
-                  {/* اطلاعات محتوای مرتبط */}
+                  {/* related content */}
                   {test.related_content_info && (
                     <div style={{
                       backgroundColor: "#e7f3ff",
@@ -378,6 +391,7 @@ export default function TestsListPage() {
                     {test.is_placement_test ? "🎯 آزمون تعیین سطح" : "🚀 شروع آزمون"}
                   </button>
                   
+                  {/* Info / manage buttons */}
                   {!test.is_placement_test && (
                     <button
                       onClick={() => navigate(`/test-info/${test.id}`)}
@@ -394,6 +408,24 @@ export default function TestsListPage() {
                       اطلاعات بیشتر
                     </button>
                   )}
+
+                  {/* If teacher/admin, show manage questions button */}
+                  {(user?.role === "teacher" || user?.role === "admin") && (
+                    <button
+                      onClick={() => navigate(`/teacher/tests/${test.id}/questions`)}
+                      style={{
+                        padding: "10px 15px",
+                        backgroundColor: "#20c997",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontSize: "15px"
+                      }}
+                    >
+                      🛠️ مدیریت سوالات
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -401,7 +433,7 @@ export default function TestsListPage() {
         </div>
       )}
 
-      {/* اطلاعات سطح کاربر */}
+      {/* user level info */}
       {user && (
         <div style={{
           marginTop: "40px",

@@ -1,7 +1,8 @@
-// src/modules/teacher/TeacherDashboardPage.tsx
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function TeacherDashboardPage() {
+  const navigate = useNavigate();
+
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: 20 }}>
       <h2 style={{ marginBottom: 10 }}>🎓 پنل استاد</h2>
@@ -18,22 +19,26 @@ export default function TeacherDashboardPage() {
       >
         <div className="card">
           <h3>📝 مدیریت آزمون‌ها</h3>
-          <p>
-            ایجاد آزمون جدید، آزمون تعیین سطح و مدیریت سوالات هر آزمون
-          </p>
-          <Link to="/teacher/tests" className="btn-primary">
+          <p>ایجاد آزمون جدید، آزمون تعیین سطح و مدیریت سوالات هر آزمون</p>
+          <button
+            className="btn-primary"
+            onClick={() => navigate("/teacher/tests")}
+            style={{ cursor: "pointer" }}
+          >
             ورود به بخش آزمون‌ها
-          </Link>
+          </button>
         </div>
 
         <div className="card">
           <h3>📚 مدیریت محتواهای آموزشی</h3>
-          <p>
-            تعریف، ویرایش و حذف محتواهای آموزشی برای مسیر یادگیری تطبیقی
-          </p>
-          <Link to="/teacher/content" className="btn-primary">
+          <p>تعریف، ویرایش و حذف محتواهای آموزشی برای مسیر یادگیری تطبیقی</p>
+          <button
+            className="btn-primary"
+            onClick={() => navigate("/teacher/content")}
+            style={{ cursor: "pointer" }}
+          >
             ورود به بخش محتواها
-          </Link>
+          </button>
         </div>
       </div>
     </div>
