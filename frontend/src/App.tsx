@@ -17,7 +17,7 @@ import AlertsPage from "./modules/user/AlertsPage";
 
 /* ========= Teacher ========= */
 import TeacherDashboardPage from "./modules/teacher/TeacherDashboardPage";
-//import TeacherTestsPage from "./modules/teacher/TeacherTestsPage";
+import TeacherTestsPage from "./modules/teacher/TeacherTestsPage";
 import AddQuestionPage from "./modules/teacher/AddQuestionPage";
 import ContentManagementPage from "./modules/teacher/ContentManagementPage";
 
@@ -256,55 +256,40 @@ export default function App() {
             }
           />
 
-          {/* Teacher */}  
-<Route
-  path="/teacher"
-  element={
-    <PrivateRoute>
-      <TeacherRoute>
-        <TeacherDashboardPage />
-      </TeacherRoute>
-    </PrivateRoute>
-  }
-/>
+          {/* ========= Teacher ========= */}
+          <Route
+            path="/teacher"
+            element={
+              <PrivateRoute>
+                <TeacherRoute>
+                  <TeacherDashboardPage />
+                </TeacherRoute>
+              </PrivateRoute>
+            }
+          />
 
-<Route
-  path="/teacher/tests"
-  element={
-    <PrivateRoute>
-      <TeacherRoute>
-        <TeacherDashboardPage />
-      </TeacherRoute>
-    </PrivateRoute>
-  }
-/>
+          <Route
+            path="/teacher/tests"
+            element={
+              <PrivateRoute>
+                <TeacherRoute>
+                  <TeacherTestsPage />
+                </TeacherRoute>
+              </PrivateRoute>
+            }
+          />
 
-<Route
-  path="/teacher/tests/:testId"
-  element={
-    <PrivateRoute>
-      <TeacherRoute>
-        <AddQuestionPage />
-      </TeacherRoute>
-    </PrivateRoute>
-  }
-/>
+          <Route
+            path="/teacher/tests/:testId"
+            element={
+              <PrivateRoute>
+                <TeacherRoute>
+                  <AddQuestionPage />
+                </TeacherRoute>
+              </PrivateRoute>
+            }
+          />
 
-<Route
-  path="/teacher/content"
-  element={
-    <PrivateRoute>
-      <TeacherRoute>
-        <ContentManagementPage />
-      </TeacherRoute>
-    </PrivateRoute>
-  }
-/>
-
-
-              
-          
-          {/* 🔥 مدیریت محتوا */}
           <Route
             path="/teacher/content"
             element={
@@ -316,7 +301,7 @@ export default function App() {
             }
           />
 
-          {/* Admin */}
+          {/* ========= Admin ========= */}
           <Route
             path="/admin"
             element={
@@ -333,4 +318,5 @@ export default function App() {
         </Routes>
       </main>
     </div>
-  );}
+  );
+}
