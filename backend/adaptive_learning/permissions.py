@@ -1,10 +1,8 @@
-from rest_framework import permissions
+from rest_framework.permissions import BasePermission
 
-
-class IsStudent(permissions.BasePermission):
+class IsTeacherOrAdmin(BasePermission):
     def has_permission(self, request, view):
         return (
-            request.user
-            and request.user.is_authenticated
-            and getattr(request.user, "role", None) == "student"
+            request.user.is_authenticated and
+            request.user.role in ["teacher", "admin"]
         )
