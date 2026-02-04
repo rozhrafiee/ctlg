@@ -1,0 +1,181 @@
+.consultation-detail {
+  padding: 20px 0;
+}
+
+.consultation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.consultation-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.schedules-section,
+.messages-section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.schedules-section h2,
+.messages-section h2 {
+  margin-bottom: 20px;
+  color: #1A1B2E; 
+}
+
+.schedule-form {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #E5E7F1;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.schedules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.schedule-item {
+  padding: 15px;
+  background: #F7F8FF;
+  border-radius: 6px;
+  border-right: 4px solid #5B6CFF; 
+}
+
+.schedule-day {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #1A1B2E;
+}
+
+.schedule-time {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.schedule-activity {
+  color: #333;
+}
+
+/* Messages */
+.messages-container {
+  height: 400px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+  padding: 15px;
+  background: #F7F8FF;
+  border-radius: 6px;
+}
+
+.message {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+  border-left: 3px solid #E5E7F1;
+}
+
+.message.own {
+  background: #EAF0FF;
+  border-left-color: #5B6CFF;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.message-time {
+  color: #666;
+  font-size: 12px;
+}
+
+.message-text {
+  color: #333;
+}
+
+.message-form {
+  display: flex;
+  gap: 10px;
+}
+
+.message-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #D5D8EE;
+  border-radius: 6px;
+}
+
+@media (max-width: 768px) {
+  .consultation-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btn-disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.message-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+/* Status Badges */
+.consultation-status {
+  margin: 10px 0;
+}
+
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.status-badge.active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.ended {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Buttons */
+.consultation-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-success {
+  background-color: #5B6CFF; 
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #7A5CFF; 
+}
