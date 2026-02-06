@@ -29,7 +29,7 @@ export default function TeacherContentList() {
     setIsLoading(true);
     try {
       const params = filter !== 'all' ? { content_type: filter } : {};
-      const response = await api.get('/adaptive/teacher/content/', { params });
+      const response = await api.get('/adaptive-learning/teacher/contents/', { params });
       setContents(response.data);
     } catch (error) {
       setMessage({
@@ -47,7 +47,7 @@ export default function TeacherContentList() {
     }
 
     try {
-      await api.delete(`/adaptive/teacher/content/${contentId}/delete/`);
+      await api.delete(`/adaptive-learning/teacher/content/${contentId}/delete/`);
       setMessage({
         type: 'success',
         text: 'محتوا با موفقیت حذف شد',
@@ -63,7 +63,7 @@ export default function TeacherContentList() {
 
   const toggleStatus = async (contentId, currentStatus) => {
     try {
-      await api.patch(`/adaptive/teacher/content/${contentId}/update/`, {
+      await api.patch(`/adaptive-learning/teacher/content/${contentId}/update/`, {
         is_active: !currentStatus,
       });
       setMessage({

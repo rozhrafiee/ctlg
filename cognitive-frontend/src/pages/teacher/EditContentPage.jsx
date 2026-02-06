@@ -33,7 +33,7 @@ export default function EditContentPage() {
   const fetchContent = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get(`/adaptive/teacher/content/${id}/`);
+      const response = await api.get(`/adaptive-learning/content/${id}/`);
       setFormData(response.data);
     } catch (error) {
       setMessage({
@@ -59,7 +59,7 @@ export default function EditContentPage() {
     setMessage({ type: '', text: '' });
 
     try {
-      await api.patch(`/adaptive/teacher/content/${id}/update/`, formData);
+      await api.patch(`/adaptive-learning/teacher/content/${id}/update/`, formData);
 
       setMessage({
         type: 'success',

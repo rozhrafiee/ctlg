@@ -34,14 +34,21 @@ export default function TeacherDashboard() {
   const fetchDashboardData = async () => {
     setIsLoading(true);
     try {
-      // فرض می‌کنیم این endpoint ها وجود دارند
-      const [statsRes, activityRes] = await Promise.all([
-        api.get('/adaptive/teacher/dashboard/stats/'),
-        api.get('/adaptive/teacher/dashboard/activity/'),
-      ]);
+      const res = await api.get('/analytics/teacher-dashboard/');
+      const { stats: serverStats, recent_pending_reviews = [] } = res.data;
 
-      setStats(statsRes.data);
-      setRecentActivity(activityRes.data);
+      setStats({
+        total_contents: serverStats?.total_contents ?? 0,
+        total_tests: serverStats?.total_tests ?? 0,
+        total_students: 0,
+        pending_grading: serverStats?.pending_grading ?? 0,
+      });
+      setRecentActivity(
+        recent_pending_reviews.map((r) => ({
+          description: `آزمون ${r.test_title || ''} - در انتظار نمره‌دهی`,
+          timestamp: r.started_at ? new Date(r.started_at).toLocaleDateString('fa-IR') : '',
+        }))
+      );
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       // در صورت خطا، از داده‌های پیش‌فرض استفاده می‌کنیم

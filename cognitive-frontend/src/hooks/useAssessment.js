@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import apiClient from '../utils/api';
 
 export const useAssessment = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [availableTests, setAvailableTests] = useState([]);
+  const [testHistory, setTestHistory] = useState([]);
 
   // ================== STUDENT METHODS ==================
   
@@ -270,9 +272,33 @@ export const useAssessment = () => {
     }
   };
 
+  // بارگذاری آزمون‌های موجود و سوابق برای داشبورد دانش‌آموز
+  useEffect(() => {
+    const loadStudentData = async () => {
+      try {
+        setLoading(true);
+        const [tests, history] = await Promise.all([
+          apiClient.get('/assessment/tests/').catch(() => []),
+          apiClient.get('/assessment/my-history/').catch(() => []),
+        ]);
+        setAvailableTests(Array.isArray(tests) ? tests : []);
+        setTestHistory(Array.isArray(history) ? history : []);
+      } catch {
+        setAvailableTests([]);
+        setTestHistory([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadStudentData();
+  }, []);
+
   return {
     loading,
+    isLoading: loading,
     error,
+    availableTests,
+    testHistory,
     // Student methods
     fetchAvailableTests,
     fetchTestHistory,

@@ -51,9 +51,10 @@ export const AuthProvider = ({ children }) => {
             }
           });
           
+          // توجه: apiClient interceptor داده‌ها را مستقیماً برمی‌گرداند
           // بررسی ساختار response
-          if (response && response.data) {
-            setUser(response.data);
+          if (response) {
+            setUser(response);
           } else {
             console.error('پاسخ سرور ساختار نامعتبر دارد:', response);
             localStorage.removeItem('access_token');
@@ -89,13 +90,14 @@ export const AuthProvider = ({ children }) => {
       console.log('پاسخ سرور:', response);
       console.log('داده‌های پاسخ:', response.data);
       
-      // بررسی ساختار پاسخ
-      if (!response || !response.data) {
+      // توجه: apiClient interceptor داده‌ها را مستقیماً برمی‌گرداند (response.data)
+      // بنابراین response خودش داده است، نه response.data
+      if (!response) {
         throw new Error('پاسخ سرور خالی است');
       }
       
       // استخراج داده‌ها از پاسخ - بررسی چندین ساختار ممکن
-      const data = response.data;
+      const data = response;
       
       // ساختار 1: {access, refresh, user}
       // ساختار 2: {token, user}
@@ -137,7 +139,8 @@ export const AuthProvider = ({ children }) => {
               'Authorization': `Bearer ${accessToken}`
             }
           });
-          userData = profileResponse.data;
+          // توجه: apiClient interceptor داده‌ها را مستقیماً برمی‌گرداند
+          userData = profileResponse;
         } catch (profileError) {
           console.error('خطا در دریافت پروفایل کاربر:', profileError);
         }
@@ -213,8 +216,10 @@ export const AuthProvider = ({ children }) => {
       const response = await apiClient.post('/accounts/register/', userData);
       console.log('پاسخ ثبت نام:', response.data);
       
+      // توجه: apiClient interceptor داده‌ها را مستقیماً برمی‌گرداند
       // اگر ثبت‌نام موفق بود، سعی کن وارد شوی
-      if (response.status === 201 || response.status === 200) {
+      // (اگر response وجود دارد، یعنی موفق بوده است)
+      if (response) {
         return await login(userData.username, userData.password);
       }
       
@@ -277,8 +282,9 @@ export const AuthProvider = ({ children }) => {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       
-      if (response && response.data) {
-        setUser(response.data);
+      // توجه: apiClient interceptor داده‌ها را مستقیماً برمی‌گرداند
+      if (response) {
+        setUser(response);
       }
     } catch (error) {
       console.error("خطا در به‌روزرسانی اطلاعات کاربر:", error);
@@ -301,7 +307,8 @@ export const AuthProvider = ({ children }) => {
         refresh: refreshToken
       });
       
-      const newAccessToken = response.data.access;
+      // توجه: apiClient interceptor داده‌ها را مستقیماً برمی‌گرداند
+      const newAccessToken = response.access;
       localStorage.setItem('access_token', newAccessToken);
       return newAccessToken;
     } catch (error) {

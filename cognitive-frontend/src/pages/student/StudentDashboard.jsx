@@ -29,7 +29,7 @@ const StudentDashboard = () => {
     isLoading: testLoading,
   } = useAssessment();
 
-  const isLoading = adaptiveLoading || testLoading;
+  const isLoading = adaptiveLoading === true || testLoading === true;
 
   // ═════════════════════════════════════════════════════
   // 🎨 Loading State
@@ -54,7 +54,12 @@ const StudentDashboard = () => {
   // ═════════════════════════════════════════════════════
   // 📊 آماده‌سازی داده‌های نمودارها
   // ═════════════════════════════════════════════════════
-  const progressChartData = progress
+  const safeProgress = Array.isArray(progress) ? progress : [];
+  const safeTestHistory = Array.isArray(testHistory) ? testHistory : [];
+  const safeRecommendations = Array.isArray(recommendations) ? recommendations : [];
+  const safeAvailableTests = Array.isArray(availableTests) ? availableTests : [];
+
+  const progressChartData = safeProgress
     .filter(p => p.is_completed)
     .slice(-7)
     .map(p => ({
@@ -66,12 +71,12 @@ const StudentDashboard = () => {
     { name: 'تکمیل شده', value: dashboard?.completed_count || 0 },
     { 
       name: 'در حال انجام', 
-      value: progress.filter(p => !p.is_completed && p.progress_percent > 0).length 
+      value: safeProgress.filter(p => !p.is_completed && p.progress_percent > 0).length 
     },
   ];
 
   // داده‌های نمودار آزمون‌ها
-  const testScoresData = testHistory
+  const testScoresData = safeTestHistory
     .slice(0, 5)
     .reverse()
     .map(t => ({
@@ -133,7 +138,7 @@ const StudentDashboard = () => {
             <Award className="w-4 h-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{testHistory.length}</div>
+            <div className="text-2xl font-bold">{safeTestHistory.length}</div>
             <p className="text-xs text-gray-500 mt-1">آزمون</p>
           </CardContent>
         </Card>
@@ -158,7 +163,7 @@ const StudentDashboard = () => {
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {recommendations.slice(0, 4).map((rec) => (
+              {safeRecommendations.slice(0, 4).map((rec) => (
                 <Card key={rec.id} className="border-r-4 border-blue-500 hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-2">
@@ -332,7 +337,7 @@ const StudentDashboard = () => {
       {/* ═════════════════════════════════════════════════════
           🎯 آزمون‌های موجود
           ═════════════════════════════════════════════════════ */}
-      {availableTests && availableTests.length > 0 && (
+      {safeAvailableTests.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -342,7 +347,7 @@ const StudentDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {availableTests.slice(0, 4).map((test) => (
+              {safeAvailableTests.slice(0, 4).map((test) => (
                 <Card key={test.id} className="border-r-4 border-orange-500">
                   <CardContent className="p-4">
                     <h3 className="font-semibold mb-2">{test.title}</h3>

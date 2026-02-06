@@ -19,10 +19,17 @@ export function Alert({ children, variant = 'info', onClose }) {
       text: 'text-blue-800',
       icon: Info,
       iconColor: 'text-blue-600'
+    },
+    // Support for 'destructive' variant (alias for 'error')
+    destructive: {
+      bg: 'bg-red-50 border-red-200',
+      text: 'text-red-800',
+      icon: AlertCircle,
+      iconColor: 'text-red-600'
     }
   };
 
-  const config = variants[variant];
+  const config = variants[variant] || variants.info;
   const Icon = config.icon;
 
   return (

@@ -12,7 +12,7 @@ class AdaptiveLearningEngine:
             is_active=True,
             min_level__lte=level + 5,
             max_level__gte=level - 5
-        ).exclude(progress__user=user, progress__is_completed=True).order_by('?')[:10]
+        ).exclude(usercontentprogress__user=user, usercontentprogress__is_completed=True).order_by('?')[:10]
 
         for c in contents:
             ContentRecommendation.objects.create(

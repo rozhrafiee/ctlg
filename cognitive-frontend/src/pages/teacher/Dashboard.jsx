@@ -17,7 +17,7 @@ export default function TeacherDashboard() {
   useEffect(() => {
     Promise.all([
       api.get('/assessment/teacher/tests/all/'),
-      api.get('/adaptive/teacher/content/'),
+      api.get('/adaptive-learning/teacher/contents/'),
       api.get('/assessment/teacher/reviews/pending/'),
     ])
       .then(([tests, contents, pending]) => {
