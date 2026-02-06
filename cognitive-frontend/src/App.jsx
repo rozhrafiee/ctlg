@@ -1,83 +1,178 @@
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "./contexts/AuthContext";
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-// --- وارد کردن کامپوننت‌ها ---
-import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import TeacherDashboard from "./pages/TeacherDashboard";
-import StudentDashboard from "./pages/StudentDashboard"; 
-import PlacementTest from "./pages/PlacementTest";
-import Profile from "./pages/Profile";
-import TeacherTests from "./pages/TeacherTests";
-import AvailableTests from "./pages/AvailableTests"; 
-import TakeTest from "./pages/TakeTest"; 
-import TestResults from "./pages/TestResults";
-import Exams from "./pages/Exams";
-import TestForm from "./pages/TestForm"; 
-import TeacherReviews from "./pages/TeacherReviews"; 
+// Layouts
+import Navbar from './components/layout/Navbar';
 
-// کامپوننت محافظت از مسیرها
-const ProtectedRoute = ({ children }) => {
-  const auth = useAuth();
-  const location = useLocation();
-  if (!auth || auth.loading) return null;
-  if (!auth.user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+// General Pages
+import HomePage from './pages/HomePage';
+
+// Auth Pages
+import LoginPage from './pages/auth/LoginPage';
+import RegisterPage from './pages/auth/RegisterPage';
+import ProfilePage from './pages/auth/ProfilePage';
+
+// Student Pages
+import StudentDashboard from './pages/student/StudentDashboard';
+import PlacementTestPage from './pages/student/PlacementTestPage';
+import TestListPage from './pages/student/TestListPage';
+import TakeTestPage from './pages/student/TakeTestPage';
+import TestResultPage from './pages/student/TestResultPage';
+import LearningPathPage from './pages/student/LearningPathPage';
+import ProgressPage from './pages/student/ProgressPage';
+
+// Teacher Pages
+import TeacherDashboard from './pages/teacher/TeacherDashboard';
+import TeacherContentList from './pages/teacher/TeacherContentList';
+import CreateContentPage from './pages/teacher/CreateContentPage';
+import EditContentPage from './pages/teacher/EditContentPage';
+import TeacherTestList from './pages/teacher/TeacherTestList';
+import CreateTestPage from './pages/teacher/CreateTestPage';
+import EditTestPage from './pages/teacher/EditTestPage';
+import TestQuestionsPage from './pages/teacher/TestQuestionsPage';
+import GradingPage from './pages/teacher/GradingPage';
+
+// Protected Route Component
+function ProtectedRoute({ children, requirePlacementTest = false, teacherOnly = false }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-gray-600">در حال بارگذاری...</div>
+      </div>
+    );
   }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (teacherOnly && user.role !== 'teacher' && user.role !== 'admin') {
+    return <Navigate to="/student/dashboard" replace />;
+  }
+
+  if (requirePlacementTest && user.role === 'student' && !user.has_taken_placement_test) {
+    return <Navigate to="/student/placement-test" replace />;
+  }
+
   return children;
-};
+}
+
+// Public Route
+function PublicRoute({ children }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-gray-600">در حال بارگذاری...</div>
+      </div>
+    );
+  }
+
+  if (user) {
+    if (user.role === 'teacher' || user.role === 'admin') {
+      return <Navigate to="/teacher/dashboard" replace />;
+    }
+    return <Navigate to="/student/dashboard" replace />;
+  }
+
+  return children;
+}
 
 function App() {
-  const auth = useAuth();
-
-  if (!auth || auth.loading) {
-    return <div style={{textAlign:'center', marginTop:'50px', fontFamily:'Tahoma'}}>در حال بارگذاری...</div>;
-  }
-
-  const { user } = auth;
+  const { user } = useAuth();
 
   return (
-    <>
-      {/* ناوبار حالا در تمام صفحات سایت نمایش داده می‌شود */}
-      <Navbar />
-
+    <div className="min-h-screen bg-gray-50" dir="rtl">
+      {user && <Navbar />}
+      
       <Routes>
-        {/* مسیر اصلی: صفحه خانه (بدون نیاز به لاگین) */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={user ? <Navigate to="/student/dashboard" replace /> : <HomePage />} />
 
-        {/* مسیرهای عمومی (ورود و ثبت‌نام) */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
-        {/* داشبورد هوشمند (تشخیص استاد یا دانشجو) */}
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            {user?.role === 'teacher' ? <TeacherDashboard /> : <StudentDashboard />}
-          </ProtectedRoute>
+        <Route path="/student/dashboard" element={
+          <ProtectedRoute requirePlacementTest><StudentDashboard /></ProtectedRoute>
+        } />
+        
+        <Route path="/student/placement-test" element={
+          <ProtectedRoute><PlacementTestPage /></ProtectedRoute>
         } />
 
-        {/* مسیرهای اختصاصی دانشجو */}
-        <Route path="/available-tests" element={<ProtectedRoute><AvailableTests /></ProtectedRoute>} />
-        <Route path="/placement-test" element={<ProtectedRoute><PlacementTest /></ProtectedRoute>} />
-        <Route path="/take-test/:testId" element={<ProtectedRoute><TakeTest /></ProtectedRoute>} />
-        <Route path="/test-results/:sessionId" element={<ProtectedRoute><TestResults /></ProtectedRoute>} />
-        <Route path="/exams" element={<ProtectedRoute><Exams /></ProtectedRoute>} />
+        <Route path="/student/tests" element={
+          <ProtectedRoute requirePlacementTest><TestListPage /></ProtectedRoute>
+        } />
 
-        {/* مسیرهای اختصاصی استاد */}
-        <Route path="/teacher/tests" element={<ProtectedRoute><TeacherTests /></ProtectedRoute>} />
-        <Route path="/add-test" element={<ProtectedRoute><TestForm /></ProtectedRoute>} />
-        <Route path="/edit-test/:id" element={<ProtectedRoute><TestForm /></ProtectedRoute>} />
-        <Route path="/teacher/reviews" element={<ProtectedRoute><TeacherReviews /></ProtectedRoute>} />
+        <Route path="/student/tests/:testId/take" element={
+          <ProtectedRoute requirePlacementTest><TakeTestPage /></ProtectedRoute>
+        } />
 
-        {/* پروفایل کاربری */}
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/student/tests/:sessionId/result" element={
+          <ProtectedRoute requirePlacementTest><TestResultPage /></ProtectedRoute>
+        } />
 
-        {/* مدیریت خطای ۴۰۴ */}
-        <Route path="*" element={<div style={{textAlign:'center', marginTop:'100px', fontFamily:'Tahoma'}}><h2>۴۰۴</h2><p>صفحه مورد نظر یافت نشد</p></div>} />
+        <Route path="/student/learning-path" element={
+          <ProtectedRoute requirePlacementTest><LearningPathPage /></ProtectedRoute>
+        } />
+
+        <Route path="/student/progress" element={
+          <ProtectedRoute requirePlacementTest><ProgressPage /></ProtectedRoute>
+        } />
+
+        <Route path="/profile" element={
+          <ProtectedRoute><ProfilePage /></ProtectedRoute>
+        } />
+
+        <Route path="/teacher/dashboard" element={
+          <ProtectedRoute teacherOnly><TeacherDashboard /></ProtectedRoute>
+        } />
+
+        <Route path="/teacher/contents" element={
+          <ProtectedRoute teacherOnly><TeacherContentList /></ProtectedRoute>
+        } />
+
+        <Route path="/teacher/contents/create" element={
+          <ProtectedRoute teacherOnly><CreateContentPage /></ProtectedRoute>
+        } />
+
+        <Route path="/teacher/contents/:id/edit" element={
+          <ProtectedRoute teacherOnly><EditContentPage /></ProtectedRoute>
+        } />
+
+        <Route path="/teacher/tests" element={
+          <ProtectedRoute teacherOnly><TeacherTestList /></ProtectedRoute>
+        } />
+
+        <Route path="/teacher/tests/create" element={
+          <ProtectedRoute teacherOnly><CreateTestPage /></ProtectedRoute>
+        } />
+
+        <Route path="/teacher/tests/:id/edit" element={
+          <ProtectedRoute teacherOnly><EditTestPage /></ProtectedRoute>
+        } />
+
+        <Route path="/teacher/tests/:id/questions" element={
+          <ProtectedRoute teacherOnly><TestQuestionsPage /></ProtectedRoute>
+        } />
+
+        <Route path="/teacher/grading" element={
+          <ProtectedRoute teacherOnly><GradingPage /></ProtectedRoute>
+        } />
+
+        <Route path="*" element={
+          user ? (
+            user.role === 'teacher' || user.role === 'admin' ? 
+              <Navigate to="/teacher/dashboard" replace /> : 
+              <Navigate to="/student/dashboard" replace />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        } />
       </Routes>
-    </>
+    </div>
   );
 }
 

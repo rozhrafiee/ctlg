@@ -1,117 +1,129 @@
-/* ۱. تنظیمات ریشه برای رفع اخطارهای مرورگر */
-:root {
-  direction: rtl;
-  writing-mode: horizontal-tb;
-  --primary: #5b6cff;
-  --primary-soft: #e9ecff;
-  --secondary: #764ba2;
-  --bg-page: #f3f4f8;
-  --bg-card: #ffffff;
-  --text-main: #2c3e50;
-  --text-muted: #6b7280;
-  --radius-lg: 18px;
-  --radius-md: 12px;
-  --navbar-height-desktop: 76px;
-  --navbar-height-mobile: 64px;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* تنظیمات فونت فارسی */
+@font-face {
+  font-family: 'Yekan';
+  src: url('/fonts/BYekan.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
-/* ۲. فونت (اگر فایل‌ها در پوشه public/fonts نباشند، لود نمی‌شوند. 
-   فعلاً فونت سیستم را در اولویت گذاشتم تا ارور ندهد) */
-body {
-  margin: 0;
-  padding-top: var(--navbar-height-desktop);
-  font-family: "Tahoma", "Segoe UI", sans-serif; /* تاهوما بهترین جایگزین یکان است */
-  background-color: var(--bg-page);
-  color: var(--text-main);
-  overflow-x: hidden;
+@font-face {
+  font-family: 'Yekan';
+  src: url('/fonts/BYekan Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
 }
 
-/* ۳. استایل‌های پایه */
+/* تنظیمات پایه */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+body {
+  font-family: 'Yekan', 'Tahoma', 'Arial', sans-serif;
+  direction: rtl;
+  text-align: right;
+  background-color: #f9fafb;
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* تنظیمات اسکرول */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* کلاس‌های کاستوم */
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0 1rem;
 }
 
-/* ۴. استایل کارت‌ها (هماهنگ با فرم ساخت آزمون) */
-.card, .test-form-container {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(91,108,255,0.15);
-  border: 1px solid rgba(91,108,255,0.15);
-  position: relative;
-  overflow: hidden;
+.card {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
-.card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-}
-
-/* ۵. استایل دکمه‌ها (دقیقاً مثل چیزی که در دشبورد داری) */
 .btn {
-  border-radius: var(--radius-md);
-  padding: 10px 22px;
-  font-size: 15px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: #fff;
-}
-
-.btn-success {
-  background-color: #3ECF8E;
+  background-color: #3b82f6;
   color: white;
 }
 
-.btn-danger {
-  background-color: #FF5B5B;
+.btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
   color: white;
 }
 
-/* ۶. استایل اینپوت‌ها */
-input, textarea, select {
-  width: 100%;
-  padding: 12px;
-  border: 2px solid #D5D8EE;
-  border-radius: var(--radius-md);
-  font-size: 16px;
-  transition: all 0.3s ease;
+.btn-secondary:hover {
+  background-color: #4b5563;
 }
 
-input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(91,108,255,0.1);
+/* انیمیشن‌ها */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ۷. استایل مخصوص گزینه‌های تستی */
-.option-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-  background: #f9f9ff;
-  padding: 8px;
-  border-radius: 8px;
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
 }

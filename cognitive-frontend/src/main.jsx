@@ -1,16 +1,16 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom' // اینو حتماً ایمپورت کن
-import { AuthProvider } from './contexts/AuthContext'
-import App from './App'
+import { BrowserRouter } from 'react-router-dom'
+import App from './App.jsx'
 import './index.css'
+import { AuthProvider } from './contexts/AuthContext'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter> {/* جاده اصلی اینجا ساخته می‌شه */}
+    <BrowserRouter>
       <AuthProvider>
         <App />
       </AuthProvider>
     </BrowserRouter>
-  </React.StrictMode>,
+  </React.StrictMode>
 )
