@@ -28,7 +28,13 @@ class CognitiveTest(models.Model):
     passing_score = models.IntegerField(default=70) # نمره قبولی از ۱۰۰
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='created_tests'
+    )
     def __str__(self):
         return f"{self.title} ({self.get_test_type_display()})"
 

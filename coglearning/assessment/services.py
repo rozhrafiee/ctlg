@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.db import transaction
 from accounts.services import AccountService
-from analytics.models import UserPerformanceSummary, Notification
+from analytics.models import UserPerformanceSummary
 
 class AssessmentService:
 
@@ -74,13 +74,6 @@ class AssessmentService:
                 current_avg = getattr(summary, f'avg_{cat}_score')
                 new_avg = (current_avg * count + cat_score) / (count + 1)
                 setattr(summary, f'avg_{cat}_score', round(new_avg, 2))
-
-                # سیستم هشدار هوشمند
-                if cat_score < 40:
-                    Notification.objects.create(
-                        user=user,
-                        message=f"هشدار: عملکرد شما در سوالات بخش '{cat}' ضعیف بود. پیشنهاد می‌شود روی این مهارت بیشتر کار کنید."
-                    )
 
         summary.total_tests_completed += 1
         summary.save()
