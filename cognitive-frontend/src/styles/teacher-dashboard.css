@@ -1,0 +1,167 @@
+/* ═══════════════════════════════════════
+   🎓 Teacher Dashboard Styles
+   ═══════════════════════════════════════ */
+
+.teacher-dashboard {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* ───────────── Header ───────────── */
+.teacher-header {
+  background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.15));
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.teacher-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #a5b4fc, #c4b5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.teacher-header p {
+  color: var(--color-text-muted);
+  margin-top: 0.5rem;
+}
+
+/* ───────────── Stats Cards ───────────── */
+.teacher-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.teacher-stat-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.35s ease;
+}
+
+.teacher-stat-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right,
+    rgba(255,255,255,0.08),
+    transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.teacher-stat-card:hover {
+  transform: translateY(-6px);
+}
+
+.teacher-stat-card:hover::after {
+  opacity: 1;
+}
+
+.teacher-stat-title {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.teacher-stat-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+}
+
+/* ───────────── Quick Access ───────────── */
+.teacher-quick-access {
+  margin-bottom: var(--spacing-xl);
+}
+
+.teacher-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.teacher-quick-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.teacher-quick-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+}
+
+.teacher-quick-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ───────────── Activity List ───────────── */
+.teacher-activity {
+  margin-bottom: var(--spacing-xl);
+}
+
+.teacher-activity-item {
+  transition: background 0.25s ease;
+}
+
+.teacher-activity-item:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.teacher-activity-dot {
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  border-radius: 50%;
+}
+
+.teacher-activity-text {
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.teacher-activity-date {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* ───────────── Loading ───────────── */
+.teacher-loading {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--color-text-muted);
+}
+
+/* ───────────── Animations ───────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ───────────── Responsive ───────────── */
+@media (max-width: 768px) {
+  .teacher-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .teacher-stat-value {
+    font-size: 1.8rem;
+  }
+}
