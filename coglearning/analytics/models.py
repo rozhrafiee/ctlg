@@ -45,3 +45,9 @@ class UserPerformanceSummary(models.Model):
 
     def __str__(self):
         return f"Summary: {self.user.username}"
+    def get_scores_map(self):
+        return {
+            'memory': self.avg_memory_score,
+            'focus': self.avg_focus_score,
+            'logic': self.avg_logic_score
+        }
