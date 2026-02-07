@@ -24,6 +24,15 @@ class CognitiveTest(models.Model):
         related_name='test'
     )
     
+    # استاد سازنده (برای فیلتر آزمون‌های من)
+    teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='authored_tests',
+    )
+    
     time_limit_minutes = models.IntegerField(default=30)
     passing_score = models.IntegerField(default=70) # نمره قبولی از ۱۰۰
     is_active = models.BooleanField(default=True)

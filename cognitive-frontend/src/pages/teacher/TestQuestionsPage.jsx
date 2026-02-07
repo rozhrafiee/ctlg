@@ -7,6 +7,8 @@ import { SkeletonCard } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { ArrowRight, Plus, Edit, Trash2, FileQuestion } from 'lucide-react';
 import QuestionFormModal from '../../components/assessment/QuestionFormModal';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 export default function TestQuestionsPage() {
   const { testId } = useParams();

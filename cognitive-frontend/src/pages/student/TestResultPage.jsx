@@ -5,6 +5,8 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Skeleton } from '../../components/ui/Skeleton';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 import { 
   Trophy, Target, Clock, CheckCircle, 
   XCircle, Home, RotateCcw 
@@ -14,7 +16,7 @@ export default function TestResultPage() {
   const { sessionId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { fetchSessionDetails } = useAssessment();
+  const { fetchTestResult } = useAssessment();
   
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,7 +28,7 @@ export default function TestResultPage() {
   const loadResult = async () => {
     setLoading(true);
     try {
-      const data = await fetchSessionDetails(sessionId);
+      const data = await fetchTestResult(sessionId);
       setResult(data);
     } catch (error) {
       console.error('Failed to load result:', error);
@@ -56,10 +58,12 @@ export default function TestResultPage() {
     );
   }
 
-  const score = result.session.total_score || location.state?.score || 0;
-  const isPassed = score >= (result.session.test.passing_score || 70);
-  const correctAnswers = result.answers?.filter(a => a.is_correct).length || 0;
-  const totalQuestions = result.answers?.length || 0;
+  const session = result?.session ?? result;
+  const score = session?.total_score ?? location.state?.score ?? 0;
+  const isPassed = score >= (session?.test?.passing_score || 70);
+  const answersList = result?.answers ?? session?.answers ?? [];
+  const correctAnswers = answersList.filter(a => a.is_correct).length || 0;
+  const totalQuestions = answersList.length || 0;
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -101,7 +105,7 @@ export default function TestResultPage() {
             <Target className="w-5 h-5 text-blue-600" />
             <span className="text-sm text-gray-600">نمره قبولی</span>
           </div>
-          <p className="text-2xl font-bold">{result.session.test.passing_score}%</p>
+          <p className="text-2xl font-bold">{session?.test?.passing_score ?? 70}%</p>
         </Card>
 
         <Card className="p-6">
@@ -110,17 +114,17 @@ export default function TestResultPage() {
             <span className="text-sm text-gray-600">زمان سپری شده</span>
           </div>
           <p className="text-2xl font-bold">
-            {Math.round((new Date(result.session.finished_at) - new Date(result.session.started_at)) / 60000)} دقیقه
+            {session?.finished_at && session?.started_at ? Math.round((new Date(session.finished_at) - new Date(session.started_at)) / 60000) : '-'} دقیقه
           </p>
         </Card>
       </div>
 
       {/* Answers Review */}
-      {result.answers && result.answers.length > 0 && (
+      {answersList && answersList.length > 0 && (
         <Card className="p-6">
           <h2 className="text-xl font-bold mb-4">بررسی پاسخ‌ها</h2>
           <div className="space-y-4">
-            {result.answers.map((answer, idx) => (
+            {answersList.map((answer, idx) => (
               <div 
                 key={answer.id}
                 className={`p-4 rounded-lg border-2 ${
@@ -175,7 +179,7 @@ export default function TestResultPage() {
         
         {!isPassed && (
           <Button 
-            onClick={() => navigate(`/student/test/${result.session.test.id}`)}
+            onClick={() => navigate(`/student/tests/${session?.test?.id}/take`)}
             variant="primary"
             className="flex-1"
           >

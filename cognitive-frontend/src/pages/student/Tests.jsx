@@ -6,6 +6,8 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import api from '../../api/axios';
 import { Link } from 'react-router-dom';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 const Tests = () => {
   const [tests, setTests] = useState([]);
@@ -158,7 +160,7 @@ const Tests = () => {
                       </div>
                     )}
 
-                    <Link to={`/student/test-taking/${test.id}`} className="mt-auto">
+                    <Link to={`/student/tests/${test.id}/take`} className="mt-auto">
                       <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
                         <Play className="w-4 h-4 ml-2" />
                         {attempted ? 'تلاش مجدد' : 'شروع آزمون'}

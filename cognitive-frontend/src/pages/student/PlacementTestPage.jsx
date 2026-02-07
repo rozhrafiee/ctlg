@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 export default function PlacementTestPage() {
   return (

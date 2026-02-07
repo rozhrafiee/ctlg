@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axiosInstance from '@/api/axios';
+import api from '../api/axios';
 
 export const useAdaptiveLearning = () => {
   const [dashboard, setDashboard] = useState(null);
@@ -12,7 +12,7 @@ export const useAdaptiveLearning = () => {
   // دریافت داشبورد تطبیقی
   const fetchDashboard = async () => {
     try {
-      const { data } = await axiosInstance.get('/adaptive-learning/dashboard/');
+      const { data } = await api.get('/adaptive-learning/dashboard/');
       setDashboard(data);
     } catch (err) {
       console.error('Error fetching dashboard:', err);
@@ -22,7 +22,7 @@ export const useAdaptiveLearning = () => {
   // دریافت مسیر یادگیری
   const fetchLearningPath = async () => {
     try {
-      const { data } = await axiosInstance.get('/adaptive-learning/learning-path/');
+      const { data } = await api.get('/adaptive-learning/learning-path/');
       setLearningPath(data);
     } catch (err) {
       console.error('Error fetching learning path:', err);
@@ -33,7 +33,7 @@ export const useAdaptiveLearning = () => {
   // دریافت پیشنهادات
   const fetchRecommendations = async () => {
     try {
-      const { data } = await axiosInstance.get('/adaptive-learning/recommended/');
+      const { data } = await api.get('/adaptive-learning/recommended/');
       setRecommendations(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching recommendations:', err);
@@ -44,7 +44,7 @@ export const useAdaptiveLearning = () => {
   // دریافت پیشرفت
   const fetchProgress = async () => {
     try {
-      const { data } = await axiosInstance.get('/adaptive-learning/progress/');
+      const { data } = await api.get('/adaptive-learning/progress/');
       setProgress(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching progress:', err);
@@ -52,10 +52,21 @@ export const useAdaptiveLearning = () => {
     }
   };
 
+  // دریافت جزئیات یک محتوا
+  const fetchContentDetail = async (contentId) => {
+    try {
+      const { data } = await api.get(`/adaptive-learning/content/${contentId}/`);
+      return data;
+    } catch (err) {
+      console.error('Error fetching content detail:', err);
+      throw err;
+    }
+  };
+
   // بروزرسانی پیشرفت محتوا
   const updateProgress = async (contentId, percent) => {
     try {
-      await axiosInstance.post(`/adaptive-learning/content/${contentId}/progress/`, {
+      await api.post(`/adaptive-learning/content/${contentId}/progress/`, {
         percent,
       });
       await fetchProgress();
@@ -68,7 +79,7 @@ export const useAdaptiveLearning = () => {
   // ریست کردن مسیر یادگیری
   const resetLearningPath = async () => {
     try {
-      const { data } = await axiosInstance.post('/adaptive-learning/learning-path/reset/');
+      const { data } = await api.post('/adaptive-learning/learning-path/reset/');
       setLearningPath(data);
       return data;
     } catch (err) {
@@ -80,7 +91,7 @@ export const useAdaptiveLearning = () => {
   // کلیک روی پیشنهاد
   const markRecommendationClicked = async (recommendationId) => {
     try {
-      await axiosInstance.post(`/adaptive-learning/recommendations/${recommendationId}/click/`);
+      await api.post(`/adaptive-learning/recommendations/${recommendationId}/click/`);
     } catch (err) {
       console.error('Error marking recommendation:', err);
     }
@@ -109,6 +120,7 @@ export const useAdaptiveLearning = () => {
     loading,
     isLoading: loading,
     error,
+    fetchContentDetail,
     updateProgress,
     resetLearningPath,
     markRecommendationClicked,

@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '@/api/axios';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button'
 import { Alert } from '@/components/ui/Alert';
-
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 /**
  * 📝 لیست آزمون‌های استاد
  * 
@@ -26,7 +27,7 @@ export default function TeacherTestList() {
   const fetchTests = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get('/assessments/teacher/tests/');
+      const response = await api.get('/assessment/teacher/tests/all/');
       setTests(response.data);
     } catch (error) {
       setMessage({
@@ -44,7 +45,7 @@ export default function TeacherTestList() {
     }
 
     try {
-      await api.delete(`/assessments/teacher/tests/${testId}/delete/`);
+      await api.delete(`/assessment/teacher/tests/delete/${testId}/`);
       setMessage({
         type: 'success',
         text: 'آزمون با موفقیت حذف شد',
@@ -76,7 +77,7 @@ export default function TeacherTestList() {
           </p>
         </div>
 
-        <Link to="/teacher/create-test">
+        <Link to="/teacher/tests/create">
           <Button>
             <svg
               className="w-5 h-5 ml-2"
@@ -131,7 +132,7 @@ export default function TeacherTestList() {
             <p className="text-gray-600 mb-6">
               برای شروع، اولین آزمون خود را بسازید
             </p>
-            <Link to="/teacher/create-test">
+            <Link to="/teacher/tests/create">
               <Button>ساخت آزمون جدید</Button>
             </Link>
           </div>
@@ -207,15 +208,21 @@ export default function TeacherTestList() {
 
                   {/* دکمه‌ها */}
                   <div className="flex flex-col gap-2 mr-4">
-                    <Link to={`/teacher/edit-test/${test.id}`}>
+                    <Link to={`/teacher/tests/${test.id}/edit`}>
                       <Button variant="outline" size="sm">
                         ویرایش
                       </Button>
                     </Link>
                     
-                    <Link to={`/teacher/test/${test.id}/results`}>
+                    <Link to={`/teacher/tests/${test.id}/questions`}>
                       <Button variant="outline" size="sm">
-                        نتایج
+                        سوالات
+                      </Button>
+                    </Link>
+                    
+                    <Link to="/teacher/grading">
+                      <Button variant="outline" size="sm">
+                        تصحیح
                       </Button>
                     </Link>
 

@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '@/api/axios';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
+import "@/styles/global-styles.css";
+import '@/styles/register-page.css'; // ← فقط این خط!
 
 export default function RegisterPage() {
   const navigate = useNavigate();

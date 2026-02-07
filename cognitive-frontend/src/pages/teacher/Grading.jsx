@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 export default function Grading() {
   const [sessions, setSessions] = useState([]);

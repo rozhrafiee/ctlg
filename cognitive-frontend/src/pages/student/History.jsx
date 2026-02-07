@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Clock, CheckCircle, AlertCircle, FileText, Calendar } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import api from '../../api/axios';
 import { Link } from 'react-router-dom';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 const History = () => {
   const [history, setHistory] = useState([]);
@@ -73,11 +74,7 @@ const History = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-6xl mx-auto"
-      >
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">تاریخچه آزمون‌ها</h1>
@@ -136,13 +133,7 @@ const History = () => {
               const StatusIcon = statusInfo.icon;
 
               return (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -2 }}
-                  transition={{ duration: 0.2 }}
-                >
+                <div key={item.id} className="transition-transform hover:-translate-y-0.5">
                   <Card className="p-6 bg-white hover:shadow-lg transition-shadow">
                     <div className="flex items-center justify-between flex-wrap gap-4">
                       <div className="flex items-center gap-4 flex-1">
@@ -212,7 +203,7 @@ const History = () => {
                           </div>
                         )}
 
-                        <Link to={`/student/results/${item.id}`}>
+                        <Link to={`/student/tests/${item.id}/result`}>
                           <Button variant="outline" className="whitespace-nowrap">
                             مشاهده جزئیات
                           </Button>
@@ -230,12 +221,12 @@ const History = () => {
                       </div>
                     )}
                   </Card>
-                </motion.div>
+                </div>
               );
             })}
           </div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,7 @@
 import React from 'react';
 import { useFetch } from '@/hooks/useApi';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 import { 
   CustomLineChart, 
   CustomBarChart, 

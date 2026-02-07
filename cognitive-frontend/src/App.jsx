@@ -1,5 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import './styles/global-styles.css';
+import './styles/page-styles.css';
+
 
 // Layouts
 import Navbar from './components/layout/Navbar';
@@ -16,10 +19,12 @@ import ProfilePage from './pages/auth/ProfilePage';
 import StudentDashboard from './pages/student/StudentDashboard';
 import PlacementTestPage from './pages/student/PlacementTestPage';
 import TestListPage from './pages/student/TestListPage';
-import TakeTestPage from './pages/student/TakeTestPage';
+import TestTaking from './pages/student/TestTaking';
 import TestResultPage from './pages/student/TestResultPage';
 import LearningPathPage from './pages/student/LearningPathPage';
 import ProgressPage from './pages/student/ProgressPage';
+import ContentDetailPage from './pages/student/ContentDetailPage';
+import History from './pages/student/History';
 
 // Teacher Pages
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
@@ -107,7 +112,7 @@ function App() {
         } />
 
         <Route path="/student/tests/:testId/take" element={
-          <ProtectedRoute requirePlacementTest><TakeTestPage /></ProtectedRoute>
+          <ProtectedRoute requirePlacementTest><TestTaking /></ProtectedRoute>
         } />
 
         <Route path="/student/tests/:sessionId/result" element={
@@ -120,6 +125,14 @@ function App() {
 
         <Route path="/student/progress" element={
           <ProtectedRoute requirePlacementTest><ProgressPage /></ProtectedRoute>
+        } />
+
+        <Route path="/student/content/:id" element={
+          <ProtectedRoute requirePlacementTest><ContentDetailPage /></ProtectedRoute>
+        } />
+
+        <Route path="/student/history" element={
+          <ProtectedRoute requirePlacementTest><History /></ProtectedRoute>
         } />
 
         <Route path="/profile" element={

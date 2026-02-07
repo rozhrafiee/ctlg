@@ -4,6 +4,8 @@ import api from '@/api/axios';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 /**
  * ✏️ صفحه ویرایش محتوای آموزشی

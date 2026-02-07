@@ -5,6 +5,8 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Skeleton } from '../../components/ui/Skeleton';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 import { 
   BookOpen, Clock, Target, CheckCircle, 
   ArrowRight, FileText, Video, Link as LinkIcon 
@@ -49,7 +51,7 @@ export default function ContentDetailPage() {
 
   const handleStartTest = () => {
     if (content?.related_test) {
-      navigate(`/student/test/${content.related_test.id}`);
+      navigate(`/student/tests/${content.related_test.id}/take`);
     }
   };
 

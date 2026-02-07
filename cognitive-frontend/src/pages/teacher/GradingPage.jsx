@@ -7,6 +7,9 @@ import { SkeletonCard } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { FileCheck, Eye } from 'lucide-react';
 import GradingModal from '../../components/assessment/GradingModal';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
+
 
 export default function GradingPage() {
   const { fetchPendingReviews } = useAssessment();

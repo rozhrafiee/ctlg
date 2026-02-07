@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../../api/axios";
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 export default function TestQuestions() {
   const { id } = useParams();

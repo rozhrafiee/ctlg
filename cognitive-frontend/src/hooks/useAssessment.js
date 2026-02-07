@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import apiClient from '../utils/api';
+import api from '../api/axios';
 
 export const useAssessment = () => {
   const [loading, setLoading] = useState(false);
@@ -13,7 +13,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get('/api/assessment/tests/');
+      const response = await api.get('/assessment/tests/');
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -27,7 +27,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get('/api/assessment/my-history/');
+      const response = await api.get('/assessment/my-history/');
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -41,7 +41,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.post(`/api/assessment/tests/${testId}/start/`);
+      const response = await api.post(`/assessment/tests/${testId}/start/`);
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -53,8 +53,8 @@ export const useAssessment = () => {
 
   const submitAnswer = async (sessionId, questionId, answerData) => {
     try {
-      const response = await apiClient.post(
-        `/api/assessment/sessions/${sessionId}/questions/${questionId}/answer/`,
+      const response = await api.post(
+        `/assessment/sessions/${sessionId}/questions/${questionId}/answer/`,
         answerData
       );
       return response.data;
@@ -68,7 +68,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.post(`/api/assessment/sessions/${sessionId}/finish/`);
+      const response = await api.post(`/assessment/sessions/${sessionId}/finish/`);
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -82,7 +82,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get(`/api/assessment/results/${sessionId}/`);
+      const response = await api.get(`/assessment/student/results/${sessionId}/`);
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -99,7 +99,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get('/api/assessment/teacher/tests/all/');
+      const response = await api.get('/assessment/teacher/tests/all/');
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -114,7 +114,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.post('/api/assessment/teacher/tests/create/', testData);
+      const response = await api.post('/assessment/teacher/tests/create/', testData);
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -129,7 +129,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.post('/api/assessment/teacher/tests/placement/create/', testData);
+      const response = await api.post('/assessment/teacher/tests/placement/create/', testData);
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -144,7 +144,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.patch(`/api/assessment/teacher/tests/update/${testId}/`, testData);
+      const response = await api.put(`/assessment/teacher/tests/update/${testId}/`, testData);
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -159,7 +159,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      await apiClient.delete(`/api/assessment/teacher/tests/delete/${testId}/`);
+      await api.delete(`/assessment/teacher/tests/delete/${testId}/`);
     } catch (err) {
       setError(err.message);
       throw err;
@@ -173,7 +173,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get(`/api/assessment/teacher/tests/${testId}/questions/list/`);
+      const response = await api.get(`/assessment/teacher/tests/${testId}/questions/list/`);
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -188,7 +188,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.post(`/api/assessment/teacher/tests/${testId}/questions/`, questionData);
+      const response = await api.post(`/assessment/teacher/tests/${testId}/questions/`, questionData);
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -203,7 +203,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.patch(`/api/assessment/teacher/questions/${questionId}/update/`, questionData);
+      const response = await api.put(`/assessment/teacher/questions/${questionId}/update/`, questionData);
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -218,7 +218,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      await apiClient.delete(`/api/assessment/teacher/questions/${questionId}/delete/`);
+      await api.delete(`/assessment/teacher/questions/${questionId}/delete/`);
     } catch (err) {
       setError(err.message);
       throw err;
@@ -232,7 +232,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get('/api/assessment/teacher/reviews/pending/');
+      const response = await api.get('/assessment/teacher/reviews/pending/');
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -242,12 +242,12 @@ export const useAssessment = () => {
     }
   };
 
-  // دریافت جزئیات یک session برای تصحیح
+  // دریافت جزئیات یک session برای تصحیح (معلم)
   const fetchSessionDetails = async (sessionId) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get(`/api/assessment/teacher/sessions/${sessionId}/`);
+      const response = await api.get(`/assessment/teacher/sessions/${sessionId}/`);
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -262,7 +262,7 @@ export const useAssessment = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.post(`/api/assessment/teacher/sessions/${sessionId}/grade/`, { grades });
+      const response = await api.post(`/assessment/teacher/sessions/${sessionId}/grade/`, { grades });
       return response.data;
     } catch (err) {
       setError(err.message);
@@ -277,12 +277,14 @@ export const useAssessment = () => {
     const loadStudentData = async () => {
       try {
         setLoading(true);
-        const [tests, history] = await Promise.all([
-          apiClient.get('/assessment/tests/').catch(() => []),
-          apiClient.get('/assessment/my-history/').catch(() => []),
+        const [testsRes, historyRes] = await Promise.all([
+          api.get('/assessment/tests/').catch(() => ({ data: [] })),
+          api.get('/assessment/my-history/').catch(() => ({ data: [] })),
         ]);
-        setAvailableTests(Array.isArray(tests) ? tests : []);
-        setTestHistory(Array.isArray(history) ? history : []);
+        const tests = Array.isArray(testsRes?.data) ? testsRes.data : (testsRes?.data?.results ?? []);
+        const history = Array.isArray(historyRes?.data) ? historyRes.data : (historyRes?.data?.results ?? []);
+        setAvailableTests(tests);
+        setTestHistory(history);
       } catch {
         setAvailableTests([]);
         setTestHistory([]);

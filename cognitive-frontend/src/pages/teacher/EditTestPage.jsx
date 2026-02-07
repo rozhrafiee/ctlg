@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
 import QuestionFormModal from '@/components/assessment/QuestionFormModal';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 /**
  * ✏️ صفحه ویرایش آزمون

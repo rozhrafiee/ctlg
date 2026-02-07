@@ -7,6 +7,8 @@ import { Alert } from '@/components/ui/Alert';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Badge } from '@/components/ui/Badge';
 import { Book, Lock, CheckCircle, RotateCcw, ArrowRight } from 'lucide-react';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 export default function LearningPathPage() {
   const navigate = useNavigate();
@@ -142,7 +144,7 @@ export default function LearningPathPage() {
                 {/* Action Button */}
                 {item.is_unlocked && (
                   <Button
-                    onClick={() => navigate(`/content/${item.content.id}`)}
+                    onClick={() => navigate(`/student/content/${item.content.id}`)}
                     size="sm"
                   >
                     شروع

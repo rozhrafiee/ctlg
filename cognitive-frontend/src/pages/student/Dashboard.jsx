@@ -7,6 +7,8 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import api from '../../api/axios';
 import { Link } from 'react-router-dom';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -228,7 +230,7 @@ const Dashboard = () => {
               history.map((item) => (
                 <Link
                   key={item.id}
-                  to={`/student/results/${item.id}`}
+                  to={`/student/tests/${item.id}/result`}
                   className="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
                 >
                   <div className="flex items-center gap-3">

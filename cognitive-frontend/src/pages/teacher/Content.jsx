@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit2, Trash2, BookOpen, X } from 'lucide-react';
 import api from '../../api/axios';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 export default function Content() {
   const [contents, setContents] = useState([]);

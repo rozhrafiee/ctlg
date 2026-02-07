@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import api from '../utils/api';
+import api from '../api/axios';
 
 export function useContent() {
   const [loading, setLoading] = useState(false);
@@ -8,7 +8,7 @@ export function useContent() {
   const fetchTeacherContents = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/api/adaptive/teacher/contents/');
+      const response = await api.get('/adaptive-learning/teacher/contents/');
       return response.data;
     } catch (error) {
       console.error('Failed to fetch contents:', error);
@@ -21,7 +21,7 @@ export function useContent() {
   // جزئیات یک محتوا
   const fetchContentDetail = async (id) => {
     try {
-      const response = await api.get(`/api/adaptive/content/${id}/`);
+      const response = await api.get(`/adaptive-learning/content/${id}/`);
       return response.data;
     } catch (error) {
       console.error('Failed to fetch content detail:', error);
@@ -32,7 +32,7 @@ export function useContent() {
   // ایجاد محتوای جدید
   const createContent = async (data) => {
     try {
-      const response = await api.post('/api/adaptive/teacher/contents/', data);
+      const response = await api.post('/adaptive-learning/teacher/content/create/', data);
       return response.data;
     } catch (error) {
       console.error('Failed to create content:', error);
@@ -43,7 +43,7 @@ export function useContent() {
   // ویرایش محتوا
   const updateContent = async (id, data) => {
     try {
-      const response = await api.put(`/api/adaptive/content/${id}/update/`, data);
+      const response = await api.put(`/adaptive-learning/teacher/content/${id}/update/`, data);
       return response.data;
     } catch (error) {
       console.error('Failed to update content:', error);
@@ -54,7 +54,7 @@ export function useContent() {
   // حذف محتوا
   const deleteContent = async (id) => {
     try {
-      await api.delete(`/api/adaptive/content/${id}/delete/`);
+      await api.delete(`/adaptive-learning/teacher/content/${id}/delete/`);
     } catch (error) {
       console.error('Failed to delete content:', error);
       throw error;
@@ -64,7 +64,7 @@ export function useContent() {
   // ایجاد آزمون برای محتوا
   const createTestForContent = async (contentId) => {
     try {
-      const response = await api.post(`/api/assessment/content/${contentId}/create-test/`);
+      const response = await api.post(`/assessment/content/${contentId}/test/create/`);
       return response.data;
     } catch (error) {
       console.error('Failed to create test:', error);
@@ -75,7 +75,7 @@ export function useContent() {
   // لیست سوالات یک آزمون
   const fetchTestQuestions = async (testId) => {
     try {
-      const response = await api.get(`/api/assessment/test/${testId}/questions/`);
+      const response = await api.get(`/assessment/teacher/tests/${testId}/questions/list/`);
       return response.data;
     } catch (error) {
       console.error('Failed to fetch questions:', error);
@@ -86,7 +86,7 @@ export function useContent() {
   // اضافه کردن سوال به آزمون
   const addQuestion = async (testId, questionData) => {
     try {
-      const response = await api.post(`/api/assessment/test/${testId}/add-question/`, questionData);
+      const response = await api.post(`/assessment/teacher/tests/${testId}/questions/`, questionData);
       return response.data;
     } catch (error) {
       console.error('Failed to add question:', error);
@@ -97,7 +97,7 @@ export function useContent() {
   // ویرایش سوال
   const updateQuestion = async (questionId, data) => {
     try {
-      const response = await api.put(`/api/assessment/question/${questionId}/`, data);
+      const response = await api.put(`/assessment/teacher/questions/${questionId}/update/`, data);
       return response.data;
     } catch (error) {
       console.error('Failed to update question:', error);
@@ -108,7 +108,7 @@ export function useContent() {
   // حذف سوال
   const deleteQuestion = async (questionId) => {
     try {
-      await api.delete(`/api/assessment/question/${questionId}/delete/`);
+      await api.delete(`/assessment/teacher/questions/${questionId}/delete/`);
     } catch (error) {
       console.error('Failed to delete question:', error);
       throw error;

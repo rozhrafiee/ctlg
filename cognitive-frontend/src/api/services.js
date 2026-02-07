@@ -11,7 +11,7 @@ export const studentAPI = {
    */
   getRecommendedContent: async () => {
     try {
-      const response = await api.get('/adaptive-learning/recommended-content/');
+      const response = await api.get('/adaptive-learning/recommended/');
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -37,7 +37,7 @@ export const studentAPI = {
    */
   resetLearningPath: async () => {
     try {
-      const response = await api.post('/adaptive-learning/reset-learning-path/');
+      const response = await api.post('/adaptive-learning/learning-path/reset/');
       showSuccessToast('مسیر یادگیری با موفقیت بازنشانی شد');
       return response.data;
     } catch (error) {
@@ -51,7 +51,7 @@ export const studentAPI = {
    */
   updateProgress: async (contentId, percent) => {
     try {
-      const response = await api.post(`/adaptive-learning/update-progress/${contentId}/`, {
+      const response = await api.post(`/adaptive-learning/content/${contentId}/progress/`, {
         percent,
       });
       if (percent >= 100) {
@@ -70,7 +70,7 @@ export const studentAPI = {
   markRecommendationClicked: async (recommendationId) => {
     try {
       const response = await api.post(
-        `/adaptive-learning/mark-recommendation-clicked/${recommendationId}/`
+        `/adaptive-learning/recommendations/${recommendationId}/click/`
       );
       return response.data;
     } catch (error) {
@@ -84,7 +84,7 @@ export const studentAPI = {
    */
   getDashboard: async () => {
     try {
-      const response = await api.get('/adaptive-learning/adaptive-dashboard/');
+      const response = await api.get('/adaptive-learning/dashboard/');
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -123,7 +123,7 @@ export const studentAPI = {
    */
   getTestResult: async (sessionId) => {
     try {
-      const response = await api.get(`/assessment/results/${sessionId}/`);
+      const response = await api.get(`/assessment/student/results/${sessionId}/`);
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -169,7 +169,7 @@ export const assessmentAPI = {
   submitAnswer: async (sessionId, questionId, answerData) => {
     try {
       const response = await api.post(
-        `/assessment/sessions/${sessionId}/questions/${questionId}/submit/`,
+        `/assessment/sessions/${sessionId}/questions/${questionId}/answer/`,
         answerData
       );
       return response.data;
@@ -203,7 +203,7 @@ export const teacherContentAPI = {
    */
   getMyContent: async () => {
     try {
-      const response = await api.get('/adaptive-learning/teacher/content/');
+      const response = await api.get('/adaptive-learning/teacher/contents/');
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -216,7 +216,7 @@ export const teacherContentAPI = {
    */
   createContent: async (contentData) => {
     try {
-      const response = await api.post('/adaptive-learning/teacher/content/', contentData);
+      const response = await api.post('/adaptive-learning/teacher/content/create/', contentData);
       showSuccessToast('محتوا با موفقیت ایجاد شد');
       return response.data;
     } catch (error) {
@@ -231,7 +231,7 @@ export const teacherContentAPI = {
   updateContent: async (contentId, contentData) => {
     try {
       const response = await api.put(
-        `/adaptive-learning/teacher/content/${contentId}/`,
+        `/adaptive-learning/teacher/content/${contentId}/update/`,
         contentData
       );
       showSuccessToast('محتوا با موفقیت به‌روزرسانی شد');
@@ -247,7 +247,7 @@ export const teacherContentAPI = {
    */
   deleteContent: async (contentId) => {
     try {
-      await api.delete(`/adaptive-learning/teacher/content/${contentId}/`);
+      await api.delete(`/adaptive-learning/teacher/content/${contentId}/delete/`);
       showSuccessToast('محتوا با موفقیت حذف شد');
     } catch (error) {
       handleApiError(error);
@@ -265,7 +265,7 @@ export const teacherTestAPI = {
    */
   getMyTests: async () => {
     try {
-      const response = await api.get('/assessment/teacher/tests/');
+      const response = await api.get('/assessment/teacher/tests/all/');
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -278,7 +278,7 @@ export const teacherTestAPI = {
    */
   createTest: async (testData) => {
     try {
-      const response = await api.post('/assessment/teacher/tests/', testData);
+      const response = await api.post('/assessment/teacher/tests/create/', testData);
       showSuccessToast('آزمون با موفقیت ایجاد شد');
       return response.data;
     } catch (error) {
@@ -292,7 +292,7 @@ export const teacherTestAPI = {
    */
   updateTest: async (testId, testData) => {
     try {
-      const response = await api.put(`/assessment/teacher/tests/${testId}/`, testData);
+      const response = await api.put(`/assessment/teacher/tests/update/${testId}/`, testData);
       showSuccessToast('آزمون با موفقیت به‌روزرسانی شد');
       return response.data;
     } catch (error) {
@@ -306,7 +306,7 @@ export const teacherTestAPI = {
    */
   deleteTest: async (testId) => {
     try {
-      await api.delete(`/assessment/teacher/tests/${testId}/`);
+      await api.delete(`/assessment/teacher/tests/delete/${testId}/`);
       showSuccessToast('آزمون با موفقیت حذف شد');
     } catch (error) {
       handleApiError(error);
@@ -337,7 +337,7 @@ export const teacherTestAPI = {
   updateQuestion: async (questionId, questionData) => {
     try {
       const response = await api.put(
-        `/assessment/teacher/questions/${questionId}/`,
+        `/assessment/teacher/questions/${questionId}/update/`,
         questionData
       );
       showSuccessToast('سوال با موفقیت به‌روزرسانی شد');
@@ -353,7 +353,7 @@ export const teacherTestAPI = {
    */
   deleteQuestion: async (questionId) => {
     try {
-      await api.delete(`/assessment/teacher/questions/${questionId}/`);
+      await api.delete(`/assessment/teacher/questions/${questionId}/delete/`);
       showSuccessToast('سوال با موفقیت حذف شد');
     } catch (error) {
       handleApiError(error);
@@ -366,7 +366,7 @@ export const teacherTestAPI = {
    */
   getPendingReviews: async () => {
     try {
-      const response = await api.get('/assessment/teacher/pending-reviews/');
+      const response = await api.get('/assessment/teacher/reviews/pending/');
       return response.data;
     } catch (error) {
       handleApiError(error);

@@ -5,6 +5,8 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Alert } from '../../components/ui/Alert';
 import { TrendingUp, Book, Award, Target } from 'lucide-react';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 export function ProgressPage() {
   const [progress, setProgress] = useState([]);

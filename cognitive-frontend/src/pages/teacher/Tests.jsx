@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { Link } from "react-router-dom";
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 export default function Tests() {
   const [tests, setTests] = useState([]);

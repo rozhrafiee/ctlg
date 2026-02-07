@@ -8,7 +8,8 @@ import { Input } from '../../components/ui/Input';
 import api from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 const PlacementTest = () => {
   const navigate = useNavigate();
   const { user, setUser } = useAuthStore();

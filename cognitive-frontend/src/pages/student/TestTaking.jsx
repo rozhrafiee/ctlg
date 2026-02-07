@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, Send, AlertCircle, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import api from '../../api/axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 const TestTaking = () => {
   const { testId } = useParams();
@@ -116,7 +117,7 @@ const TestTaking = () => {
 
       if (data.status === 'completed') {
         alert(`آزمون با موفقیت ارسال شد!\nنمره: ${data.score?.toFixed(1)}%`);
-        navigate(`/student/results/${sessionId}`);
+        navigate(`/student/tests/${sessionId}/result`);
       } else if (data.status === 'pending_review') {
         alert('آزمون ارسال شد و در انتظار بررسی استاد است.');
         navigate('/student/history');
@@ -187,12 +188,9 @@ const TestTaking = () => {
 
             {/* Progress Bar */}
             <div className="mt-4 h-2 bg-slate-200 rounded-full overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                initial={{ width: 0 }}
-                animate={{
-                  width: `${((currentQuestionIndex + 1) / questions.length) * 100}%`,
-                }}
+              <div
+                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-[width] duration-300"
+                style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
               />
             </div>
           </Card>
@@ -221,14 +219,7 @@ const TestTaking = () => {
         </Card>
 
         {/* Question Card */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentQuestionIndex}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
-          >
+        <div key={currentQuestionIndex}>
             <Card className="p-8 bg-white shadow-lg mb-6">
               <div className="mb-6">
                 <div className="flex items-center gap-3 mb-4">
@@ -306,8 +297,7 @@ const TestTaking = () => {
                 </div>
               )}
             </Card>
-          </motion.div>
-        </AnimatePresence>
+        </div>
 
         {/* Navigation Buttons */}
         <div className="flex items-center justify-between">

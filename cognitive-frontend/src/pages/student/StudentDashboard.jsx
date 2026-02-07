@@ -9,6 +9,10 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { BookOpen, Target, TrendingUp, RefreshCw, Award, Clock } from 'lucide-react';
+import ModernNavbar from '@/components/layout/ModernNavbar';
+import '@/styles/dashboard-modern-fixed.css'
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css"
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -36,18 +40,16 @@ const StudentDashboard = () => {
   // ═════════════════════════════════════════════════════
   if (isLoading) {
     return (
-      <div className="p-6 space-y-6 max-w-7xl mx-auto">
-        <Skeleton className="h-32 w-full" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
+      <>
+        <ModernNavbar user={user} />
+        <div className="dashboard-wrapper">
+          <div className="stats-grid">
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Skeleton className="h-64" />
-          <Skeleton className="h-64" />
-        </div>
-      </div>
+      </>
     );
   }
 
@@ -75,7 +77,6 @@ const StudentDashboard = () => {
     },
   ];
 
-  // داده‌های نمودار آزمون‌ها
   const testScoresData = safeTestHistory
     .slice(0, 5)
     .reverse()
@@ -85,137 +86,156 @@ const StudentDashboard = () => {
     }));
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      {/* ═════════════════════════════════════════════════════
-          🎉 خوش‌آمدگویی
-          ═════════════════════════════════════════════════════ */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-6">
-        <h1 className="text-2xl font-bold mb-2">
-          سلام {user?.first_name || 'کاربر'} عزیز! 👋
-        </h1>
-        <p className="opacity-90">
-          آماده‌اید برای یادگیری امروز؟ بیایید از جایی که رها کردید ادامه دهیم.
-        </p>
-      </div>
+    <>
+      {/* Navigation Bar */}
+      <ModernNavbar user={user} />
+      
+      {/* Dashboard Content */}
+      <div className="dashboard-wrapper">
+        
+        {/* ═════════════════════════════════════════════════════
+            🎉 خوش‌آمدگویی
+            ═════════════════════════════════════════════════════ */}
+        <div className="dashboard-header fade-in-up">
+          <h1 className="dashboard-title">
+            سلام {user?.first_name || 'کاربر'} عزیز! 👋
+          </h1>
+          <p className="dashboard-subtitle">
+            آماده‌اید برای یادگیری امروز؟ بیایید از جایی که رها کردید ادامه دهیم.
+          </p>
+        </div>
 
-      {/* ═════════════════════════════════════════════════════
-          📊 آمار کلیدی
-          ═════════════════════════════════════════════════════ */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">سطح شناختی</CardTitle>
-            <Target className="w-4 h-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {dashboard?.level || user?.cognitive_level || 1}
+        {/* ═════════════════════════════════════════════════════
+            📊 آمار کلیدی
+            ═════════════════════════════════════════════════════ */}
+        <div className="stats-grid">
+          <div className="stat-card fade-in-up" style={{animationDelay: '0.1s'}}>
+            <div className="stat-icon blue">
+              <Target />
             </div>
-            <p className="text-xs text-gray-500 mt-1">از 100</p>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div
-                className="bg-blue-600 h-2 rounded-full transition-all"
-                style={{ width: `${dashboard?.level || user?.cognitive_level || 1}%` }}
-              />
+            <div className="stat-label">سطح شناختی</div>
+            <div className="stat-value">{dashboard?.level || user?.cognitive_level || 1}</div>
+            <span className="stat-change positive">از 100</span>
+          </div>
+
+          <div className="stat-card fade-in-up" style={{animationDelay: '0.2s'}}>
+            <div className="stat-icon green">
+              <BookOpen />
             </div>
-          </CardContent>
-        </Card>
+            <div className="stat-label">محتوای تکمیل شده</div>
+            <div className="stat-value">{dashboard?.completed_count || 0}</div>
+            <span className="stat-change positive">محتوا</span>
+          </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">محتوای تکمیل شده</CardTitle>
-            <BookOpen className="w-4 h-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{dashboard?.completed_count || 0}</div>
-            <p className="text-xs text-gray-500 mt-1">محتوا</p>
-          </CardContent>
-        </Card>
+          <div className="stat-card fade-in-up" style={{animationDelay: '0.3s'}}>
+            <div className="stat-icon purple">
+              <Award />
+            </div>
+            <div className="stat-label">آزمون‌های گذرانده</div>
+            <div className="stat-value">{safeTestHistory.length}</div>
+            <span className="stat-change positive">آزمون</span>
+          </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">آزمون‌های گذرانده</CardTitle>
-            <Award className="w-4 h-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{safeTestHistory.length}</div>
-            <p className="text-xs text-gray-500 mt-1">آزمون</p>
-          </CardContent>
-        </Card>
-      </div>
+          <div className="stat-card fade-in-up" style={{animationDelay: '0.4s'}}>
+            <div className="stat-icon orange">
+              <TrendingUp />
+            </div>
+            <div className="stat-label">پیشرفت کلی</div>
+            <div className="stat-value">
+              {Math.round((dashboard?.completed_count || 0) / Math.max(safeProgress.length, 1) * 100)}%
+            </div>
+            <span className="stat-change positive">↑ +12%</span>
+          </div>
+        </div>
 
-      {/* ═════════════════════════════════════════════════════
-          💡 پیشنهادات
-          ═════════════════════════════════════════════════════ */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-blue-600" />
-            پیشنهادات ویژه برای شما
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        {/* ═════════════════════════════════════════════════════
+            💡 پیشنهادات
+            ═════════════════════════════════════════════════════ */}
+        <div className="dashboard-section fade-in-up" style={{animationDelay: '0.5s'}}>
+          <div className="section-header">
+            <h2 className="section-title">
+              <BookOpen className="inline-block ml-2" size={24} />
+              پیشنهادات ویژه برای شما
+            </h2>
+          </div>
+          
           {!recommendations || recommendations.length === 0 ? (
             <EmptyState
               title="پیشنهادی موجود نیست"
-              description="در حال حاضر محتوای پیشنهادی برای شما وجود ندارد. با تکمیل محتواها و آزمون‌ها، پیشنهادات جدید دریافت خواهید کرد."
+              description="در حال حاضر محتوای پیشنهادی برای شما وجود ندارد."
               icon={BookOpen}
             />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem'}}>
               {safeRecommendations.slice(0, 4).map((rec) => (
-                <Card key={rec.id} className="border-r-4 border-blue-500 hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold flex-1">{rec.content_title}</h3>
-                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                        {rec.recommendation_type === 'next_in_path' ? 'مسیر یادگیری' :
-                         rec.recommendation_type === 'prerequisite' ? 'پیش‌نیاز' :
-                         rec.recommendation_type === 'similar' ? 'مشابه' : 'پیشنهادی'}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                      {rec.reason || 'این محتوا با توجه به سطح و علایق شما پیشنهاد شده است'}
-                    </p>
-                    <Button
-                      size="sm"
-                      className="w-full"
-                      onClick={() => {
-                        markRecommendationClicked(rec.id);
-                        navigate(`/student/content/${rec.content_id}`);
-                      }}
-                    >
-                      شروع یادگیری
-                    </Button>
-                  </CardContent>
-                </Card>
+                <div 
+                  key={rec.id} 
+                  style={{
+                    padding: '1.5rem',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderRadius: '16px',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-5px)';
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                  }}
+                >
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem'}}>
+                    <h4 style={{color: 'white', fontWeight: '600'}}>{rec.content_title}</h4>
+                    <span style={{
+                      fontSize: '0.75rem',
+                      padding: '0.25rem 0.5rem',
+                      background: 'rgba(59, 130, 246, 0.2)',
+                      color: '#60a5fa',
+                      borderRadius: '6px'
+                    }}>
+                      {rec.recommendation_type === 'next_in_path' ? 'مسیر' :
+                       rec.recommendation_type === 'prerequisite' ? 'پیش‌نیاز' : 'پیشنهادی'}
+                    </span>
+                  </div>
+                  <p style={{color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1rem'}}>
+                    {rec.reason || 'پیشنهاد شده'}
+                  </p>
+                  <Button
+                    size="sm"
+                    style={{width: '100%'}}
+                    onClick={() => {
+                      markRecommendationClicked(rec.id);
+                      navigate(`/student/content/${rec.content_id || rec.content?.id}`);
+                    }}
+                  >
+                    شروع یادگیری →
+                  </Button>
+                </div>
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* ═════════════════════════════════════════════════════
-          🗺️ مسیر یادگیری
-          ═════════════════════════════════════════════════════ */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-purple-600" />
-            مسیر یادگیری شما
-          </CardTitle>
-          {learningPath && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={resetLearningPath}
-            >
-              <RefreshCw className="w-4 h-4 ml-2" />
-              بازنشانی
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
+        {/* ═════════════════════════════════════════════════════
+            🗺️ مسیر یادگیری
+            ═════════════════════════════════════════════════════ */}
+        <div className="dashboard-section fade-in-up" style={{animationDelay: '0.6s'}}>
+          <div className="section-header">
+            <h2 className="section-title">
+              <TrendingUp className="inline-block ml-2" size={24} />
+              مسیر یادگیری شما
+            </h2>
+            {learningPath && (
+              <Button variant="outline" size="sm" onClick={resetLearningPath}>
+                <RefreshCw className="ml-2" size={16} />
+                بازنشانی
+              </Button>
+            )}
+          </div>
+
           {!learningPath || !learningPath.items ? (
             <EmptyState
               title="مسیر یادگیری فعالی وجود ندارد"
@@ -223,153 +243,91 @@ const StudentDashboard = () => {
               icon={TrendingUp}
             />
           ) : (
-            <div className="space-y-3">
-              <div className="mb-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
-                <h3 className="font-semibold text-purple-900">{learningPath.name}</h3>
-                <p className="text-sm text-purple-700 mt-1">
-                  {learningPath.items.filter(i => i.is_completed).length} از {learningPath.items.length} تکمیل شده
-                </p>
+            <div style={{padding: '1rem', background: 'rgba(139, 92, 246, 0.1)', borderRadius: '12px', marginBottom: '1rem'}}>
+              <h3 style={{color: 'white', marginBottom: '0.5rem'}}>{learningPath.name}</h3>
+              <div style={{background: 'rgba(255,255,255,0.1)', height: '12px', borderRadius: '20px', overflow: 'hidden'}}>
+                <div style={{
+                  width: `${(learningPath.items.filter(i => i.is_completed).length / learningPath.items.length) * 100}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #8b5cf6 0%, #6d28d9 100%)',
+                  transition: 'width 0.5s ease'
+                }}></div>
               </div>
-              {learningPath.items.map((item, index) => (
-                <div
-                  key={item.id}
-                  className={`flex items-center p-4 rounded-lg border transition-all ${
-                    item.is_completed
-                      ? 'bg-green-50 border-green-300'
-                      : item.is_unlocked
-                      ? 'bg-blue-50 border-blue-300 hover:shadow'
-                      : 'bg-gray-50 border-gray-200 opacity-60'
-                  }`}
-                >
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center font-bold text-sm mr-3"
-                       style={{
-                         borderColor: item.is_completed ? '#22c55e' : item.is_unlocked ? '#3b82f6' : '#9ca3af'
-                       }}>
-                    {index + 1}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium">{item.content_title}</h4>
-                      {item.is_completed && (
-                        <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">
-                          ✓ تکمیل شده
-                        </span>
-                      )}
-                      {!item.is_unlocked && (
-                        <span className="text-xs bg-gray-400 text-white px-2 py-0.5 rounded-full">
-                          🔒 قفل
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {item.is_unlocked && !item.is_completed && (
-                    <Button
-                      size="sm"
-                      onClick={() => navigate(`/student/content/${item.content_id}`)}
-                    >
-                      ادامه
-                    </Button>
-                  )}
+              <p style={{marginTop: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem'}}>
+                {learningPath.items.filter(i => i.is_completed).length} از {learningPath.items.length} تکمیل شده
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* ═════════════════════════════════════════════════════
+            📈 نمودارها
+            ═════════════════════════════════════════════════════ */}
+        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem'}}>
+          <Card>
+            <CardHeader>
+              <CardTitle>روند پیشرفت محتوا</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {progressChartData.length > 0 ? (
+                <CustomLineChart data={progressChartData} dataKey="پیشرفت" height={250} />
+              ) : (
+                <EmptyState title="داده‌ای موجود نیست" description="پس از تکمیل محتوا نمایش داده می‌شود" />
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>عملکرد آزمون‌ها</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {testScoresData.length > 0 ? (
+                <CustomBarChart data={testScoresData} dataKey="نمره" height={250} />
+              ) : (
+                <EmptyState title="آزمونی داده نشده" description="پس از شرکت در آزمون نمایش داده می‌شود" />
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* ═════════════════════════════════════════════════════
+            🎯 آزمون‌های موجود
+            ═════════════════════════════════════════════════════ */}
+        {safeAvailableTests.length > 0 && (
+          <div className="dashboard-section fade-in-up" style={{animationDelay: '0.7s'}}>
+            <div className="section-header">
+              <h2 className="section-title">
+                <Clock className="inline-block ml-2" size={24} />
+                آزمون‌های موجود
+              </h2>
+            </div>
+            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem'}}>
+              {safeAvailableTests.slice(0, 4).map((test) => (
+                <div key={test.id} style={{
+                  padding: '1.5rem',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '2px solid rgba(245, 158, 11, 0.3)',
+                  borderRadius: '16px'
+                }}>
+                  <h3 style={{color: 'white', marginBottom: '0.5rem', fontWeight: '600'}}>{test.title}</h3>
+                  <p style={{color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1rem'}}>
+                    ⏱️ {test.time_limit_minutes} دقیقه | 📊 سطح {test.min_level}-{test.max_level}
+                  </p>
+                  <Button
+                    size="sm"
+                    style={{width: '100%'}}
+                    onClick={() => navigate(`/student/tests/${test.id}/take`)}
+                  >
+                    شروع آزمون
+                  </Button>
                 </div>
               ))}
             </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* ═════════════════════════════════════════════════════
-          📈 نمودارها
-          ═════════════════════════════════════════════════════ */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* نمودار پیشرفت محتوا */}
-        <Card>
-          <CardHeader>
-            <CardTitle>روند پیشرفت محتوا</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {progressChartData.length > 0 ? (
-              <CustomLineChart
-                data={progressChartData}
-                dataKey="پیشرفت"
-                height={250}
-              />
-            ) : (
-              <EmptyState
-                title="داده‌ای موجود نیست"
-                description="پس از تکمیل محتوا، نمودار پیشرفت شما نمایش داده می‌شود"
-              />
-            )}
-          </CardContent>
-        </Card>
-
-        {/* نمودار نمرات آزمون */}
-        <Card>
-          <CardHeader>
-            <CardTitle>عملکرد آزمون‌ها</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {testScoresData.length > 0 ? (
-              <CustomBarChart
-                data={testScoresData}
-                dataKey="نمره"
-                height={250}
-              />
-            ) : (
-              <EmptyState
-                title="آزمونی داده نشده"
-                description="پس از شرکت در آزمون‌ها، نمودار عملکرد شما نمایش داده می‌شود"
-              />
-            )}
-          </CardContent>
-        </Card>
+          </div>
+        )}
       </div>
-
-      {/* نمودار توزیع فعالیت */}
-      <Card>
-        <CardHeader>
-          <CardTitle>توزیع فعالیت‌ها</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CustomPieChart data={activityDistribution} height={300} />
-        </CardContent>
-      </Card>
-
-      {/* ═════════════════════════════════════════════════════
-          🎯 آزمون‌های موجود
-          ═════════════════════════════════════════════════════ */}
-      {safeAvailableTests.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-orange-600" />
-              آزمون‌های موجود
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {safeAvailableTests.slice(0, 4).map((test) => (
-                <Card key={test.id} className="border-r-4 border-orange-500">
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold mb-2">{test.title}</h3>
-                    <div className="text-sm text-gray-600 space-y-1 mb-3">
-                      <p>⏱️ مدت: {test.time_limit_minutes} دقیقه</p>
-                      <p>📊 سطح: {test.min_level} تا {test.max_level}</p>
-                    </div>
-                    <Button
-                      size="sm"
-                      className="w-full"
-                      onClick={() => navigate(`/student/test/${test.id}`)}
-                    >
-                      شروع آزمون
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+    </>
   );
 };
 

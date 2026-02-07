@@ -4,6 +4,8 @@ import { useAuth } from '@/contexts/AuthContext';
 // فرض می‌کنیم این کامپوننت‌ها/Alert از کتابخانه UI شما هستند
 import { Button } from '@/components/ui/Button'; 
 import { Alert } from '@/components/ui/Alert'; 
+import '@/styles/login-page.css'; 
+
 
 /**
  * 🔐 صفحه ورود (LoginPage)

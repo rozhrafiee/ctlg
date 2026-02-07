@@ -12,6 +12,8 @@ import {
   Checkbox,
 } from '@/components/ui/Form';
 import { Button } from '@/components/ui/Button';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 export default function CreateTestPage() {
   const form = useForm({

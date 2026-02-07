@@ -5,6 +5,8 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 /**
  * 📚 لیست محتوای آموزشی استاد

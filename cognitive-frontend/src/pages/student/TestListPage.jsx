@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../utils/api';
+import api from '../../api/axios';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Alert } from '../../components/ui/Alert';
 import { FileText, Clock, AlertCircle } from 'lucide-react';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 export function TestListPage() {
   const [tests, setTests] = useState([]);
@@ -21,8 +23,8 @@ export function TestListPage() {
   const fetchTests = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/assessment/tests/available/');
-      setTests(response.data);
+      const response = await api.get('/assessment/tests/');
+      setTests(response.data?.results ?? response.data ?? []);
     } catch (err) {
       setError('خطا در دریافت لیست آزمون‌ها');
       console.error(err);

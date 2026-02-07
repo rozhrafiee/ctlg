@@ -4,6 +4,8 @@ import { BookOpen, Users, FileText, Clock, TrendingUp, AlertCircle } from 'lucid
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';
 import Dashboard from '../student/Dashboard';
+import "@/styles/global-styles.css";
+import "@/styles/page-styles.css";
 
 export default function TeacherDashboard() {
   const [stats, setStats] = useState({
@@ -85,7 +87,7 @@ export default function TeacherDashboard() {
           label="تعداد محتواها"
           value={stats.totalContent}
           color="border-green-600"
-          link="/teacher/content"
+          link="/teacher/contents"
         />
         <StatCard
           icon={AlertCircle}
@@ -149,7 +151,7 @@ export default function TeacherDashboard() {
           </motion.button>
         </Link>
 
-        <Link to="/teacher/content/create">
+        <Link to="/teacher/contents/create">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
