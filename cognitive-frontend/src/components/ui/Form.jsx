@@ -1,5 +1,5 @@
-import { createContext, useContext, useId } from 'react';
-import { useFormContext, Controller } from 'react-hook-form';
+import { createContext, forwardRef, useContext, useId } from 'react';
+import { FormProvider, useFormContext, Controller } from 'react-hook-form';
 import { cn } from '@/lib/utils';
 
 /**
@@ -12,7 +12,7 @@ const FormItemContext = createContext({});
 
 // Form wrapper
 export const Form = ({ children, ...props }) => {
-  return <form {...props}>{children}</form>;
+  return <FormProvider {...props}>{children}</FormProvider>;
 };
 
 // FormField - برای کنترل فیلدها
@@ -110,9 +110,10 @@ export const FormMessage = ({ className, children, ...props }) => {
 /**
  * ✅ Input Component
  */
-export const Input = ({ className, type = 'text', ...props }) => {
+export const Input = forwardRef(({ className, type = 'text', ...props }, ref) => {
   return (
     <input
+      ref={ref}
       type={type}
       className={cn(
         'flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm',
@@ -124,14 +125,16 @@ export const Input = ({ className, type = 'text', ...props }) => {
       {...props}
     />
   );
-};
+});
+Input.displayName = 'Input';
 
 /**
  * 📝 Textarea Component
  */
-export const Textarea = ({ className, ...props }) => {
+export const Textarea = forwardRef(({ className, ...props }, ref) => {
   return (
     <textarea
+      ref={ref}
       className={cn(
         'flex min-h-[80px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm',
         'placeholder:text-gray-400',
@@ -142,14 +145,16 @@ export const Textarea = ({ className, ...props }) => {
       {...props}
     />
   );
-};
+});
+Textarea.displayName = 'Textarea';
 
 /**
  * 📋 Select Component
  */
-export const Select = ({ className, children, ...props }) => {
+export const Select = forwardRef(({ className, children, ...props }, ref) => {
   return (
     <select
+      ref={ref}
       className={cn(
         'flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm',
         'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
@@ -161,14 +166,16 @@ export const Select = ({ className, children, ...props }) => {
       {children}
     </select>
   );
-};
+});
+Select.displayName = 'Select';
 
 /**
  * ☑️ Checkbox Component
  */
-export const Checkbox = ({ className, ...props }) => {
+export const Checkbox = forwardRef(({ className, ...props }, ref) => {
   return (
     <input
+      ref={ref}
       type="checkbox"
       className={cn(
         'h-4 w-4 rounded border-gray-300 text-primary-600',
@@ -179,14 +186,16 @@ export const Checkbox = ({ className, ...props }) => {
       {...props}
     />
   );
-};
+});
+Checkbox.displayName = 'Checkbox';
 
 /**
  * 🔘 Radio Component
  */
-export const Radio = ({ className, ...props }) => {
+export const Radio = forwardRef(({ className, ...props }, ref) => {
   return (
     <input
+      ref={ref}
       type="radio"
       className={cn(
         'h-4 w-4 border-gray-300 text-primary-600',
@@ -197,7 +206,8 @@ export const Radio = ({ className, ...props }) => {
       {...props}
     />
   );
-};
+});
+Radio.displayName = 'Radio';
 
 /**
  * 🔄 Switch Component (Toggle)

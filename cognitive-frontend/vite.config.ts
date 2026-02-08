@@ -10,7 +10,7 @@ export default defineConfig({
     },
   },
   build: {
-    sourcemap: false, // ✅ غیرفعال کردن source maps در build
+    sourcemap: false, 
   },
   server: {
     proxy: {
