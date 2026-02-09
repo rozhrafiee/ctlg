@@ -82,7 +82,7 @@ class TestSession(models.Model):
     STATUS = (
         ('in_progress', 'در حال انجام'),
         ('completed', 'پایان یافته'),
-        ('pending_review', 'در انتظار تصحیح استاد'),
+        ('pending_review', 'در انتظار تصحیح مسئول شهری (مدرس)'),
     )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     test = models.ForeignKey(CognitiveTest, on_delete=models.CASCADE)

@@ -35,7 +35,7 @@ function ProtectedRoute({ children, requirePlacementTest = false, teacherOnly = 
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-slate-500">
+      <div className="min-h-screen flex items-center justify-center text-neutral-500 px-4">
         در حال بارگذاری...
       </div>
     );
@@ -64,7 +64,7 @@ function PublicRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-slate-500">
+      <div className="min-h-screen flex items-center justify-center text-neutral-500 px-4">
         در حال بارگذاری...
       </div>
     );
@@ -91,7 +91,9 @@ export default function App() {
           user
             ? (user.role === 'teacher' || user.role === 'admin'
                 ? <Navigate to="/teacher/dashboard" replace />
-                : <Navigate to="/student/dashboard" replace />)
+                : (user.has_taken_placement_test
+                    ? <Navigate to="/student/dashboard" replace />
+                    : <Navigate to="/student/placement-test" replace />))
             : <HomePage />
         }
       />
@@ -101,7 +103,7 @@ export default function App() {
 
       <Route path="/student/dashboard" element={
         <ProtectedRoute studentOnly requirePlacementTest>
-          <AppShell title="داشبورد دانش‌آموز"><StudentDashboard /></AppShell>
+          <AppShell title="داشبورد شهروند"><StudentDashboard /></AppShell>
         </ProtectedRoute>
       } />
       <Route path="/student/placement-test" element={
@@ -168,7 +170,7 @@ export default function App() {
 
       <Route path="/teacher/dashboard" element={
         <ProtectedRoute teacherOnly>
-          <AppShell title="داشبورد استاد"><TeacherDashboard /></AppShell>
+          <AppShell title="داشبورد مسئول شهری (مدرس)"><TeacherDashboard /></AppShell>
         </ProtectedRoute>
       } />
       <Route path="/teacher/contents" element={
@@ -216,7 +218,9 @@ export default function App() {
         user ? (
           user.role === 'teacher' || user.role === 'admin'
             ? <Navigate to="/teacher/dashboard" replace />
-            : <Navigate to="/student/dashboard" replace />
+            : (user.has_taken_placement_test
+                ? <Navigate to="/student/dashboard" replace />
+                : <Navigate to="/student/placement-test" replace />)
         ) : (
           <Navigate to="/" replace />
         )

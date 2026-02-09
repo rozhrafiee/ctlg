@@ -90,7 +90,7 @@ const PlacementTest = () => {
   
   if (!test) return (
     <div style={styles.center}>
-      <p>آزمون تعیین سطحی توسط استاد تعریف نشده است.</p>
+      <p>آزمون تعیین سطحی توسط مسئول شهری (مدرس) تعریف نشده است.</p>
       <button onClick={() => navigate("/dashboard")} style={styles.smallBtn}>بازگشت به داشبورد</button>
     </div>
   );

@@ -53,7 +53,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* داشبورد هوشمند (تشخیص استاد یا دانشجو) */}
+        {/* داشبورد هوشمند (تشخیص مسئول شهری (مدرس) یا شهروند) */}
         <Route path="/dashboard" element={
           <ProtectedRoute>
             {user?.role === 'teacher' ? <TeacherDashboard /> : <StudentDashboard />}
@@ -69,7 +69,7 @@ function App() {
         <Route path="/content/:id" element={<ProtectedRoute><ContentDetail /></ProtectedRoute>} />
         <Route path="/my-history" element={<ProtectedRoute><MyHistory /></ProtectedRoute>} />
 
-        {/* مسیرهای اختصاصی استاد */}
+        {/* مسیرهای اختصاصی مسئول شهری (مدرس) */}
         <Route path="/teacher/tests" element={<ProtectedRoute><TeacherTests /></ProtectedRoute>} />
         <Route path="/add-test" element={<ProtectedRoute><TestForm /></ProtectedRoute>} />
         <Route path="/edit-test/:id" element={<ProtectedRoute><TestForm /></ProtectedRoute>} />

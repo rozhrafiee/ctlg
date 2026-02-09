@@ -45,7 +45,7 @@ export function useAssessment() {
     fetchSessionDetails: (sessionId) => request(() => api.get(`/assessment/teacher/sessions/${sessionId}/`)),
     submitManualGrade: (sessionId, grades) =>
       request(() => api.post(`/assessment/teacher/sessions/${sessionId}/grade/`, { grades })),
-    // Student
+    // Citizen
     fetchAvailableTests: async () => {
       const data = await request(() => api.get('/assessment/tests/'));
       return normalizeList(data);

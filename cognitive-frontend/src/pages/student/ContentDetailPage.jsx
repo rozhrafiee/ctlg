@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useAdaptive } from '../../hooks/useAdaptive';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -30,13 +30,31 @@ export default function ContentDetailPage() {
       )}
       {content.content_type === 'video' && (
         <Card>
-          <a className="text-brand underline" href={content.video_url} target="_blank" rel="noreferrer">
-            مشاهده ویدئو
-          </a>
+          {content.file_url ? (
+            <div className="space-y-2">
+              <video className="w-full max-w-2xl rounded-lg bg-black" src={content.file_url} controls />
+              {content.video_url && (
+                <a className="text-brand underline block" href={content.video_url} target="_blank" rel="noreferrer">
+                  لینک ویدئو (در تب جدید)
+                </a>
+              )}
+            </div>
+          ) : content.video_url ? (
+            <a className="text-brand underline" href={content.video_url} target="_blank" rel="noreferrer">
+              مشاهده ویدئو
+            </a>
+          ) : (
+            <p className="text-neutral-500">ویدئویی برای این محتوا تعریف نشده است.</p>
+          )}
         </Card>
       )}
-      <div>
+      <div className="flex flex-wrap gap-3">
         <Button onClick={() => updateProgress(id, 100)}>علامت‌گذاری به‌عنوان تکمیل‌شده</Button>
+        {content.related_test_id && (
+          <Link to={`/student/tests/${content.related_test_id}/take`}>
+            <Button variant="secondary">شرکت در آزمون محتوایی (نمره ≥۸۰ = دیده‌شده و ارتقای سطح)</Button>
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ export default function TestTaking() {
   const { testId } = useParams();
   const navigate = useNavigate();
   const { fetchTestDetail, startTest, submitAnswer, finishTest } = useAssessment();
-  const { refreshProfile } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const [test, setTest] = useState(null);
   const [sessionId, setSessionId] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -19,12 +19,16 @@ export default function TestTaking() {
   useEffect(() => {
     const load = async () => {
       const detail = await fetchTestDetail(testId);
+      if (user?.role === 'student' && !user?.has_taken_placement_test && detail?.test_type !== 'placement') {
+        navigate('/student/placement-test', { replace: true });
+        return;
+      }
       setTest(detail);
       const session = await startTest(testId);
       setSessionId(session.id);
     };
     load();
-  }, [testId]);
+  }, [testId, user?.has_taken_placement_test, user?.role, navigate]);
 
   const setAnswer = (qid, payload) => {
     setAnswers((prev) => ({ ...prev, [qid]: payload }));

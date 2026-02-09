@@ -5,60 +5,100 @@
 @layer base {
   :root {
     color-scheme: light;
-    --bg: 248 250 252;
+    /* Municipal theme: professional, trustworthy */
+    --bg: 248 250 251;
     --ink: 15 23 42;
     --muted: 100 116 139;
-    --brand: 14 116 144;
-    --brand-2: 6 182 212;
-    --accent: 245 158 11;
+    --brand: 30 77 107;
+    --brand-2: 13 115 119;
+    --accent: 196 167 71;
+    --primary: 30 77 107;
+    --primary-soft: 232 242 247;
+    --secondary: 13 115 119;
+    --secondary-soft: 230 245 245;
   }
 
   * {
     @apply box-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply antialiased;
-    background: radial-gradient(1200px 600px at 90% -10%, rgba(6, 182, 212, 0.2), transparent 60%),
-      radial-gradient(900px 500px at -10% 0%, rgba(245, 158, 11, 0.12), transparent 55%),
-      rgb(var(--bg));
+    background: radial-gradient(1400px 700px at 95% -5%, rgba(13, 115, 119, 0.12), transparent 55%),
+      radial-gradient(1000px 600px at -5% 10%, rgba(30, 77, 107, 0.1), transparent 50%),
+      radial-gradient(800px 400px at 50% 100%, rgba(196, 167, 71, 0.04), transparent 50%),
+      #f4f7f9;
     color: rgb(var(--ink));
-    font-family: "Vazirmatn", "Yekan", "Tahoma", sans-serif;
+    font-family: "Vazirmatn", "Vazir", "Tahoma", sans-serif;
     direction: rtl;
   }
 
   a {
-    @apply text-slate-800 hover:text-slate-900;
+    @apply text-neutral-700 hover:text-primary transition-colors;
   }
 }
 
 @layer components {
   .container-shell {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-10;
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full;
   }
 
   .surface {
-    @apply bg-white/90 backdrop-blur border border-slate-200 rounded-2xl shadow-sm;
+    @apply backdrop-blur rounded-2xl border border-primary/10;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(232, 242, 247, 0.5) 100%);
+    box-shadow: 0 2px 12px rgba(30, 77, 107, 0.08), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
   }
 
   .section-title {
-    @apply text-xl font-bold text-slate-900;
+    @apply text-xl font-bold text-neutral-900;
   }
 
   .soft-divider {
-    @apply border-t border-slate-200/80;
+    @apply border-t border-neutral-200/80;
   }
 
   .card-grid {
-    @apply grid gap-4 md:grid-cols-3;
+    @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
   }
 
   .stat-card {
-    @apply rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm;
+    @apply rounded-2xl border border-primary/10 p-5;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.85) 0%, rgba(232, 242, 247, 0.4) 100%);
+    box-shadow: 0 2px 12px rgba(30, 77, 107, 0.08), 0 1px 0 rgba(255, 255, 255, 0.4) inset;
   }
 
   .soft-pill {
-    @apply inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600;
+    @apply inline-flex items-center rounded-full bg-primary-soft px-3 py-1.5 text-xs font-semibold text-primary;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark focus:ring-primary-soft;
+  }
+
+  .btn-secondary {
+    @apply bg-primary-soft/40 border border-primary/15 text-neutral-700 hover:bg-primary-soft/60;
+  }
+
+  .form-group {
+    @apply space-y-1.5;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-neutral-700;
+  }
+
+  .form-card {
+    @apply surface p-6 rounded-2xl border border-primary/15;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 242, 247, 0.6) 100%);
+    box-shadow: 0 4px 16px rgba(30, 77, 107, 0.1), 0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  }
+
+  .form-actions {
+    @apply flex flex-wrap gap-3 pt-4 border-t border-neutral-200/80;
   }
 }
 
@@ -76,6 +116,13 @@
   }
 
   .bg-brand-soft {
-    background-color: rgba(6, 182, 212, 0.12);
+    background-color: rgb(var(--primary-soft));
+  }
+}
+
+/* Responsive typography */
+@media (max-width: 640px) {
+  .section-title {
+    @apply text-lg;
   }
 }

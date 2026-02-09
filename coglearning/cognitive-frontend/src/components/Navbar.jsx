@@ -9,7 +9,7 @@ const Navbar = () => {
   // --- منوی مخصوص اساتید ---
   const TeacherMenu = () => (
     <>
-      <Link to="/dashboard" style={linkStyle}>📊 پیشخوان استاد</Link>
+      <Link to="/dashboard" style={linkStyle}>📊 پیشخوان مسئول شهری (مدرس)</Link>
       <Link to="/teacher/tests" style={linkStyle}>⚙️ مدیریت آزمون‌ها</Link>
       <Link to="/teacher/reviews" style={linkStyle}>📝 تصحیح اوراق</Link>
       <Link to="/add-test" style={linkStyle}>➕ تعریف آزمون</Link>
@@ -44,7 +44,7 @@ const Navbar = () => {
           <div style={userControlStyle}>
             <div style={userInfoStyle}>
               <span style={roleBadgeStyle}>
-                {user?.role === 'teacher' ? '👨‍🏫 استاد' : '👨‍🎓 شهروند'}
+                {user?.role === 'teacher' ? '👨‍🏫 مسئول شهری (مدرس)' : '👨‍🎓 شهروند'}
               </span>
               <span style={userNameStyle}>{user?.username}</span>
             </div>

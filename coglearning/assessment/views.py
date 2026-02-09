@@ -66,7 +66,12 @@ def create_test_for_content(request, content_id):
         return Response({"error": "عدم دسترسی"}, status=403)
     test, created = CognitiveTest.objects.get_or_create(
         related_content=content,
-        defaults={"title": f"آزمون: {content.title}", "test_type": "content_based", "created_by": request.user}
+        defaults={
+            "title": f"آزمون: {content.title}",
+            "test_type": "content_based",
+            "created_by": request.user,
+            "passing_score": 80,
+        }
     )
     return Response({"test": CognitiveTestSerializer(test).data, "created": created})
 
@@ -231,6 +236,7 @@ def submit_manual_grade(request, session_id):
         session.save()
         AssessmentService.apply_level_logic(session.user, session)
         AssessmentService.update_analytics_profile(session)
+        AssessmentService.mark_content_completed_if_content_based(session)
     return Response({"status": "graded"})
 
 class UserTestResultDetailView(generics.RetrieveAPIView):

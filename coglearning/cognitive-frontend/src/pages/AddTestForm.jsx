@@ -41,7 +41,7 @@ const AddTestForm = () => {
 
   return (
     <div style={styles.container}>
-      <h2>ایجاد آزمون جدید (توسط استاد)</h2>
+      <h2>ایجاد آزمون جدید (توسط مسئول شهری/مدرس)</h2>
       <form onSubmit={handleSubmit}>
         <div style={styles.section}>
           <label>عنوان آزمون:</label>

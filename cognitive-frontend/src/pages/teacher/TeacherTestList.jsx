@@ -31,13 +31,13 @@ export default function TeacherTestList() {
         actions={<Button onClick={() => navigate('/teacher/tests/create')}>آزمون جدید</Button>}
       />
       {tests.map((test) => (
-        <Card key={test.id} className="flex items-center justify-between">
+        <Card key={test.id} className="flex items-center justify-between border-neutral-200/80 hover:border-primary/20 transition-colors">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-slate-900">{test.title}</h3>
+              <h3 className="font-semibold text-neutral-900">{test.title}</h3>
               <Badge tone="teal">{test.test_type}</Badge>
             </div>
-            <p className="text-xs text-slate-500">{test.description}</p>
+            <p className="text-xs text-neutral-500 mt-1">{test.description}</p>
           </div>
           <div className="flex gap-2">
             <Link to={`/teacher/tests/${test.id}/questions`}><Button variant="secondary">سوالات</Button></Link>

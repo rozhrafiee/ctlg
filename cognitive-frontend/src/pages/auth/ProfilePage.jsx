@@ -27,24 +27,37 @@ export default function ProfilePage() {
     <div className="space-y-4">
       <PageHeader title="پروفایل" subtitle="مدیریت اطلاعات حساب کاربری" />
       <div className="grid lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
-          <h3 className="section-title mb-4">اطلاعات کاربری</h3>
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-3" onSubmit={onSubmit}>
-          <Input placeholder="نام" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
-          <Input placeholder="نام خانوادگی" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
-          <Input placeholder="ایمیل" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-          <div className="md:col-span-2 flex items-center gap-3">
-            <Button type="submit">ذخیره</Button>
-            {message && <span className="text-sm text-emerald-600">{message}</span>}
-          </div>
-        </form>
+        <Card className="lg:col-span-2 form-card border-primary/10">
+          <h3 className="section-title text-neutral-800 mb-5">اطلاعات کاربری</h3>
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-5" onSubmit={onSubmit}>
+            <div className="form-group">
+              <label className="form-label">نام</label>
+              <Input placeholder="نام" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">نام خانوادگی</label>
+              <Input placeholder="نام خانوادگی" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
+            </div>
+            <div className="form-group md:col-span-2">
+              <label className="form-label">ایمیل</label>
+              <Input placeholder="example@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+            </div>
+            <div className="md:col-span-2 form-actions pt-4 flex items-center gap-3">
+              <Button type="submit">ذخیره</Button>
+              {message && <span className="text-sm text-secondary font-medium">{message}</span>}
+            </div>
+          </form>
         </Card>
         <Card>
           <h3 className="section-title mb-3">وضعیت شناختی</h3>
-          <div className="space-y-2 text-sm text-slate-600">
-            <div>سطح: <span className="font-semibold text-slate-900">{user?.cognitive_level ?? '-'}</span></div>
-            <div>نقش: <span className="font-semibold text-slate-900">{user?.role}</span></div>
-            <div>آزمون تعیین سطح: <span className="font-semibold text-slate-900">{user?.has_taken_placement_test ? 'انجام شده' : 'انجام نشده'}</span></div>
+          <div className="space-y-2 text-sm text-neutral-600">
+            {user?.role !== 'teacher' && user?.role !== 'admin' && (
+              <>
+                <div>سطح: <span className="font-semibold text-neutral-900">{user?.cognitive_level ?? '-'}</span></div>
+                <div>آزمون تعیین سطح: <span className="font-semibold text-neutral-900">{user?.has_taken_placement_test ? 'انجام شده' : 'انجام نشده'}</span></div>
+              </>
+            )}
+            <div>نقش: <span className="font-semibold text-neutral-900">{user?.role === 'student' ? 'Citizen' : user?.role === 'teacher' ? 'مسئول شهری (مدرس)' : user?.role}</span></div>
           </div>
         </Card>
       </div>

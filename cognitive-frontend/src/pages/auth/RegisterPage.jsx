@@ -5,6 +5,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
 import Card from '../../components/ui/Card';
+import PublicHeader from '../../components/layout/PublicHeader';
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -31,7 +32,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <>
+      <PublicHeader page="register" />
+      <div className="min-h-screen flex items-center justify-center">
       <Card className="w-full max-w-lg">
         <div className="soft-pill mb-3">ایجاد حساب</div>
         <h2 className="text-2xl font-bold text-slate-900 mb-4">ثبت‌نام</h2>
@@ -42,8 +45,8 @@ export default function RegisterPage() {
           <Input placeholder="نام خانوادگی" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
           <Input type="password" placeholder="رمز عبور" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
           <Select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
-            <option value="student">دانش‌آموز</option>
-            <option value="teacher">استاد</option>
+            <option value="student">شهروند</option>
+            <option value="teacher">مسئول شهری (مدرس)</option>
           </Select>
           {error && <p className="text-sm text-rose-500 md:col-span-2">{error}</p>}
           <div className="md:col-span-2">
@@ -52,5 +55,6 @@ export default function RegisterPage() {
         </form>
       </Card>
     </div>
+    </>
   );
 }

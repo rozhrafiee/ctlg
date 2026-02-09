@@ -4,7 +4,7 @@ from django.db import models
 class User(AbstractUser):
     ROLE_CHOICES = (
         ("student", "شهروند"),
-        ("teacher", "استاد"),
+        ("teacher", "مسئول شهری (مدرس)"),
         ("admin", "مدیر سیستم"),
     )
 
@@ -14,7 +14,7 @@ class User(AbstractUser):
     has_taken_placement_test = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        # اساتید و مدیران نیازی به سطح‌بندی ندارند
+        # مسئولان شهری (مدرسان) و مدیران نیازی به سطح‌بندی ندارند
         if self.role != 'student':
             self.cognitive_level = None
         super().save(*args, **kwargs)

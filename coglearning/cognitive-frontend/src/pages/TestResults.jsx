@@ -61,7 +61,7 @@ const TestResults = () => {
             )}
             {ans.question_type === 'text' && (
               <p style={{ color: '#7f8c8d', fontSize: '0.85rem', fontStyle: 'italic' }}>
-                * این سوال تشریحی است و پس از تصحیح استاد نهایی می‌شود.
+                * این سوال تشریحی است و پس از تصحیح مسئول شهری (مدرس) نهایی می‌شود.
               </p>
             )}
           </div>

@@ -8,10 +8,10 @@ const Consultations = () => {
   // اگر ادمین این صفحه رو دید، ببرش پنل خودش
   if (isAdmin) return <Navigate to="/admin" replace />;
 
-  // اگر استاد این صفحه رو دید، ببرش پنل استاد
+  // اگر مسئول شهری (مدرس) این صفحه رو دید، ببرش پنل خودش
   if (isTeacher) return <Navigate to="/teacher/dashboard" replace />;
 
-  // دانش‌آموز قبل تعیین سطح فقط باید بره تعیین سطح
+  // شهروند قبل تعیین سطح فقط باید بره تعیین سطح
   if (isStudent && !hasTakenPlacementTest) {
     return (
       <div className="consultations-page">
@@ -32,7 +32,7 @@ const Consultations = () => {
     );
   }
 
-  // دانش‌آموز بعد تعیین سطح: لینک‌های کلیدی سامانه
+  // شهروند بعد تعیین سطح: لینک‌های کلیدی سامانه
   return (
     <div className="consultations-page">
       <div className="consultations-header">

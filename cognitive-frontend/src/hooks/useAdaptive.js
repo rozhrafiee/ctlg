@@ -22,7 +22,7 @@ export function useAdaptive() {
   return {
     loading,
     error,
-    // Student
+    // Citizen
     fetchRecommended: () => request(() => api.get('/adaptive-learning/recommended/')),
     fetchLearningPath: () => request(() => api.get('/adaptive-learning/learning-path/')),
     resetLearningPath: () => request(() => api.post('/adaptive-learning/learning-path/reset/')),

@@ -40,7 +40,7 @@ const TeacherDashboard = () => {
       <header style={styles.header}>
         <div>
           <h1 style={styles.title}>پنل تخصصی اساتید</h1>
-          <p style={styles.subTitle}>خوش آمدید استاد <strong>{user?.username || 'گرامی'}</strong> عزیز</p>
+          <p style={styles.subTitle}>خوش آمدید مسئول شهری (مدرس) <strong>{user?.username || 'گرامی'}</strong> عزیز</p>
         </div>
         <button onClick={logout} style={styles.logoutBtn}>خروج از سامانه</button>
       </header>

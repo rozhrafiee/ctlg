@@ -13,7 +13,7 @@ const Home = () => {
 
   // ریدایرکت هوشمند بعد از ورود
   if (isAuthenticated) {
-    // مسیرهای مختلف برای مدیر، استاد و دانشجو
+    // مسیرهای مختلف برای مدیر، مسئول شهری (مدرس) و شهروند
     if (isAdmin) return <Navigate to="/admin" replace />;
     if (isTeacher) return <Navigate to="/teacher/dashboard" replace />;
     if (isStudent && !hasTakenPlacementTest) return <Navigate to="/placement" replace />;

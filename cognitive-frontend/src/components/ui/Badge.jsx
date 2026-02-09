@@ -2,9 +2,9 @@ import { cn } from '../../lib/utils';
 
 export default function Badge({ tone = 'slate', className, ...props }) {
   const tones = {
-    slate: 'bg-slate-100 text-slate-700',
-    teal: 'bg-cyan-100 text-cyan-700',
-    amber: 'bg-amber-100 text-amber-700',
+    slate: 'bg-neutral-100 text-neutral-700',
+    teal: 'bg-secondary-soft text-secondary-dark',
+    amber: 'bg-accent-soft text-accent-dark',
     rose: 'bg-rose-100 text-rose-700',
   };
 

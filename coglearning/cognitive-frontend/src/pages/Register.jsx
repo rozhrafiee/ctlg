@@ -55,7 +55,7 @@ const Register = () => {
           <label style={{ display: "block", marginBottom: "5px", fontSize: "14px" }}>نقش خود را انتخاب کنید:</label>
           <select name="role" style={inputStyle} onChange={handleChange} value={formData.role}>
             <option value="student">شهروند (دانشجو)</option>
-            <option value="teacher">استاد</option>
+            <option value="teacher">مسئول شهری (مدرس)</option>
           </select>
         </div>
 

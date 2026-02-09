@@ -1,3 +1,4 @@
+from django.db.models import Max
 from rest_framework import serializers
 from .models import CognitiveTest, Question, Choice, TestSession, Answer
 
@@ -22,11 +23,10 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         choices_data = validated_data.pop('choices', [])
         test = self.context.get('test')
-        # اعتبارسنجی ترتیب سوال در سطح کد
-        order = validated_data.get('order')
-        if Question.objects.filter(test=test, order=order).exists():
-            raise serializers.ValidationError({"order": f"ترتیب {order} تکراری است."})
-            
+        # Auto-assign next order so multiple questions can be added without conflict
+        max_order = Question.objects.filter(test=test).aggregate(m=Max('order'))['m']
+        next_order = (max_order + 1) if max_order is not None else 0
+        validated_data['order'] = next_order
         question = Question.objects.create(test=test, **validated_data)
         for choice_data in choices_data:
             Choice.objects.create(question=question, **choice_data)

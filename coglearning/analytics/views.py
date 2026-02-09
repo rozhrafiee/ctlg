@@ -6,8 +6,8 @@ from django.db import models
 from django.db.models import Q
 
 # Models & Serializers
-from .models import UserPerformanceSummary
-from .serializers import UserPerformanceSummarySerializer
+from .models import UserPerformanceSummary, LevelHistory
+from .serializers import UserPerformanceSummarySerializer, LevelHistorySerializer
 from .services import AnalyticsService
 from accounts.permissions import IsAdminUser, IsTeacher
 from assessment.models import TestSession, CognitiveTest
@@ -34,12 +34,12 @@ class AdminGlobalStatsView(APIView):
         return Response(stats)
 
 class TeacherStudentStatsView(APIView):
-    """مشاهده روند پیشرفت یک شهروند خاص توسط استاد - با امنیت لایه دسترسی"""
+    """مشاهده روند پیشرفت یک شهروند خاص توسط مسئول شهری (مدرس) - با امنیت لایه دسترسی"""
     permission_classes = [permissions.IsAuthenticated, IsTeacher]
 
     def get(self, request, student_id):
-        # امنیت: بررسی اینکه آیا این دانشجو در آزمون‌های این استاد شرکت کرده است؟
-        # استاد فقط مجاز به دیدن تحلیل‌های شاگردان خودش است
+        # امنیت: بررسی اینکه آیا این شهروند در آزمون‌های این مسئول شهری (مدرس) شرکت کرده است؟
+        # مسئول شهری (مدرس) فقط مجاز به دیدن تحلیل‌های شهروندان خودش است
         is_my_student = TestSession.objects.filter(
             user_id=student_id
         ).filter(
@@ -57,23 +57,23 @@ class TeacherStudentStatsView(APIView):
         return Response(serializer.data)
 
 class TeacherDashboardView(APIView):
-    """داشبورد متمرکز برای نقش استاد"""
+    """داشبورد متمرکز برای نقش مسئول شهری (مدرس)"""
     permission_classes = [permissions.IsAuthenticated, IsTeacher]
 
     def get(self, request):
         user = request.user
         
-        # ۱. فیلتر کردن محتواها و آزمون‌های مربوط به خود استاد
+        # ۱. فیلتر کردن محتواها و آزمون‌های مربوط به خود مسئول شهری (مدرس)
         my_contents = LearningContent.objects.filter(author=user)
         my_contents_count = my_contents.count()
         
-        # آزمون‌هایی که یا متعلق به محتوای استاد هستند یا استاد سازنده آن‌هاست
+        # آزمون‌هایی که یا متعلق به محتوای مسئول شهری (مدرس) هستند یا او سازنده آن‌هاست
         my_tests = CognitiveTest.objects.filter(
             Q(related_content__author=user) | Q(created_by=user)
         ).distinct()
         my_tests_count = my_tests.count()
 
-        # ۳. تعداد آزمون‌های در انتظار تصحیح (فقط برای آزمون‌های این استاد)
+        # ۳. تعداد آزمون‌های در انتظار تصحیح (فقط برای آزمون‌های این مسئول شهری/مدرس)
         pending_reviews = TestSession.objects.filter(
             test__in=my_tests,
             status='pending_review'
@@ -101,64 +101,114 @@ class StudentDashboardView(APIView):
     """داشبورد جامع شهروند با تحلیل ۱-۱۰۰ و پروفایل شناختی - بهینه شده"""
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
-        
-        # ۱. دریافت وضعیت شناختی (از داده‌های پیش‌محاسبه شده)
-        performance, _ = UserPerformanceSummary.objects.get_or_create(user=user)
-        
-        level = user.cognitive_level or 1
-        rank = self.get_rank(level)
-
-        # ۲. وضعیت مسیر یادگیری با اصلاح Query
-        active_path = LearningPath.objects.filter(user=user, is_active=True).first()
-        path_data = None
-        if active_path:
-            total_lessons = active_path.items.count()
-            completed_lessons = UserContentProgress.objects.filter(
-                user=user, 
-                content__path_items__path=active_path, # اصلاح مسیر رابطه
-                is_completed=True
-            ).distinct().count()
-            
-            path_data = {
-                "path_name": active_path.name,
-                "progress_percent": round((completed_lessons / total_lessons * 100), 1) if total_lessons > 0 else 0,
-                "completed_count": completed_lessons,
-                "total_count": total_lessons
-            }
-
-        # ۳. نتایج اخیر و پیشنهادات
-        recent_tests = TestSession.objects.filter(user=user).exclude(status='in_progress').order_by('-finished_at')[:3]
-        recommendations = ContentRecommendation.objects.filter(user=user).order_by('-priority_weight')[:3]
-
-        # ۴. هشدارهای سیستمی بر اساس لاجیک جدید
-        alerts = []
-        if not user.has_taken_placement_test:
-            alerts.append({"type": "warning", "message": "لطفاً برای شخصی‌سازی محتوا، آزمون تعیین سطح را انجام دهید."})
-        
-        # هشدار نمره پایین (اگر در دیتابیس نمره زیر ۴۰ باشد)
-        for skill in ['memory', 'focus', 'logic']:
-            score = getattr(performance, f'avg_{skill}_score')
-            if score < 40 and performance.total_tests_completed > 2:
-                alerts.append({"type": "critical", "message": f"نیاز به تمرین بیشتر در بخش {skill}"})
-
-        return Response({
-            "identity": {
-                "full_name": f"{user.first_name} {user.last_name}",
-                "level": level,
-                "rank": rank,
-            },
-            "cognitive_profile": UserPerformanceSummarySerializer(performance).data,
-            "learning_status": path_data,
-            "top_recommendations": RecommendationSerializer(recommendations, many=True).data,
-            "recent_test_results": TestSessionSerializer(recent_tests, many=True).data,
-            "alerts": alerts
-        })
-
     def get_rank(self, level):
         if level >= 90: return "الماس شناختی"
         if level >= 75: return "طلایی"
         if level >= 50: return "نقره‌ای"
         if level >= 25: return "برنزی"
         return "نوآموز"
+
+    def get(self, request):
+        import logging
+        logger = logging.getLogger(__name__)
+        user = request.user
+
+        def safe_response(identity, cognitive_profile=None, learning_status=None,
+                         top_recommendations=None, recent_test_results=None, alerts=None, chart_data=None):
+            return Response({
+                "identity": identity,
+                "cognitive_profile": cognitive_profile or {},
+                "learning_status": learning_status,
+                "top_recommendations": top_recommendations or [],
+                "recent_test_results": recent_test_results or [],
+                "alerts": alerts or [],
+                "chart_data": chart_data or {},
+            })
+
+        level = getattr(user, 'cognitive_level', None) or 1
+        rank = self.get_rank(level)
+        identity = {
+            "full_name": f"{getattr(user, 'first_name', '') or ''} {getattr(user, 'last_name', '') or ''}".strip() or getattr(user, 'username', ''),
+            "level": level,
+            "rank": rank,
+        }
+
+        try:
+            performance, _ = UserPerformanceSummary.objects.get_or_create(user=user)
+        except Exception as e:
+            logger.exception("StudentDashboard: UserPerformanceSummary get_or_create failed: %s", e)
+            return safe_response(identity, alerts=[{"type": "warning", "message": "بارگذاری داشبورد با خطا مواجه شد. لطفاً بعداً تلاش کنید."}])
+
+        try:
+            path_data = None
+            active_path = LearningPath.objects.filter(user=user, is_active=True).first()
+            if active_path:
+                total_lessons = active_path.items.count()
+                completed_lessons = UserContentProgress.objects.filter(
+                    user=user,
+                    content__learningpathitem_set__path=active_path,
+                    is_completed=True
+                ).distinct().count()
+                path_data = {
+                    "path_name": active_path.name,
+                    "progress_percent": round((completed_lessons / total_lessons * 100), 1) if total_lessons > 0 else 0,
+                    "completed_count": completed_lessons,
+                    "total_count": total_lessons
+                }
+        except Exception as e:
+            logger.exception("StudentDashboard: learning path query failed: %s", e)
+            path_data = None
+
+        try:
+            recent_tests = TestSession.objects.filter(user=user).exclude(status='in_progress').order_by('-finished_at')[:3]
+            recent_test_results = TestSessionSerializer(recent_tests, many=True).data
+        except Exception as e:
+            logger.exception("StudentDashboard: recent tests failed: %s", e)
+            recent_test_results = []
+
+        try:
+            recommendations = ContentRecommendation.objects.filter(user=user).order_by('-priority_weight')[:3]
+            top_recommendations = RecommendationSerializer(recommendations, many=True).data
+        except Exception as e:
+            logger.exception("StudentDashboard: recommendations failed: %s", e)
+            top_recommendations = []
+
+        alerts = []
+        if not getattr(user, 'has_taken_placement_test', True):
+            alerts.append({"type": "warning", "message": "لطفاً برای شخصی‌سازی محتوا، آزمون تعیین سطح را انجام دهید."})
+        try:
+            for skill in ['memory', 'focus', 'logic']:
+                score = getattr(performance, f'avg_{skill}_score', 0) or 0
+                if score < 40 and (getattr(performance, 'total_tests_completed', 0) or 0) > 2:
+                    alerts.append({"type": "critical", "message": f"نیاز به تمرین بیشتر در بخش {skill}"})
+        except Exception:
+            pass
+
+        try:
+            cognitive_profile = UserPerformanceSummarySerializer(performance).data
+        except Exception as e:
+            logger.exception("StudentDashboard: cognitive_profile serialize failed: %s", e)
+            cognitive_profile = {}
+
+        chart_data = {}
+        try:
+            content_completed_count = UserContentProgress.objects.filter(user=user, is_completed=True).count()
+            tests_completed_count = TestSession.objects.filter(user=user, status='completed').count()
+            level_history = LevelHistory.objects.filter(user=user).order_by('-timestamp')[:20]
+            chart_data = {
+                "content_completed_count": content_completed_count,
+                "tests_completed_count": tests_completed_count,
+                "level_history": LevelHistorySerializer(level_history, many=True).data,
+            }
+        except Exception as e:
+            logger.exception("StudentDashboard: chart_data failed: %s", e)
+
+        return safe_response(
+            identity=identity,
+            cognitive_profile=cognitive_profile,
+            learning_status=path_data,
+            top_recommendations=top_recommendations,
+            recent_test_results=recent_test_results,
+            alerts=alerts,
+            chart_data=chart_data,
+        )

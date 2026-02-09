@@ -2,10 +2,30 @@ from rest_framework import serializers
 from .models import LearningContent, LearningPath, LearningPathItem, UserContentProgress, ContentRecommendation
 
 class LearningContentSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField(read_only=True)
+    related_test_id = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = LearningContent
-        fields = '__all__'
+        fields = [
+            'id', 'title', 'content_type', 'body', 'file', 'video_url',
+            'min_level', 'max_level', 'author', 'is_active', 'created_at',
+            'file_url', 'related_test_id',
+        ]
         read_only_fields = ['author']
+
+    def get_file_url(self, obj):
+        if obj.file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.file.url)
+            return obj.file.url
+        return None
+
+    def get_related_test_id(self, obj):
+        from assessment.models import CognitiveTest
+        t = CognitiveTest.objects.filter(related_content=obj).first()
+        return t.id if t else None
 
 class LearningPathItemSerializer(serializers.ModelSerializer):
     content = LearningContentSerializer(read_only=True)

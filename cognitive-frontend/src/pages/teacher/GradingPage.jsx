@@ -42,35 +42,35 @@ export default function GradingPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="تصحیح و بررسی" subtitle="بررسی پاسخ‌های تشریحی دانش‌آموزان" />
+      <PageHeader title="تصحیح و بررسی" subtitle="بررسی پاسخ‌های تشریحی شهروندان" />
       <div className="grid lg:grid-cols-2 gap-6">
-      <Card>
-        <h3 className="section-title mb-3">در انتظار تصحیح</h3>
+      <Card className="border-primary/10">
+        <h3 className="section-title mb-3 text-neutral-800">در انتظار تصحیح</h3>
         <div className="space-y-3">
           {sessions.map((s) => (
             <div key={s.id} className="flex items-center justify-between">
               <div>
-                <div className="font-semibold">{s.test_title}</div>
-                <div className="text-xs text-slate-500">{s.user_full_name}</div>
+                <div className="font-semibold text-neutral-900">{s.test_title}</div>
+                <div className="text-xs text-neutral-500">{s.user_full_name}</div>
               </div>
               <Button variant="secondary" onClick={() => openSession(s.id)}>باز کردن</Button>
             </div>
           ))}
-          {!sessions.length && <div className="text-sm text-slate-500">موردی وجود ندارد.</div>}
+          {!sessions.length && <div className="text-sm text-neutral-500">موردی وجود ندارد.</div>}
         </div>
       </Card>
 
-      <Card>
-        <h3 className="section-title mb-3">تصحیح دستی</h3>
-        {!selected && <div className="text-sm text-slate-500">یک جلسه را انتخاب کنید.</div>}
+      <Card className="border-primary/10">
+        <h3 className="section-title mb-3 text-neutral-800">تصحیح دستی</h3>
+        {!selected && <div className="text-sm text-neutral-500">یک جلسه را انتخاب کنید.</div>}
         {selected && (
           <div className="space-y-3">
             {selected.answers.map((ans) => (
-              <div key={ans.id} className="rounded-xl bg-slate-50 p-3">
-                <div className="text-sm font-semibold">{ans.question_text}</div>
-                <div className="text-xs text-slate-500">پاسخ: {ans.text_answer || ans.user_choice_text || '-'}</div>
+              <div key={ans.id} className="rounded-xl bg-primary-soft/30 p-3 border border-primary/10">
+                <div className="text-sm font-semibold text-neutral-900">{ans.question_text}</div>
+                <div className="text-xs text-neutral-500">پاسخ: {ans.text_answer || ans.user_choice_text || '-'}</div>
                 <div className="mt-2 flex items-center gap-2">
-                  <span className="text-xs text-slate-500">امتیاز:</span>
+                  <span className="text-xs text-neutral-500">امتیاز:</span>
                   <Input
                     type="number"
                     min="0"

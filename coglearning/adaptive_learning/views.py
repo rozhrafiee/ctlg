@@ -73,7 +73,7 @@ class TeacherContentListView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated, IsTeacher]
 
     def get_queryset(self):
-        # ادمین همه چیز را می‌بیند، استاد فقط مال خودش را
+        # ادمین همه چیز را می‌بیند، مسئول شهری (مدرس) فقط مال خودش را
         if self.request.user.role == 'admin':
             return LearningContent.objects.all()
         return LearningContent.objects.filter(author=self.request.user)
@@ -92,7 +92,7 @@ class LearningContentUpdateView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated, IsTeacher]
 
     def get_queryset(self):
-        # ادمین می‌تواند هر چیزی را ویرایش کند، استاد فقط مال خودش را
+        # ادمین می‌تواند هر چیزی را ویرایش کند، مسئول شهری (مدرس) فقط مال خودش را
         if self.request.user.role == 'admin':
             return LearningContent.objects.all()
         return LearningContent.objects.filter(author=self.request.user)
@@ -101,7 +101,7 @@ class LearningContentDeleteView(generics.DestroyAPIView):
     permission_classes = [permissions.IsAuthenticated, IsTeacher]
 
     def get_queryset(self):
-        # ادمین می‌تواند هر چیزی را حذف کند، استاد فقط مال خودش را
+        # ادمین می‌تواند هر چیزی را حذف کند، مسئول شهری (مدرس) فقط مال خودش را
         if self.request.user.role == 'admin':
             return LearningContent.objects.all()
         return LearningContent.objects.filter(author=self.request.user)

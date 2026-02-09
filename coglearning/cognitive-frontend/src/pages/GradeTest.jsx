@@ -61,7 +61,7 @@ const GradeTest = ({ sessionId, onBack }) => {
 
             {ans.question_type === "text" ? (
               <div style={styles.gradingArea}>
-                <label>نمره استاد (از {ans.question_points || "-"}): </label>
+                <label>نمره مسئول شهری (مدرس) (از {ans.question_points || "-"}): </label>
                 <input
                   type="number"
                   step="0.5"

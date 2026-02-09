@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.db import transaction
 from accounts.services import AccountService
 from analytics.models import UserPerformanceSummary
+from adaptive_learning.models import UserContentProgress
 
 class AssessmentService:
 
@@ -48,6 +49,8 @@ class AssessmentService:
                 cls.apply_level_logic(session.user, session)
                 # ۲. بروزرسانی پروفایل شناختی (Analytics)
                 cls.update_analytics_profile(session)
+                # ۳. آزمون محتوایی: نمره ≥۸۰ → محتوا «دیده‌شده» و سطح اضافه
+                cls.mark_content_completed_if_content_based(session)
             
             if test.test_type == 'placement':
                 session.user.has_taken_placement_test = True
@@ -95,6 +98,13 @@ class AssessmentService:
             new_level = int(score)
             user.has_taken_placement_test = True
             reason = "تعیین سطح اولیه"
+        elif test.test_type == 'content_based':
+            # آزمون محتوایی: نمره ≥۸۰ برای قبولی و ارتقای سطح
+            if score >= 80:
+                increment = 5 if score >= 90 else 2
+                if test.target_level >= (old_level - 10):
+                    new_level = min(old_level + increment, 100)
+                reason = f"قبولی در آزمون محتوایی {test.title}"
         elif score >= test.passing_score:
             increment = 5 if score >= 90 else 2
             # فقط اگر آزمون در سطح توانمندی فعلی کاربر باشد ارتقا صورت می‌گیرد
@@ -104,3 +114,20 @@ class AssessmentService:
 
         if new_level != old_level:
             AccountService.update_user_level(user, new_level, reason, session)
+
+    @staticmethod
+    def mark_content_completed_if_content_based(session):
+        """اگر آزمون محتوایی با نمره ≥۸۰ تمام شده، محتوا را «دیده‌شده» علامت بزن."""
+        test = session.test
+        if test.test_type != 'content_based' or not getattr(test, 'related_content', None):
+            return
+        if session.total_score < 80:
+            return
+        content = test.related_content
+        progress, _ = UserContentProgress.objects.get_or_create(
+            user=session.user, content=content,
+            defaults={'progress_percent': 0, 'is_completed': False}
+        )
+        progress.progress_percent = 100
+        progress.is_completed = True
+        progress.save()

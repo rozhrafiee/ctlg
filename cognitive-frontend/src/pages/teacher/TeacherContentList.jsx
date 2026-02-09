@@ -30,13 +30,13 @@ export default function TeacherContentList() {
         actions={<Button onClick={() => navigate('/teacher/contents/create')}>محتوای جدید</Button>}
       />
       {items.map((item) => (
-        <Card key={item.id} className="flex items-center justify-between">
+        <Card key={item.id} className="flex items-center justify-between border-neutral-200/80 hover:border-primary/20 transition-colors">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-slate-900">{item.title}</h3>
+              <h3 className="font-semibold text-neutral-900">{item.title}</h3>
               <Badge tone="teal">{item.content_type}</Badge>
             </div>
-            <p className="text-xs text-slate-500">سطح {item.min_level} تا {item.max_level}</p>
+            <p className="text-xs text-neutral-500 mt-1">سطح {item.min_level} تا {item.max_level}</p>
           </div>
           <div className="flex gap-2">
             <Link to={`/teacher/contents/${item.id}/edit`}><Button variant="secondary">ویرایش</Button></Link>

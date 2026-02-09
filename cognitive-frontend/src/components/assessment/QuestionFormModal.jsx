@@ -56,78 +56,67 @@ export default function QuestionFormModal({ initial = {}, onSave, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-      <div className="surface w-full max-w-2xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-slate-900">مدیریت سوال</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/50 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
+      <div className="surface w-full max-w-2xl p-5 sm:p-6 my-4 max-h-[90vh] overflow-y-auto rounded-2xl shadow-xl border border-neutral-200/80">
+        <div className="flex items-center justify-between mb-5 pb-3 border-b border-neutral-200/80">
+          <h3 className="text-base sm:text-lg font-bold text-primary">مدیریت سوال</h3>
           <Button variant="ghost" onClick={onClose}>بستن</Button>
         </div>
-        <form className="space-y-4" onSubmit={onSubmit}>
-          <Textarea
-            rows={4}
-            placeholder="متن سوال"
-            value={form.text}
-            onChange={(e) => setField('text', e.target.value)}
-          />
+        <form className="space-y-5" onSubmit={onSubmit}>
+          <div className="form-group">
+            <label className="form-label">متن سوال</label>
+            <Textarea rows={4} placeholder="متن سوال را بنویسید..." value={form.text} onChange={(e) => setField('text', e.target.value)} />
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="space-y-1">
-              <div className="text-xs text-slate-500">نوع سوال</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="form-group">
+              <label className="form-label">نوع سوال</label>
               <Select value={form.question_type} onChange={(e) => setField('question_type', e.target.value)}>
                 <option value="mcq">تستی</option>
                 <option value="text">تشریحی</option>
               </Select>
             </div>
-            <div className="space-y-1">
-              <div className="text-xs text-slate-500">دسته‌بندی</div>
+            <div className="form-group">
+              <label className="form-label">دسته‌بندی</label>
               <Select value={form.category} onChange={(e) => setField('category', e.target.value)}>
                 <option value="memory">حافظه</option>
                 <option value="focus">تمرکز</option>
                 <option value="logic">منطق</option>
               </Select>
             </div>
-            <div className="space-y-1">
-              <div className="text-xs text-slate-500">امتیاز</div>
-              <Input
-                type="number"
-                min="1"
-                value={form.points}
-                onChange={(e) => setField('points', e.target.value)}
-                placeholder="امتیاز"
-              />
+            <div className="form-group">
+              <label className="form-label">امتیاز</label>
+              <Input type="number" min="1" value={form.points} onChange={(e) => setField('points', e.target.value)} placeholder="۱۰" />
             </div>
           </div>
 
           {form.question_type === 'mcq' && (
-            <div className="space-y-3">
+            <div className="space-y-3 rounded-xl bg-primary-soft/40 p-4 border border-primary/10">
               <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold text-slate-700">گزینه‌ها</div>
+                <span className="form-label mb-0">گزینه‌ها</span>
                 <Button type="button" variant="secondary" onClick={addChoice}>افزودن گزینه</Button>
               </div>
               {form.choices.map((choice, index) => (
-                <div key={index} className="flex gap-2 items-center">
+                <div key={index} className="flex gap-2 items-center p-2 rounded-lg bg-white/90 border border-primary/10 shadow-sm">
                   <Input
                     value={choice.text}
                     onChange={(e) => updateChoice(index, { text: e.target.value })}
                     placeholder={`گزینه ${index + 1}`}
+                    className="flex-1 min-w-0"
                   />
-                  <label className="flex items-center gap-2 text-xs text-slate-600">
-                    <input
-                      type="checkbox"
-                      checked={choice.is_correct}
-                      onChange={(e) => updateChoice(index, { is_correct: e.target.checked })}
-                    />
+                  <label className="flex items-center gap-2 text-xs text-neutral-600 shrink-0 cursor-pointer">
+                    <input type="checkbox" checked={choice.is_correct} onChange={(e) => updateChoice(index, { is_correct: e.target.checked })} className="rounded border-neutral-300 text-primary focus:ring-primary/25" />
                     صحیح
                   </label>
                   {form.choices.length > 2 && (
-                    <Button type="button" variant="ghost" onClick={() => removeChoice(index)}>حذف</Button>
+                    <Button type="button" variant="ghost" onClick={() => removeChoice(index)} className="shrink-0">حذف</Button>
                   )}
                 </div>
               ))}
             </div>
           )}
 
-          <div className="flex gap-3 justify-end pt-2">
+          <div className="flex gap-3 justify-end pt-3 border-t border-neutral-200/80">
             <Button type="button" variant="secondary" onClick={onClose}>انصراف</Button>
             <Button type="submit">ذخیره سوال</Button>
           </div>
