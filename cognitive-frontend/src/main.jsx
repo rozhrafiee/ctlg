@@ -1,20 +1,13 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import App from './App.jsx'
-import './index.css'
-import { AuthProvider } from './contexts/AuthContext'
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+import { AuthProvider } from './contexts/AuthContext';
+import './index.css';
 
-// ✅ Import CSS files
-import "./styles/global-styles.css";
-import "./styles/page-styles.css";
-import ModernNavbar from '@/components/layout/ModernNavbar';
-import '@/styles/dashboard-modern-fixed.css'
-import "@/styles/teacher-dashboard.css";
-import "@/styles/homepage.css";
+const root = createRoot(document.getElementById('root'));
 
-
-ReactDOM.createRoot(document.getElementById('root')).render(
+root.render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
@@ -22,4 +15,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
-)
+);

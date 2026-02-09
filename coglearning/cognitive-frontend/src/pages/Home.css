@@ -1,18 +1,9 @@
-body {
-  font-family: 'BYekan', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f8f9fa;
-  color: #2c3e50;
-  direction: rtl;
-  text-align: center; 
-}
-
 .home {
   padding: 40px 20px;
   max-width: 1200px;
   margin: 0 auto;
   text-align: center;
+  font-family: "BYekan", "Tahoma", sans-serif;
 }
 
 .hero {
@@ -65,8 +56,8 @@ body {
   flex-wrap: wrap;
 }
 
-.btn-primary,
-.btn-secondary {
+.home .btn-primary,
+.home .btn-secondary {
   padding: 10px 20px;
   border-radius: 8px;
   font-weight: 600;
@@ -83,25 +74,25 @@ body {
   height: 40px;
 }
 
-.btn-primary {
+.home .btn-primary {
   background: #5B6CFF;
   color: white;
   box-shadow: 0 3px 10px rgba(91, 108, 255, 0.3);
 }
 
-.btn-primary:hover {
+.home .btn-primary:hover {
   background: #4a5ae8;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(91, 108, 255, 0.4);
 }
 
-.btn-secondary {
+.home .btn-secondary {
   background: #6865a3;
   color: white;
   box-shadow: 0 3px 10px rgba(108, 117, 125, 0.3);
 }
 
-.btn-secondary:hover {
+.home .btn-secondary:hover {
   background: #a0acb5;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
@@ -170,7 +161,7 @@ body {
   width: 100%;
 }
 
-button {
+.home button {
   background: #5B6CFF;
   color: white;
   border: none;
@@ -189,7 +180,7 @@ button {
   min-width: 80px;
 }
 
-button:hover {
+.home button:hover {
   background: #4a5ae8;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(91, 108, 255, 0.4);
@@ -259,10 +250,15 @@ button:hover {
 }
 
 
-h1, h2, h3, h4, h5, h6 {
+.home h1,
+.home h2,
+.home h3,
+.home h4,
+.home h5,
+.home h6 {
   text-align: center;
 }
 
-p {
+.home p {
   text-align: center;
 }

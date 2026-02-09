@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { analyticsAPI } from "../services/api";
-import { useAuth } from "../contexts/AuthContext";
 
 const MyStats = () => {
-  const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,13 +9,11 @@ const MyStats = () => {
   useEffect(() => {
     // در برخی سیستم‌ها آیدی کاربر در توکن هست و نیازی به پاس دادن آن نیست
     // اما بر اساس کد شما، از user.id استفاده می‌کنیم
-    if (!user?.id) return;
-
     const loadStats = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await analyticsAPI.getUserStats(user.id);
+        const res = await analyticsAPI.myStats();
         setData(res.data);
       } catch (e) {
         console.error("خطا در بارگذاری آمار کاربر", e);
@@ -28,7 +24,7 @@ const MyStats = () => {
     };
 
     loadStats();
-  }, [user]);
+  }, []);
 
   if (loading) return <div style={styles.center}>در حال بارگذاری تحلیل‌های هوشمند...</div>;
   if (error) return <div style={{...styles.center, color: '#e74c3c'}}>{error}</div>;
@@ -39,53 +35,20 @@ const MyStats = () => {
       <h1 style={styles.title}>📊 گزارش وضعیت و تحلیل پیشرفت</h1>
       
       <div style={styles.mainGrid}>
-        {/* کارت رتبه و سطح فعلی */}
         <div style={styles.statsCard}>
-          <div style={styles.badge}>سطح فعلی: {data.level ?? "در حال ارزیابی"}</div>
-          <h2 style={styles.rankText}>رتبه شما: {data.rank ?? "---"}</h2>
-          <p style={styles.infoText}>وضعیت کلی: <strong>{data.status_label || "فعال"}</strong></p>
+          <div style={styles.badge}>میانگین حافظه: {data.avg_memory_score ?? 0}</div>
+          <h2 style={styles.rankText}>میانگین تمرکز: {data.avg_focus_score ?? 0}</h2>
+          <p style={styles.infoText}>میانگین منطق: <strong>{data.avg_logic_score ?? 0}</strong></p>
         </div>
 
-        {/* بخش پیشنهادات هوشمند */}
-        {Array.isArray(data.recommended) && data.recommended.length > 0 && (
-          <div style={styles.recommendCard}>
-            <h4 style={{marginTop: 0, color: '#2980b9'}}>🎯 پیشنهادات برای ارتقای سطح:</h4>
-            <ul style={styles.list}>
-              {data.recommended.map((item, idx) => (
-                <li key={idx} style={styles.listItem}>✅ {item.title}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <div style={styles.recommendCard}>
+          <h4 style={{marginTop: 0, color: '#2980b9'}}>📌 خلاصه آزمون‌ها</h4>
+          <ul style={styles.list}>
+            <li style={styles.listItem}>تعداد آزمون‌های تکمیل‌شده: {data.total_tests_completed ?? 0}</li>
+            <li style={styles.listItem}>آخرین بروزرسانی: {data.last_updated ? new Date(data.last_updated).toLocaleDateString("fa-IR") : "-"}</li>
+          </ul>
+        </div>
       </div>
-
-      {/* نمایش تاریخچه تغییرات سطح با استایل تایم‌لاین */}
-      {data.level_history && data.level_history.length > 0 && (
-        <div style={styles.historySection}>
-          <h4 style={styles.sectionTitle}>⏳ تاریخچه تغییرات سطح</h4>
-          <div style={styles.timeline}>
-            {data.level_history.map((item, idx) => (
-              <div key={idx} style={styles.timelineItem}>
-                <div style={styles.timelineDot}></div>
-                <div style={styles.timelineContent}>
-                  <strong>سطح {item.level}</strong>
-                  <span style={styles.date}>
-                    {new Date(item.created_at).toLocaleDateString("fa-IR")}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* اطلاعات تکمیلی و بازخورد سیستم */}
-      {data.extra_info && (
-        <div style={styles.infoBox}>
-          <h4 style={{margin: '0 0 10px 0'}}>💡 تحلیل سیستم:</h4>
-          <p style={{lineHeight: '1.6', margin: 0}}>{data.extra_info}</p>
-        </div>
-      )}
     </div>
   );
 };
@@ -95,6 +58,7 @@ const styles = {
   title: { textAlign: 'center', color: '#2c3e50', marginBottom: '30px' },
   mainGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '30px' },
   statsCard: { background: 'linear-gradient(135deg, #3498db, #2980b9)', color: '#fff', padding: '25px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(52, 152, 219, 0.3)', textAlign: 'center' },
+  infoText: { margin: '10px 0', fontSize: '0.95rem' },
   recommendCard: { background: '#fff', padding: '20px', borderRadius: '15px', border: '1px solid #e1f5fe', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' },
   badge: { background: 'rgba(255,255,255,0.2)', padding: '5px 15px', borderRadius: '20px', display: 'inline-block', marginBottom: '15px' },
   rankText: { margin: '10px 0', fontSize: '1.8rem' },

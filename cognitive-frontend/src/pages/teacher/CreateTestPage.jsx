@@ -1,127 +1,53 @@
-import { useForm } from 'react-hook-form';
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-  Input,
-  Textarea,
-  Select,
-  Checkbox,
-} from '@/components/ui/Form';
-import { Button } from '@/components/ui/Button';
-import "@/styles/global-styles.css";
-import "@/styles/page-styles.css";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAssessment } from '../../hooks/useAssessment';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Select from '../../components/ui/Select';
+import Textarea from '../../components/ui/Textarea';
+import PageHeader from '../../components/ui/PageHeader';
 
 export default function CreateTestPage() {
-  const form = useForm({
-    defaultValues: {
-      title: '',
-      test_type: 'content_based',
-      time_limit_minutes: 30,
-      min_level: 1,
-      is_active: true,
-    },
+  const navigate = useNavigate();
+  const { createTest } = useAssessment();
+  const [form, setForm] = useState({
+    title: '',
+    description: '',
+    time_limit_minutes: 30,
+    min_level: 1,
+    target_level: 1,
+    test_type: 'general'
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
-    // ارسال به بکند
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const payload = { ...form, questions: [] };
+    const created = await createTest(payload);
+    navigate(`/teacher/tests/${created.id}/questions`);
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">ساخت آزمون جدید</h1>
-
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* عنوان */}
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>عنوان آزمون *</FormLabel>
-                <FormControl>
-                  <Input placeholder="مثال: آزمون حافظه سطح 1" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* نوع آزمون */}
-          <FormField
-            control={form.control}
-            name="test_type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>نوع آزمون</FormLabel>
-                <FormControl>
-                  <Select {...field}>
-                    <option value="placement">تعیین سطح</option>
-                    <option value="content_based">مبتنی بر محتوا</option>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* مدت زمان */}
-          <FormField
-            control={form.control}
-            name="time_limit_minutes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>مدت زمان (دقیقه)</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* حداقل سطح */}
-          <FormField
-            control={form.control}
-            name="min_level"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>حداقل سطح</FormLabel>
-                <FormControl>
-                  <Input type="number" min="1" max="100" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* فعال بودن */}
-          <FormField
-            control={form.control}
-            name="is_active"
-            render={({ field }) => (
-              <FormItem className="flex items-center gap-2">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onChange={(e) => field.onChange(e.target.checked)}
-                  />
-                </FormControl>
-                <FormLabel>آزمون فعال باشد</FormLabel>
-              </FormItem>
-            )}
-          />
-
-          <Button type="submit" className="w-full">
-            ایجاد آزمون
-          </Button>
+    <div className="space-y-4">
+      <PageHeader title="ساخت آزمون جدید" subtitle="اطلاعات آزمون را وارد کنید" />
+      <Card>
+        <form className="grid grid-cols-1 md:grid-cols-2 gap-3" onSubmit={onSubmit}>
+        <Input placeholder="عنوان آزمون" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+        <Select value={form.test_type} onChange={(e) => setForm({ ...form, test_type: e.target.value })}>
+          <option value="general">عمومی</option>
+          <option value="placement">تعیین سطح</option>
+          <option value="content_based">مرتبط با محتوا</option>
+        </Select>
+        <Input type="number" min="1" placeholder="زمان (دقیقه)" value={form.time_limit_minutes} onChange={(e) => setForm({ ...form, time_limit_minutes: e.target.value })} />
+        <Input type="number" min="1" placeholder="حداقل سطح" value={form.min_level} onChange={(e) => setForm({ ...form, min_level: e.target.value })} />
+        <Input type="number" min="1" placeholder="سطح هدف" value={form.target_level} onChange={(e) => setForm({ ...form, target_level: e.target.value })} />
+        <Textarea className="md:col-span-2" rows={4} placeholder="توضیحات" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          <div className="md:col-span-2 flex gap-3">
+            <Button type="submit">ثبت آزمون</Button>
+            <Button type="button" variant="secondary" onClick={() => navigate(-1)}>بازگشت</Button>
+          </div>
         </form>
-      </Form>
+      </Card>
     </div>
   );
 }

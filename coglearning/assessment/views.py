@@ -40,12 +40,22 @@ class CognitiveTestUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = CognitiveTestSerializer
     permission_classes = [permissions.IsAuthenticated, IsTeacher]
     def get_queryset(self):
-        return CognitiveTest.objects.filter(models.Q(created_by=self.request.user) | models.Q(related_content__author=self.request.user))
+        user = self.request.user
+        if user.role == 'admin':
+            return CognitiveTest.objects.all()
+        return CognitiveTest.objects.filter(
+            models.Q(created_by=user) | models.Q(related_content__author=user)
+        ).distinct()
 
 class CognitiveTestDeleteView(generics.DestroyAPIView):
     permission_classes = [permissions.IsAuthenticated, IsTeacher]
     def get_queryset(self):
-        return CognitiveTest.objects.filter(models.Q(created_by=self.request.user) | models.Q(related_content__author=self.request.user))
+        user = self.request.user
+        if user.role == 'admin':
+            return CognitiveTest.objects.all()
+        return CognitiveTest.objects.filter(
+            models.Q(created_by=user) | models.Q(related_content__author=user)
+        ).distinct()
 
 @api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated, IsTeacher])
@@ -64,14 +74,28 @@ def create_test_for_content(request, content_id):
 @api_view(["GET"])
 @permission_classes([permissions.IsAuthenticated, IsTeacher])
 def list_questions_for_test(request, test_id):
+    user = request.user
     test = get_object_or_404(CognitiveTest, id=test_id)
+    if user.role != 'admin':
+        if test.related_content:
+            if test.related_content.author != user:
+                return Response({"error": "عدم دسترسی"}, status=403)
+        elif test.created_by != user:
+            return Response({"error": "عدم دسترسی"}, status=403)
     questions = Question.objects.filter(test=test)
     return Response(QuestionSerializer(questions, many=True).data)
 
 @api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated, IsTeacher])
 def add_question_to_test(request, test_id):
+    user = request.user
     test = get_object_or_404(CognitiveTest, id=test_id)
+    if user.role != 'admin':
+        if test.related_content:
+            if test.related_content.author != user:
+                return Response({"error": "عدم دسترسی"}, status=403)
+        elif test.created_by != user:
+            return Response({"error": "عدم دسترسی"}, status=403)
     serializer = QuestionCreateSerializer(data=request.data, context={'test': test})
     serializer.is_valid(raise_exception=True)
     with transaction.atomic():
@@ -81,7 +105,15 @@ def add_question_to_test(request, test_id):
 @api_view(["DELETE"])
 @permission_classes([permissions.IsAuthenticated, IsTeacher])
 def delete_question(request, question_id):
+    user = request.user
     question = get_object_or_404(Question, id=question_id)
+    if user.role != 'admin':
+        test = question.test
+        if test.related_content:
+            if test.related_content.author != user:
+                return Response({"error": "عدم دسترسی"}, status=403)
+        elif test.created_by != user:
+            return Response({"error": "عدم دسترسی"}, status=403)
     question.delete()
     return Response(status=204)
 
@@ -128,17 +160,48 @@ class StudentTestListView(generics.ListAPIView):
             return CognitiveTest.objects.filter(is_active=True, test_type='placement')
         return CognitiveTest.objects.filter(is_active=True, min_level__lte=level).exclude(test_type='placement')
 
+@api_view(["GET"])
+@permission_classes([permissions.IsAuthenticated])
+def get_test_detail(request, test_id):
+    test = get_object_or_404(CognitiveTest, id=test_id, is_active=True)
+    user = request.user
+    if user.role == 'student':
+        user_level = user.cognitive_level or 1
+        if not user.has_taken_placement_test and test.test_type != 'placement':
+            return Response({"error": "عدم دسترسی"}, status=403)
+        if user.has_taken_placement_test and test.test_type == 'placement':
+            return Response({"error": "عدم دسترسی"}, status=403)
+        if test.test_type != 'placement' and test.min_level and user_level < test.min_level:
+            return Response({"error": "عدم دسترسی"}, status=403)
+    serializer = CognitiveTestDetailSerializer(test)
+    return Response(serializer.data)
+
 # --- Review & Results ---
 class PendingReviewsListView(generics.ListAPIView):
     serializer_class = TestSessionSerializer
     permission_classes = [permissions.IsAuthenticated, IsTeacher]
     def get_queryset(self):
-        return TestSession.objects.filter(status='pending_review')
+        user = self.request.user
+        if user.role == 'admin':
+            return TestSession.objects.filter(status='pending_review')
+        return TestSession.objects.filter(
+            status='pending_review'
+        ).filter(
+            models.Q(test__related_content__author=user) | models.Q(test__created_by=user)
+        ).distinct()
 
 @api_view(["GET"])
 @permission_classes([permissions.IsAuthenticated, IsTeacher])
 def get_session_details(request, session_id):
+    user = request.user
     session = get_object_or_404(TestSession, id=session_id)
+    if user.role != 'admin':
+        test = session.test
+        if test.related_content:
+            if test.related_content.author != user:
+                return Response({"error": "عدم دسترسی"}, status=403)
+        elif test.created_by != user:
+            return Response({"error": "عدم دسترسی"}, status=403)
     return Response({
         "session": TestSessionSerializer(session).data,
         "answers": AnswerSerializer(session.answers.all(), many=True).data
@@ -147,7 +210,15 @@ def get_session_details(request, session_id):
 @api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated, IsTeacher])
 def submit_manual_grade(request, session_id):
+    user = request.user
     session = get_object_or_404(TestSession, id=session_id, status='pending_review')
+    if user.role != 'admin':
+        test = session.test
+        if test.related_content:
+            if test.related_content.author != user:
+                return Response({"error": "عدم دسترسی"}, status=403)
+        elif test.created_by != user:
+            return Response({"error": "عدم دسترسی"}, status=403)
     with transaction.atomic():
         grades = request.data.get("grades", [])
         for g in grades:
@@ -172,5 +243,5 @@ class StudentHistoryListView(generics.ListAPIView):
         return TestSession.objects.filter(user=self.request.user).exclude(status='in_progress')
 
 class StudentTestDetailView(generics.RetrieveAPIView):
-    serializer_class = TestResultSerializer
+    serializer_class = TestResultDetailSerializer
     queryset = TestSession.objects.all()

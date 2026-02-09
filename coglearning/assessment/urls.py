@@ -13,6 +13,7 @@ urlpatterns = [
     path("teacher/questions/<int:question_id>/delete/", delete_question),#tested
     path("teacher/questions/<int:pk>/update/", QuestionUpdateView.as_view()),
     path("tests/<int:test_id>/start/", start_test_session),#tested
+    path("tests/<int:test_id>/", get_test_detail),
     path("sessions/<int:session_id>/questions/<int:question_id>/answer/", submit_answer),#tested
     path("sessions/<int:session_id>/finish/", finish_test_session),#tested
     path("tests/", StudentTestListView.as_view()),#tested

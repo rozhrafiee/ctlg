@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { authAPI } from "../services/api";
+import "./Profile.css";
 
 const Profile = () => {
   const { user, refreshUser } = useAuth();
@@ -17,7 +18,7 @@ const Profile = () => {
 
   const loadProfile = async () => {
     try {
-      const res = await authAPI.getProfile();
+      const res = await authAPI.getMe();
       setProfileData(res.data);
       setFormData(res.data); // ✅ auto-fill
     } catch (err) {
@@ -77,47 +78,18 @@ const Profile = () => {
         />
 
         <input
-          name="phone"
-          value={formData.phone || ""}
+          name="first_name"
+          value={formData.first_name || ""}
           onChange={handleChange}
-          placeholder="شماره تماس"
+          placeholder="نام"
         />
 
         <input
-          name="birth_date"
-          type="date"
-          value={formData.birth_date || ""}
+          name="last_name"
+          value={formData.last_name || ""}
           onChange={handleChange}
+          placeholder="نام خانوادگی"
         />
-
-        {/* ---------- Student ---------- */}
-        {user?.role === "student" && (
-          <input
-            name="extra_info"
-            value={formData.extra_info || ""}
-            onChange={handleChange}
-            placeholder="اطلاعات تکمیلی (اختیاری)"
-          />
-        )}
-
-        {/* ---------- Teacher ---------- */}
-        {user?.role === "teacher" && (
-          <>
-            <input
-              name="expertise"
-              value={formData.expertise || ""}
-              onChange={handleChange}
-              placeholder="تخصص"
-            />
-
-            <textarea
-              name="bio"
-              value={formData.bio || ""}
-              onChange={handleChange}
-              placeholder="بیوگرافی"
-            />
-          </>
-        )}
 
         {message && <p>{message}</p>}
 

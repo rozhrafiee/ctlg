@@ -1,201 +1,60 @@
-@font-face {
-  font-family: "BYekan";
-  src: url("./fonts/BYekan.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "BYekan";
-  src: url("./fonts/Bold.ttf") format("truetype");
-  font-weight: bold;
-  font-style: normal;
-  font-display: swap;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "BYekan", sans-serif;
-}
-
-body {
-  font-family: "BYekan", sans-serif;
-  background-color: #E5E7F1;
-  min-height: 100vh;
-  color: #333333;
-}
-
-code {
-  font-family: "BYekan", monospace;
-  background-color: #D5D8EE;
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: #666;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
+.profile-page {
+  max-width: 900px;
+  margin: 20px auto;
   padding: 20px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7f1;
+  direction: rtl;
+  font-family: "BYekan", "Tahoma", sans-serif;
 }
 
-.btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  font-family: "BYekan", sans-serif;
-  font-weight: bold;
-}
-
-.btn-primary {
-  background: #3b427f;
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #5B6CFF;
-  transform: translateY(-1px);
-}
-
-.btn-secondary {
-  background: #23024e;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background: #7A5CFF;
-  transform: translateY(-1px);
-}
-
-.btn-success {
-  background: #3ECF8E;
-  color: white;
-}
-
-.btn-success:hover {
-  background: #34b77a;
-  transform: translateY(-1px);
-}
-
-.btn-danger {
-  background: #FF5B5B;
-  color: white;
-}
-
-.btn-danger:hover {
-  background: #e74c5b;
-  transform: translateY(-1px);
-}
-
-.form-group {
+.profile-page h2 {
   margin-bottom: 20px;
+  color: #2c3e50;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: bold;
-  color: #333;
-  font-size: 16px;
+.profile-page form {
+  display: grid;
+  gap: 12px;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
+.profile-page input,
+.profile-page textarea,
+.profile-page select {
   width: 100%;
   padding: 12px;
-  border: 2px solid #D5D8EE;
-  border-radius: 8px;
-  font-size: 16px;
-  background: #ffffff;
-  color: #333;
-  transition: all 0.3s ease;
+  border: 1.5px solid #d5d8ee;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #fff;
 }
 
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
+.profile-page input:focus,
+.profile-page textarea:focus,
+.profile-page select:focus {
   outline: none;
-  border-color: #5B6CFF;
-  background: #fafafa;
-  box-shadow: 0 0 0 3px rgba(91,108,255,0.2);
+  border-color: #5b6cff;
+  box-shadow: 0 0 0 3px rgba(91, 108, 255, 0.15);
 }
 
-.form-group textarea {
-  min-height: 120px;
+.profile-page textarea {
+  min-height: 110px;
   resize: vertical;
 }
 
-.card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 25px;
-  margin-bottom: 25px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  border: 1px solid #D5D8EE;
-  color: #333;
+.profile-page button {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #5b6cff;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
 }
 
-.error {
-  color: #FF5B5B;
-  margin-top: 8px;
-  font-size: 14px;
-  background: #ffe5e5;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border-right: 3px solid #FF5B5B;
-}
-
-.success {
-  color: #3ECF8E;
-  margin-top: 8px;
-  font-size: 14px;
-  background: #e5f9ef;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border-right: 3px solid #3ECF8E;
-}
-
-h1,h2,h3,h4,h5,h6 {
-  color: #333;
-  margin-bottom: 16px;
-}
-
-p,span,div,a,li,td,th {
-  font-family: "BYekan", sans-serif;
-  color: #555;
-}
-
-a {
-  color: #5B6CFF;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-a:hover {
-  color: #3b427f;
-  text-decoration: underline;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #D5D8EE;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #5B6CFF;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #3b427f;
+.profile-page button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

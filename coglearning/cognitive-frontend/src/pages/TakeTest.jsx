@@ -3,27 +3,36 @@ import { useParams, useNavigate } from "react-router-dom";
 import { assessmentAPI } from "../services/api";
 
 const TakeTest = () => {
-  const { sessionId } = useParams();
+  const { testId } = useParams();
   const navigate = useNavigate();
   
-  const [session, setSession] = useState(null);
+  const [test, setTest] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
   const [answers, setAnswers] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (sessionId) {
-      assessmentAPI.getTestSession(sessionId)
-        .then(res => {
-          setSession(res.data);
-          setTimeLeft((res.data.duration || 30) * 60);
-        })
-        .catch(() => navigate("/dashboard"));
-    }
-  }, [sessionId, navigate]);
+    if (!testId) return;
+    const init = async () => {
+      try {
+        const [sessionRes, testRes] = await Promise.all([
+          assessmentAPI.startTest(testId),
+          assessmentAPI.getTestDetail(testId),
+        ]);
+        setSessionId(sessionRes.data?.id || sessionRes.data?.session_id);
+        setTest(testRes.data);
+        setTimeLeft((testRes.data?.time_limit_minutes || 30) * 60);
+      } catch (err) {
+        navigate("/dashboard");
+      }
+    };
+    init();
+  }, [testId, navigate]);
 
   const handleFinish = useCallback(async () => {
     if (isSubmitting) return;
+    if (!sessionId) return;
     setIsSubmitting(true);
     try {
       await assessmentAPI.finishTest(sessionId);
@@ -50,9 +59,10 @@ const TakeTest = () => {
 
   const handleAnswerChange = async (questionId, value) => {
     setAnswers({ ...answers, [questionId]: value });
+    if (!sessionId) return;
     try {
       await assessmentAPI.submitAnswer(sessionId, questionId, {
-        [typeof value === 'number' ? 'choice_id' : 'text_answer']: value
+        [typeof value === 'number' ? 'selected_choice' : 'text_answer']: value
       });
     } catch (err) { console.error("Error saving answer"); }
   };
@@ -63,18 +73,18 @@ const TakeTest = () => {
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  if (!session) return <div style={{textAlign: 'center', marginTop: '50px'}}>در حال بارگذاری...</div>;
+  if (!test) return <div style={{textAlign: 'center', marginTop: '50px'}}>در حال بارگذاری...</div>;
 
   return (
     <div style={styles.container}>
       <div style={{...styles.timerBox, color: timeLeft < 60 ? 'red' : '#333'}}>
         زمان باقی‌مانده: {formatTime(timeLeft)}
       </div>
-      <h2 style={{textAlign: 'center'}}>{session.test_title}</h2>
-      {session.questions?.map((q, idx) => (
+      <h2 style={{textAlign: 'center'}}>{test.title}</h2>
+      {test.questions?.map((q, idx) => (
         <div key={q.id} style={styles.qCard}>
           <p><strong>{idx + 1}. {q.text}</strong></p>
-          {q.q_type === 'multiple_choice' ? (
+          {q.question_type === 'mcq' ? (
             <div style={styles.choices}>
               {q.choices.map(choice => (
                 <label key={choice.id} style={styles.choiceLabel}>

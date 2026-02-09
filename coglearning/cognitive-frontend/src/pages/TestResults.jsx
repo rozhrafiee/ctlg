@@ -10,7 +10,7 @@ const TestResults = () => {
 
   useEffect(() => {
     if (sessionId) {
-      assessmentAPI.getTestResult(sessionId)
+      assessmentAPI.getStudentResult(sessionId)
         .then(res => {
           setResult(res.data);
         })
@@ -35,10 +35,10 @@ const TestResults = () => {
       <div style={styles.summaryCard}>
         <h2 style={{ color: '#2c3e50' }}>{result.test_title}</h2>
         <div style={styles.scoreCircle}>
-          <span style={styles.scoreText}>{result.score}</span>
+          <span style={styles.scoreText}>{result.total_score}</span>
           <small>از ۱۰۰</small>
         </div>
-        <p>سطح تعیین شده: <strong style={{color: '#27ae60'}}>{result.level_name || "در حال محاسبه"}</strong></p>
+        <p>وضعیت: <strong style={{color: '#27ae60'}}>{result.status}</strong></p>
       </div>
 
       <h3 style={{ marginBottom: '20px' }}>مرور پاسخ‌ها:</h3>
@@ -46,15 +46,20 @@ const TestResults = () => {
       {result.answers?.map((ans, idx) => (
         <div key={idx} style={{
           ...styles.qCard, 
-          borderRight: `8px solid ${ans.is_correct ? '#2ecc71' : (ans.q_type === 'text' ? '#f1c40f' : '#e74c3c')}`
+          borderRight: `8px solid ${ans.is_reviewed ? '#2ecc71' : '#f1c40f'}`
         }}>
           <p><strong>سوال {idx + 1}:</strong> {ans.question_text}</p>
           <div style={styles.answerDetails}>
-            <p>پاسخ شما: <span style={{ color: ans.is_correct ? '#27ae60' : '#c0392b' }}>{ans.user_answer || "بدون پاسخ"}</span></p>
-            {!ans.is_correct && ans.q_type === 'multiple_choice' && (
-              <p style={{ color: '#27ae60', marginTop: '5px' }}>✅ پاسخ صحیح: {ans.correct_answer}</p>
+            <p>
+              پاسخ شما:{" "}
+              <span style={{ color: ans.is_reviewed ? '#27ae60' : '#c0392b' }}>
+                {ans.text_answer || ans.user_choice_text || "بدون پاسخ"}
+              </span>
+            </p>
+            {ans.question_type === 'mcq' && ans.correct_choice_text && (
+              <p style={{ color: '#27ae60', marginTop: '5px' }}>✅ پاسخ صحیح: {ans.correct_choice_text}</p>
             )}
-            {ans.q_type === 'text' && (
+            {ans.question_type === 'text' && (
               <p style={{ color: '#7f8c8d', fontSize: '0.85rem', fontStyle: 'italic' }}>
                 * این سوال تشریحی است و پس از تصحیح استاد نهایی می‌شود.
               </p>

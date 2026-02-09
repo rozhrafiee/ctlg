@@ -39,6 +39,9 @@ export const assessmentAPI = {
 
   getAvailableTests: () => api.get("assessment/tests/"),
 
+  getTestDetail: (testId) =>
+    api.get(`assessment/tests/${testId}/`),
+
   startTest: (testId) =>
     api.post(`assessment/tests/${testId}/start/`),
 
@@ -61,6 +64,9 @@ export const assessmentAPI = {
 
   listTests: () =>
     api.get("assessment/teacher/tests/all/"),
+
+  getTestDetails: (id) =>
+    api.get(`assessment/teacher/tests/update/${id}/`),
 
   // ✅ ایجاد آزمون عادی (FIXED)
   createTest: (data) =>

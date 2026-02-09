@@ -1,196 +1,87 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import api from '@/api/axios';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { useAnalytics } from '../../hooks/useAnalytics';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import { useAuth } from '../../contexts/AuthContext';
 
-import "@/styles/global-styles.css";
-import "@/styles/page-styles.css";
-import "@/styles/teacher-dashboard.css";
-
-/**
- * 📊 داشبورد استاد
- */
 export default function TeacherDashboard() {
-  const { user } = useAuth();
-
-  const [stats, setStats] = useState({
-    total_contents: 0,
-    total_tests: 0,
-    total_students: 0,
-    pending_grading: 0,
-  });
-
-  const [recentActivity, setRecentActivity] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { fetchTeacherDashboard, fetchStudentReport } = useAnalytics();
+  const { logout } = useAuth();
+  const [dashboard, setDashboard] = useState(null);
+  const [studentId, setStudentId] = useState('');
+  const [report, setReport] = useState(null);
 
   useEffect(() => {
-    fetchDashboardData();
+    const load = async () => {
+      const data = await fetchTeacherDashboard();
+      setDashboard(data);
+    };
+    load();
   }, []);
 
-  const fetchDashboardData = async () => {
-    setIsLoading(true);
-    try {
-      const res = await api.get('/analytics/teacher-dashboard/');
-      const { stats: serverStats, recent_pending_reviews = [] } = res.data;
-
-      setStats({
-        total_contents: serverStats?.total_contents ?? 0,
-        total_tests: serverStats?.total_tests ?? 0,
-        total_students: serverStats?.total_students ?? 0,
-        pending_grading: serverStats?.pending_grading ?? 0,
-      });
-
-      setRecentActivity(
-        recent_pending_reviews.map((r) => ({
-          description: `آزمون ${r.test_title || ''} - در انتظار نمره‌دهی`,
-          timestamp: r.started_at
-            ? new Date(r.started_at).toLocaleDateString('fa-IR')
-            : '',
-        }))
-      );
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setIsLoading(false);
-    }
+  const loadReport = async () => {
+    if (!studentId) return;
+    const data = await fetchStudentReport(studentId);
+    setReport(data);
   };
 
-  if (isLoading) {
-    return (
-      <div className="teacher-loading">
-        در حال بارگذاری...
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto px-4 py-8 teacher-dashboard">
-
-      {/* ───── Header ───── */}
-      <div className="teacher-header">
-        <h1>
-          خوش آمدید، {user?.first_name || 'استاد'} عزیز! 👋
-        </h1>
-        <p>آمار و فعالیت‌های آموزشی شما</p>
-      </div>
-
-      {/* ───── Stats ───── */}
-      <div className="teacher-stats-grid">
-
-        <Card className="teacher-stat-card">
-          <p className="teacher-stat-title">محتوای آموزشی</p>
-          <p className="teacher-stat-value text-blue-400">
-            {stats.total_contents}
-          </p>
-        </Card>
-
-        <Card className="teacher-stat-card">
-          <p className="teacher-stat-title">آزمون‌ها</p>
-          <p className="teacher-stat-value text-green-400">
-            {stats.total_tests}
-          </p>
-        </Card>
-
-        <Card className="teacher-stat-card">
-          <p className="teacher-stat-title">دانش‌آموزان</p>
-          <p className="teacher-stat-value text-purple-400">
-            {stats.total_students}
-          </p>
-        </Card>
-
-        <Card className="teacher-stat-card">
-          <p className="teacher-stat-title">در انتظار نمره‌دهی</p>
-          <p className="teacher-stat-value text-orange-400">
-            {stats.pending_grading}
-          </p>
-        </Card>
-
-      </div>
-
-      {/* ───── Quick Access ───── */}
-      <div className="teacher-quick-access">
-        <h2 className="text-2xl font-bold mb-4">دسترسی سریع</h2>
-
-        <div className="teacher-quick-grid">
-
-          <Link to="/teacher/contents/create">
-            <Card className="teacher-quick-card">
-              <div className="flex items-center gap-4">
-                <div className="teacher-quick-icon bg-blue-500/20 text-blue-400">
-                  +
-                </div>
-                <div>
-                  <h3 className="font-semibold">ساخت محتوا</h3>
-                  <p className="text-sm text-gray-400">محتوای آموزشی جدید</p>
-                </div>
-              </div>
-            </Card>
-          </Link>
-
-          <Link to="/teacher/tests/create">
-            <Card className="teacher-quick-card">
-              <div className="flex items-center gap-4">
-                <div className="teacher-quick-icon bg-green-500/20 text-green-400">
-                  +
-                </div>
-                <div>
-                  <h3 className="font-semibold">ساخت آزمون</h3>
-                  <p className="text-sm text-gray-400">آزمون جدید بسازید</p>
-                </div>
-              </div>
-            </Card>
-          </Link>
-
-          <Link to="/teacher/grading">
-            <Card className="teacher-quick-card">
-              <div className="flex items-center gap-4">
-                <div className="teacher-quick-icon bg-orange-500/20 text-orange-400">
-                  !
-                </div>
-                <div>
-                  <h3 className="font-semibold">نمره‌دهی</h3>
-                  <p className="text-sm text-gray-400">
-                    {stats.pending_grading} پاسخ در انتظار
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </Link>
-
+    <div className="space-y-6">
+      <div className="surface p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">پنل تخصصی اساتید</h2>
+            <p className="text-sm text-slate-500">خوش آمدید، {dashboard?.teacher_name || 'استاد'}</p>
+          </div>
+          <Button variant="secondary" onClick={logout}>خروج از سامانه</Button>
         </div>
       </div>
 
-      {/* ───── Recent Activity ───── */}
-      <div className="teacher-activity">
-        <h2 className="text-2xl font-bold mb-4">آخرین فعالیت‌ها</h2>
-
-        <Card>
-          {recentActivity.length === 0 ? (
-            <div className="p-8 text-center text-gray-400">
-              هنوز فعالیتی ثبت نشده است
-            </div>
-          ) : (
-            recentActivity.map((activity, index) => (
-              <div key={index} className="teacher-activity-item p-4">
-                <div className="flex items-center gap-4">
-                  <div className="teacher-activity-dot" />
-                  <div className="flex-1">
-                    <p className="teacher-activity-text">
-                      {activity.description}
-                    </p>
-                    <p className="teacher-activity-date">
-                      {activity.timestamp}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </Card>
+      <div className="grid md:grid-cols-3 gap-4">
+        <div className="surface p-5 border-l-4 border-emerald-400">
+          <div className="text-3xl font-extrabold text-slate-900">{dashboard?.stats?.total_contents ?? 0}</div>
+          <div className="text-xs text-slate-500">محتواهای فعال</div>
+        </div>
+        <div className="surface p-5 border-l-4 border-amber-400">
+          <div className="text-3xl font-extrabold text-slate-900">{dashboard?.stats?.pending_grading ?? 0}</div>
+          <div className="text-xs text-slate-500">نیاز به تصحیح (تشریحی)</div>
+        </div>
+        <div className="surface p-5 border-l-4 border-blue-400">
+          <div className="text-3xl font-extrabold text-slate-900">{dashboard?.stats?.total_tests ?? 0}</div>
+          <div className="text-xs text-slate-500">آزمون‌های طراحی شده</div>
+        </div>
       </div>
 
+      <div className="surface p-6">
+        <h3 className="section-title mb-4 text-center">دسترسی سریع</h3>
+        <div className="grid md:grid-cols-4 gap-3 text-sm">
+          <Link to="/teacher/contents" className="rounded-xl bg-slate-50 p-3 text-center">بارگذاری محتوای آموزشی</Link>
+          <Link to="/teacher/tests" className="rounded-xl bg-slate-50 p-3 text-center">مدیریت کل آزمون‌ها</Link>
+          <Link to="/teacher/grading" className="rounded-xl bg-slate-50 p-3 text-center">تصحیح پاسخ‌های تشریحی</Link>
+          <Link to="/teacher/tests/create" className="rounded-xl bg-emerald-500 p-3 text-center text-white">ساخت آزمون جدید</Link>
+        </div>
+      </div>
+
+      <div className="surface p-6">
+        <h3 className="section-title mb-3">گزارش دانش‌آموز</h3>
+        <div className="flex flex-col md:flex-row gap-3">
+          <Input
+            placeholder="شناسه دانش‌آموز"
+            value={studentId}
+            onChange={(e) => setStudentId(e.target.value)}
+          />
+          <Button onClick={loadReport}>نمایش گزارش</Button>
+          <Button variant="secondary" disabled>گزارش همه</Button>
+        </div>
+        <p className="mt-2 text-xs text-slate-500">
+          فعلا فقط گزارش یک دانش‌آموز با شناسه قابل دریافت است (بک‌اند گزارش همه را ندارد).
+        </p>
+        {report && (
+          <pre className="mt-4 text-xs bg-slate-50 p-4 rounded-xl overflow-auto">{JSON.stringify(report, null, 2)}</pre>
+        )}
+      </div>
     </div>
   );
 }

@@ -49,6 +49,10 @@ class AssessmentService:
                 # ۲. بروزرسانی پروفایل شناختی (Analytics)
                 cls.update_analytics_profile(session)
             
+            if test.test_type == 'placement':
+                session.user.has_taken_placement_test = True
+                session.user.save(update_fields=['has_taken_placement_test'])
+
             session.save()
 
     @staticmethod

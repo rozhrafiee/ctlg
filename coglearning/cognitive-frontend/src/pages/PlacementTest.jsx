@@ -17,20 +17,16 @@ const PlacementTest = () => {
     const initTest = async () => {
       try {
         // ۱. دریافت لیست آزمون‌های در دسترس برای دانشجو
-        const res = await assessmentAPI.getPlacementTest();
-        const allTests = res.data;
+        const res = await assessmentAPI.getAvailableTests();
+        const allTests = res.data || [];
         
         // پیدا کردن آزمون تعیین سطح اصلی (Placement)
         // این بخش تضمین می‌کند که دانشجو فقط آزمون تعیین سطح را ببیند
-        let placementTest = null;
-        if (Array.isArray(allTests)) {
-          placementTest = allTests.find(t => t.test_type === 'placement');
-        } else if (allTests?.test_type === 'placement') {
-          placementTest = allTests;
-        }
+        const placementTest = allTests.find(t => t.test_type === 'placement');
         
         if (placementTest) {
-          setTest(placementTest);
+          const detailRes = await assessmentAPI.getTestDetail(placementTest.id);
+          setTest(detailRes.data);
           
           // ۲. شروع خودکار نشست آزمون برای این تست خاص
           try {
@@ -71,15 +67,14 @@ const PlacementTest = () => {
     try {
       // ۱. ارسال تمام پاسخ‌ها به صورت موازی برای سرعت بیشتر
       const answerPromises = Object.entries(answers).map(([qId, cId]) =>
-        assessmentAPI.submitAnswer(sessionId, qId, { choice_id: cId })
+        assessmentAPI.submitAnswer(sessionId, qId, { selected_choice: cId })
       );
       await Promise.all(answerPromises);
 
       // ۲. اعلام پایان آزمون و دریافت سطح جدید
       const finishRes = await assessmentAPI.finishTest(sessionId);
-      
-      const newLevel = finishRes.data.level || finishRes.data.cognitive_level || "تعیین شده";
-      alert(`تبریک! آزمون با موفقیت به پایان رسید.\nسطح شناختی شما: ${newLevel}`);
+      const score = finishRes.data.score ?? "نامشخص";
+      alert(`تبریک! آزمون با موفقیت به پایان رسید.\nامتیاز شما: ${score}`);
       
       // ۳. انتقال به داشبورد اصلی شهروند
       navigate("/dashboard"); 

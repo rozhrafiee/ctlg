@@ -9,8 +9,11 @@ const PlacementRequired = () => {
 
   useEffect(() => {
     // چک می‌کنیم آیا آزمون تعیین سطحی در دیتابیس وجود دارد یا نه
-    assessmentAPI.getPlacementTest()
-      .then(() => setHasTest(true))
+    assessmentAPI.getAvailableTests()
+      .then((res) => {
+        const hasPlacement = (res.data || []).some((t) => t.test_type === "placement");
+        setHasTest(hasPlacement);
+      })
       .catch(() => setHasTest(false))
       .finally(() => setLoading(false));
   }, []);

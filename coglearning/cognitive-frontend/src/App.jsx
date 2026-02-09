@@ -17,6 +17,8 @@ import TestResults from "./pages/TestResults";
 import Exams from "./pages/Exams";
 import TestForm from "./pages/TestForm"; 
 import TeacherReviews from "./pages/TeacherReviews"; 
+import ContentDetail from "./pages/ContentDetail";
+import MyHistory from "./pages/MyHistory";
 
 // کامپوننت محافظت از مسیرها
 const ProtectedRoute = ({ children }) => {
@@ -64,6 +66,8 @@ function App() {
         <Route path="/take-test/:testId" element={<ProtectedRoute><TakeTest /></ProtectedRoute>} />
         <Route path="/test-results/:sessionId" element={<ProtectedRoute><TestResults /></ProtectedRoute>} />
         <Route path="/exams" element={<ProtectedRoute><Exams /></ProtectedRoute>} />
+        <Route path="/content/:id" element={<ProtectedRoute><ContentDetail /></ProtectedRoute>} />
+        <Route path="/my-history" element={<ProtectedRoute><MyHistory /></ProtectedRoute>} />
 
         {/* مسیرهای اختصاصی استاد */}
         <Route path="/teacher/tests" element={<ProtectedRoute><TeacherTests /></ProtectedRoute>} />

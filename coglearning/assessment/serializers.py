@@ -34,10 +34,24 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
 
 class CognitiveTestSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source='created_by.username', read_only=True)
+    questions_count = serializers.SerializerMethodField()
     class Meta:
         model = CognitiveTest
         fields = '__all__'
         read_only_fields = ['created_by']
+
+    def get_questions_count(self, obj):
+        return obj.questions.count()
+
+class CognitiveTestDetailSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True, read_only=True)
+    questions_count = serializers.SerializerMethodField()
+    class Meta:
+        model = CognitiveTest
+        fields = '__all__'
+
+    def get_questions_count(self, obj):
+        return obj.questions.count()
 
 class CognitiveTestCreateSerializer(serializers.ModelSerializer):
     questions = QuestionCreateSerializer(many=True, write_only=True)
@@ -77,6 +91,8 @@ class QuestionUpdateSerializer(serializers.ModelSerializer):
 
 class AnswerSerializer(serializers.ModelSerializer):
     question_text = serializers.CharField(source='question.text', read_only=True)
+    question_type = serializers.CharField(source='question.question_type', read_only=True)
+    question_points = serializers.IntegerField(source='question.points', read_only=True)
     class Meta:
         model = Answer
         fields = '__all__'

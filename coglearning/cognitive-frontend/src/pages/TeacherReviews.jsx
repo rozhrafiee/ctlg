@@ -2,19 +2,21 @@ import React, { useState, useEffect } from "react";
 import { assessmentAPI } from "../services/api";
 
 const TeacherReviews = () => {
-  const [pendingSubmissions, setPendingSubmissions] = useState([]); 
-  const [reviews, setReviews] = useState({}); // ذخیره نمره و فیدبک
+  const [pendingSessions, setPendingSessions] = useState([]);
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [answers, setAnswers] = useState([]);
+  const [grades, setGrades] = useState({});
   const [loading, setLoading] = useState(true);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
-    loadSubmissions();
+    loadPending();
   }, []);
 
-  const loadSubmissions = async () => {
+  const loadPending = async () => {
     try {
-      // این API باید لیست جواب‌هایی که دانشجوها فرستادن و منتظر نمره هستن رو بیاره
-      const response = await assessmentAPI.getPendingEssays(); 
-      setPendingSubmissions(response.data || []);
+      const response = await assessmentAPI.getPendingReviews();
+      setPendingSessions(response.data || []);
     } catch (error) {
       console.error("خطا در بارگذاری:", error);
     } finally {
@@ -22,31 +24,45 @@ const TeacherReviews = () => {
     }
   };
 
-  const handleReviewChange = (submissionId, field, value) => {
-    setReviews((prev) => ({
-      ...prev,
-      [submissionId]: {
-        ...prev[submissionId],
-        [field]: value,
-      },
-    }));
+  const openSession = async (sessionId) => {
+    setDetailLoading(true);
+    try {
+      const res = await assessmentAPI.getSessionDetails(sessionId);
+      setSelectedSession(res.data.session);
+      setAnswers(res.data.answers || []);
+      setGrades({});
+    } catch (err) {
+      console.error("خطا در دریافت جزئیات جلسه:", err);
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
-  const handleSubmitScore = async (submissionId) => {
-    const reviewData = reviews[submissionId];
-    if (!reviewData?.score) return alert("لطفاً ابتدا نمره را وارد کنید");
+  const handleGradeChange = (answerId, value) => {
+    const score = value === "" ? "" : Number(value);
+    setGrades((prev) => ({ ...prev, [answerId]: score }));
+  };
+
+  const submitGrades = async () => {
+    if (!selectedSession) return;
+    const payloadGrades = Object.entries(grades)
+      .filter(([, score]) => score !== "" && !Number.isNaN(score))
+      .map(([answerId, score]) => ({ answer_id: Number(answerId), score }));
+
+    if (payloadGrades.length === 0) {
+      alert("حداقل یک نمره وارد کنید.");
+      return;
+    }
 
     try {
-      // ارسال نمره نهایی (از 100) و فیدبک استاد به بک‌هند
-      await assessmentAPI.submitGrade(submissionId, {
-        score: reviewData.score,
-        teacher_feedback: reviewData.feedback,
-      });
-      alert("نمره با موفقیت ثبت شد!");
-      // حذف از لیست محلی
-      setPendingSubmissions(prev => prev.filter(s => s.id !== submissionId));
-    } catch (error) {
-      alert("خطا در ثبت نمره");
+      await assessmentAPI.submitGrade(selectedSession.id, { grades: payloadGrades });
+      alert("نمره‌ها با موفقیت ثبت شد.");
+      setPendingSessions((prev) => prev.filter((s) => s.id !== selectedSession.id));
+      setSelectedSession(null);
+      setAnswers([]);
+      setGrades({});
+    } catch (err) {
+      alert("خطا در ثبت نمره‌ها");
     }
   };
 
@@ -54,69 +70,82 @@ const TeacherReviews = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={{borderBottom: '2px solid #3498db', paddingBottom: '10px'}}>📝 میز تصحیح اساتید</h2>
-      
-      {pendingSubmissions.length === 0 ? (
-        <div style={styles.empty}>هیچ پاسخ تشریحی در انتظار تصحیحی وجود ندارد.</div>
-      ) : (
-        pendingSubmissions.map((sub) => (
-          <div key={sub.id} style={styles.card}>
-            <div style={styles.cardHeader}>
-              <strong>دانشجو: {sub.student_name}</strong>
-              <span style={styles.dateTag}>{sub.submit_date}</span>
-            </div>
-            
-            <div style={styles.questionSection}>
-              <p><strong>سوال:</strong> {sub.question_text}</p>
-              <div style={styles.answerBox}>
-                <strong>پاسخ دانشجو:</strong>
-                <p>{sub.student_answer}</p>
-              </div>
-            </div>
+      <h2 style={{ borderBottom: "2px solid #3498db", paddingBottom: "10px" }}>
+        📝 میز تصحیح اساتید
+      </h2>
 
-            <div style={styles.gradeSection}>
-              <div style={{flex: 1}}>
-                <label>نمره (از ۱۰۰):</label>
-                <input 
-                  type="number" 
-                  min="0" max="100"
-                  style={styles.scoreInput}
-                  onChange={(e) => handleReviewChange(sub.id, 'score', e.target.value)}
-                />
+      {pendingSessions.length === 0 ? (
+        <div style={styles.empty}>هیچ آزمونی در انتظار تصحیح وجود ندارد.</div>
+      ) : (
+        <div style={styles.sessionGrid}>
+          {pendingSessions.map((s) => (
+            <div key={s.id} style={styles.card}>
+              <div style={styles.cardHeader}>
+                <strong>دانشجو: {s.user_full_name}</strong>
+                <span style={styles.dateTag}>{s.started_at?.slice(0, 10) || "-"}</span>
               </div>
-              <div style={{flex: 2}}>
-                <label>توضیحات استاد:</label>
-                <textarea 
-                  style={styles.feedbackArea}
-                  placeholder="نکات اصلاحی را اینجا بنویسید..."
-                  onChange={(e) => handleReviewChange(sub.id, 'feedback', e.target.value)}
-                />
-              </div>
-              <button onClick={() => handleSubmitScore(sub.id)} style={styles.submitBtn}>
-                ثبت نمره نهایی
+              <p>آزمون: {s.test_title}</p>
+              <button onClick={() => openSession(s.id)} style={styles.submitBtn}>
+                مشاهده و تصحیح
               </button>
             </div>
-          </div>
-        ))
+          ))}
+        </div>
+      )}
+
+      {selectedSession && (
+        <div style={styles.detailCard}>
+          <h3>جزئیات آزمون: {selectedSession.test_title}</h3>
+          {detailLoading ? (
+            <div>در حال بارگذاری...</div>
+          ) : (
+            <>
+              {answers.map((ans) => (
+                <div key={ans.id} style={styles.answerRow}>
+                  <p><strong>سوال:</strong> {ans.question_text}</p>
+                  <p><strong>پاسخ:</strong> {ans.text_answer || "بدون پاسخ"}</p>
+                  {ans.question_type === "text" ? (
+                    <div style={styles.gradeRow}>
+                      <label>نمره (از {ans.question_points || "-"})</label>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.5"
+                        style={styles.scoreInput}
+                        value={grades[ans.id] ?? ""}
+                        onChange={(e) => handleGradeChange(ans.id, e.target.value)}
+                      />
+                    </div>
+                  ) : (
+                    <div style={styles.autoScore}>نمره تستی: {ans.score_earned}</div>
+                  )}
+                </div>
+              ))}
+              <button onClick={submitGrades} style={styles.submitBtn}>
+                ثبت نهایی نمره‌ها
+              </button>
+            </>
+          )}
+        </div>
       )}
     </div>
   );
 };
 
-
-
 const styles = {
-  container: { direction: 'rtl', padding: '30px', maxWidth: '900px', margin: 'auto', fontFamily: 'Tahoma' },
-  card: { background: '#fff', borderRadius: '12px', padding: '20px', marginBottom: '25px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: '1px solid #e0e0e0' },
-  cardHeader: { display: 'flex', justifyContent: 'space-between', marginBottom: '15px', color: '#7f8c8d', fontSize: '0.9rem' },
-  questionSection: { background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '20px' },
-  answerBox: { marginTop: '15px', padding: '10px', borderRight: '4px solid #3498db', background: '#fff' },
-  gradeSection: { display: 'flex', gap: '15px', alignItems: 'flex-end', borderTop: '1px solid #eee', paddingTop: '15px' },
-  scoreInput: { width: '80px', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', display: 'block', marginTop: '5px' },
-  feedbackArea: { width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', marginTop: '5px', minHeight: '60px' },
-  submitBtn: { padding: '12px 20px', background: '#27ae60', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' },
-  empty: { textAlign: 'center', padding: '50px', color: '#95a5a6' },
-  center: { textAlign: 'center', marginTop: '100px' }
+  container: { direction: "rtl", padding: "30px", maxWidth: "900px", margin: "auto", fontFamily: "Tahoma" },
+  sessionGrid: { display: "grid", gap: "15px", marginTop: "20px" },
+  card: { background: "#fff", borderRadius: "12px", padding: "20px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", border: "1px solid #e0e0e0" },
+  cardHeader: { display: "flex", justifyContent: "space-between", marginBottom: "10px", color: "#7f8c8d", fontSize: "0.9rem" },
+  dateTag: { fontSize: "0.8rem" },
+  submitBtn: { padding: "10px 15px", background: "#27ae60", color: "#fff", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" },
+  empty: { textAlign: "center", padding: "50px", color: "#95a5a6" },
+  center: { textAlign: "center", marginTop: "100px" },
+  detailCard: { marginTop: "30px", background: "#fff", padding: "20px", borderRadius: "12px", border: "1px solid #eee" },
+  answerRow: { borderBottom: "1px solid #eee", paddingBottom: "15px", marginBottom: "15px" },
+  gradeRow: { display: "flex", gap: "10px", alignItems: "center" },
+  scoreInput: { width: "100px", padding: "8px", borderRadius: "5px", border: "1px solid #ccc" },
+  autoScore: { color: "#2c3e50", fontSize: "0.9rem" },
 };
 
 export default TeacherReviews;

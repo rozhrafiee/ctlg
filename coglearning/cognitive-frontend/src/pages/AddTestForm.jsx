@@ -7,9 +7,9 @@ const AddTestForm = () => {
   const [testData, setTestData] = useState({
     title: "",
     description: "",
-    test_type: "regular", // می تواند 'regular' یا 'placement' باشد
-    min_level: 1,
-    max_level: 10,
+    test_type: "general",
+    time_limit_minutes: 30,
+    target_level: 1,
   });
 
   const [questions, setQuestions] = useState([
@@ -24,9 +24,11 @@ const AddTestForm = () => {
     e.preventDefault();
     try {
       // ۱. ابتدا خود آزمون را می سازیم
-      const res = await assessmentAPI.createTest({
+      await assessmentAPI.createTest({
         ...testData,
-        questions: questions // فرض بر این است که بک هند آزمون و سوالات را با هم می پذیرد
+        time_limit_minutes: parseInt(testData.time_limit_minutes),
+        target_level: parseInt(testData.target_level),
+        questions
       });
       
       alert(testData.test_type === 'placement' ? "آزمون تعیین سطح با موفقیت ساخته شد" : "آزمون معمولی ساخته شد");
@@ -59,20 +61,21 @@ const AddTestForm = () => {
             onChange={(e) => setTestData({...testData, test_type: e.target.value})}
             style={styles.input}
           >
-            <option value="regular">آزمون محتوایی (معمولی)</option>
+            <option value="general">آزمون عمومی</option>
             <option value="placement">آزمون تعیین سطح (Placement)</option>
+            <option value="content_based">مرتبط با محتوا</option>
           </select>
         </div>
 
-        {testData.test_type === 'regular' && (
+        {testData.test_type !== 'placement' && (
           <div style={styles.levelRow}>
             <div>
-              <label>حداقل سطح (۱-۱۰):</label>
-              <input type="number" min="1" max="10" value={testData.min_level} onChange={(e) => setTestData({...testData, min_level: e.target.value})} />
+              <label>سطح هدف:</label>
+              <input type="number" min="1" max="100" value={testData.target_level} onChange={(e) => setTestData({...testData, target_level: e.target.value})} />
             </div>
             <div>
-              <label>حداکثر سطح (۱-۱۰):</label>
-              <input type="number" min="1" max="10" value={testData.max_level} onChange={(e) => setTestData({...testData, max_level: e.target.value})} />
+              <label>زمان (دقیقه):</label>
+              <input type="number" min="1" value={testData.time_limit_minutes} onChange={(e) => setTestData({...testData, time_limit_minutes: e.target.value})} />
             </div>
           </div>
         )}

@@ -13,7 +13,8 @@
   gap: 15px;
 }
 
-.exams-grid {
+.exams-grid,
+.exam-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
@@ -89,20 +90,20 @@
   padding-bottom: 10px;
 }
 
-.form-group {
+.exams-page .form-group {
   margin-bottom: 20px;
 }
 
-.form-group label {
+.exams-page .form-group label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
   color: #1A1B2E;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.exams-page .form-group input,
+.exams-page .form-group select,
+.exams-page .form-group textarea {
   width: 100%;
   padding: 10px;
   border: 1.8px solid #D9DAE8;
@@ -112,14 +113,14 @@
   transition: 0.2s;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.exams-page .form-group input:focus,
+.exams-page .form-group select:focus,
+.exams-page .form-group textarea:focus {
   border-color: #5B6CFF;
   outline: none;
 }
 
-.form-group textarea {
+.exams-page .form-group textarea {
   resize: vertical;
   min-height: 80px;
 }
@@ -167,7 +168,7 @@
   border-top: 1px solid #E5E7F1;
 }
 
-.btn {
+.exams-page .btn {
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
@@ -179,48 +180,48 @@
   transition: all 0.3s;
 }
 
-.btn-primary {
+.exams-page .btn-primary {
   background: #5B6CFF;
   color: white;
 }
 
-.btn-primary:hover {
+.exams-page .btn-primary:hover {
   background: #7A5CFF;
 }
 
-.btn-secondary {
+.exams-page .btn-secondary {
   background: #A0A3B8;
   color: white;
 }
 
-.btn-secondary:hover {
+.exams-page .btn-secondary:hover {
   background: #8B8EA0;
 }
 
-.btn-success {
+.exams-page .btn-success {
   background: #3ECF8E;
   color: white;
 }
 
-.btn-success:hover {
+.exams-page .btn-success:hover {
   background: #34B97C;
 }
 
-.btn-danger {
+.exams-page .btn-danger {
   background: #FF5B5B;
   color: white;
 }
 
-.btn-danger:hover {
+.exams-page .btn-danger:hover {
   background: #E14444;
 }
 
-.btn-sm {
+.exams-page .btn-sm {
   padding: 5px 10px;
   font-size: 12px;
 }
 
-.btn:disabled {
+.exams-page .btn:disabled {
   background: #ccc;
   cursor: not-allowed;
 }

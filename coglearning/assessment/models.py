@@ -11,6 +11,15 @@ class CognitiveTest(models.Model):
     title = models.CharField(max_length=255)
     test_type = models.CharField(max_length=20, choices=TEST_TYPES, default='general')
     description = models.TextField(blank=True)
+
+    # سازنده آزمون (برای آزمون‌های غیر محتوایی)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_tests'
+    )
     
     # بازه سطح ۱ تا ۱۰۰
     min_level = models.IntegerField(default=1, help_text="حداقل سطح لازم برای شرکت")

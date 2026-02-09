@@ -33,12 +33,11 @@ const TestForm = () => {
             target_level: data.target_level || 1,
           });
 
-          if (data.questions) {
-            setQuestions(data.questions.map(q => ({
-              ...q,
-              id: q.id || Math.random(),
-            })));
-          }
+          const qRes = await assessmentAPI.getTestQuestions(id);
+          setQuestions((qRes.data || []).map(q => ({
+            ...q,
+            id: q.id || Math.random(),
+          })));
         } catch (err) {
           console.error("خطا در بارگذاری:", err);
         } finally {

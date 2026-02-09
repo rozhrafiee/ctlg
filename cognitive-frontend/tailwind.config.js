@@ -3,20 +3,34 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    // اگر فایل‌های دیگر دارید اضافه کنید
   ],
   theme: {
     extend: {
       colors: {
-        // رنگ‌های سفارشی اگر نیاز دارید
-        primary: "#3b82f6",
+        primary: {
+          DEFAULT: "#3b82f6",
+          dark: "#2563eb",
+          light: "#dbeafe",
+        },
         secondary: "#10b981",
+        accent: "#f59e0b", // رنگ نارنجی برای دکمه‌های هشدار یا مهم
+        background: "#f8fafc", // رنگ ملایم برای کل صفحه
       },
       fontFamily: {
-        // فونت‌های سفارشی
-        sans: ["Inter", "sans-serif"],
+        // برای فارسی بهتر است از فونت‌هایی مثل Vazir یا IRANSans استفاده کنید
+        // اگر ندارید، این ترتیب بهترین نمایش را در ویندوز و موبایل دارد
+        sans: ["Tahoma", "Inter", "system-ui", "sans-serif"],
+      },
+      container: {
+        center: true,
+        padding: '1rem', // جلوگیری از چسبیدن محتوا به لبه‌های صفحه
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // این پلاگین‌ها رو اگر نصب نداری حتما نصب کن (npm install @tailwindcss/forms @tailwindcss/typography)
+    // این‌ها ظاهر اینپوت‌ها و متن‌های طولانی رو خودکار اصلاح می‌کنن
+    // require('@tailwindcss/forms'),
+    // require('@tailwindcss/typography'),
+  ],
 }

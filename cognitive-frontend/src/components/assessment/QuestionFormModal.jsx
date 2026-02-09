@@ -1,168 +1,135 @@
-import { useState, useEffect } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
-import { useAssessment } from '../../hooks/useAssessment';
-import { Button } from '../ui/Button';
-import { Input, Textarea, Select } from '../ui/Form';
-import { X, Plus, Trash2 } from 'lucide-react';
+import React, { useEffect } from 'react';
+import Button from '../ui/Button';
+import Input from '../ui/Input';
+import Select from '../ui/Select';
+import Textarea from '../ui/Textarea';
 
-export default function QuestionFormModal({ testId, question, onClose }) {
-  const { addQuestion, updateQuestion } = useAssessment();
-  const [submitting, setSubmitting] = useState(false);
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    control,
-    reset,
-    formState: { errors }
-  } = useForm({
-    defaultValues: question || {
-      question_type: 'multiple_choice',
-      points: 10,
-      choices: [
-        { choice_text: '', is_correct: false },
-        { choice_text: '', is_correct: false }
-      ]
-    }
+export default function QuestionFormModal({ initial = {}, onSave, onClose }) {
+  const [form, setForm] = React.useState({
+    text: '',
+    points: 10,
+    question_type: 'mcq',
+    category: 'logic',
+    choices: [
+      { text: '', is_correct: false, order: 1 },
+      { text: '', is_correct: false, order: 2 }
+    ],
+    ...initial
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'choices'
-  });
-
-  const questionType = watch('question_type');
-
-  const onSubmit = async (data) => {
-    setSubmitting(true);
-    try {
-      if (question) {
-        await updateQuestion(question.id, data);
-        alert('سوال با موفقیت به‌روزرسانی شد');
-      } else {
-        await addQuestion(testId, data);
-        alert('سوال با موفقیت اضافه شد');
-      }
-      onClose(true);
-    } catch (error) {
-      console.error('Failed to save question:', error);
-      alert('خطا در ذخیره سوال');
-    } finally {
-      setSubmitting(false);
+  useEffect(() => {
+    if (initial?.id) {
+      setForm((prev) => ({ ...prev, ...initial }));
     }
+  }, [initial]);
+
+  const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
+
+  const updateChoice = (index, patch) => {
+    const next = [...form.choices];
+    next[index] = { ...next[index], ...patch, order: index + 1 };
+    setForm((prev) => ({ ...prev, choices: next }));
+  };
+
+  const addChoice = () => {
+    setForm((prev) => ({
+      ...prev,
+      choices: [...prev.choices, { text: '', is_correct: false, order: prev.choices.length + 1 }]
+    }));
+  };
+
+  const removeChoice = (index) => {
+    const next = form.choices.filter((_, i) => i !== index).map((c, i) => ({ ...c, order: i + 1 }));
+    setForm((prev) => ({ ...prev, choices: next }));
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const payload = {
+      text: form.text,
+      points: Number(form.points || 0),
+      question_type: form.question_type,
+      category: form.category,
+      choices: form.question_type === 'mcq' ? form.choices : []
+    };
+    onSave(payload);
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">
-            {question ? 'ویرایش سوال' : 'افزودن سوال جدید'}
-          </h2>
-          <Button onClick={() => onClose(false)} variant="ghost" size="sm">
-            <X className="w-5 h-5" />
-          </Button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
+      <div className="surface w-full max-w-2xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-slate-900">مدیریت سوال</h3>
+          <Button variant="ghost" onClick={onClose}>بستن</Button>
         </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+        <form className="space-y-4" onSubmit={onSubmit}>
           <Textarea
-            label="متن سوال"
-            {...register('question_text', { required: 'متن سوال الزامی است' })}
-            error={errors.question_text?.message}
             rows={4}
+            placeholder="متن سوال"
+            value={form.text}
+            onChange={(e) => setField('text', e.target.value)}
           />
 
-          <div className="grid grid-cols-2 gap-4">
-            <Select
-              label="نوع سوال"
-              {...register('question_type')}
-            >
-              <option value="multiple_choice">چند گزینه‌ای</option>
-              <option value="true_false">درست/نادرست</option>
-              <option value="short_answer">پاسخ کوتاه</option>
-              <option value="essay">تشریحی</option>
-            </Select>
-
-            <Input
-              label="امتیاز"
-              {...register('points', { 
-                required: 'امتیاز الزامی است',
-                valueAsNumber: true,
-                min: { value: 1, message: 'حداقل 1' }
-              })}
-              error={errors.points?.message}
-              type="number"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <div className="text-xs text-slate-500">نوع سوال</div>
+              <Select value={form.question_type} onChange={(e) => setField('question_type', e.target.value)}>
+                <option value="mcq">تستی</option>
+                <option value="text">تشریحی</option>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <div className="text-xs text-slate-500">دسته‌بندی</div>
+              <Select value={form.category} onChange={(e) => setField('category', e.target.value)}>
+                <option value="memory">حافظه</option>
+                <option value="focus">تمرکز</option>
+                <option value="logic">منطق</option>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <div className="text-xs text-slate-500">امتیاز</div>
+              <Input
+                type="number"
+                min="1"
+                value={form.points}
+                onChange={(e) => setField('points', e.target.value)}
+                placeholder="امتیاز"
+              />
+            </div>
           </div>
 
-          {questionType === 'multiple_choice' && (
-            <div className="space-y-4">
+          {form.question_type === 'mcq' && (
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="font-medium">گزینه‌ها</label>
-                <Button
-                  type="button"
-                  onClick={() => append({ choice_text: '', is_correct: false })}
-                  variant="outline"
-                  size="sm"
-                >
-                  <Plus className="w-4 h-4 ml-2" />
-                  افزودن گزینه
-                </Button>
+                <div className="text-sm font-semibold text-slate-700">گزینه‌ها</div>
+                <Button type="button" variant="secondary" onClick={addChoice}>افزودن گزینه</Button>
               </div>
-
-              {fields.map((field, index) => (
-                <div key={field.id} className="flex gap-3 items-start">
-                  <div className="flex-1">
-                    <Input
-                      {...register(`choices.${index}.choice_text`, {
-                        required: 'متن گزینه الزامی است'
-                      })}
-                      error={errors.choices?.[index]?.choice_text?.message}
-                      placeholder={`گزینه ${index + 1}`}
-                    />
-                  </div>
-                  <label className="flex items-center gap-2 mt-2">
+              {form.choices.map((choice, index) => (
+                <div key={index} className="flex gap-2 items-center">
+                  <Input
+                    value={choice.text}
+                    onChange={(e) => updateChoice(index, { text: e.target.value })}
+                    placeholder={`گزینه ${index + 1}`}
+                  />
+                  <label className="flex items-center gap-2 text-xs text-slate-600">
                     <input
                       type="checkbox"
-                      {...register(`choices.${index}.is_correct`)}
-                      className="w-4 h-4"
+                      checked={choice.is_correct}
+                      onChange={(e) => updateChoice(index, { is_correct: e.target.checked })}
                     />
-                    <span className="text-sm">صحیح</span>
+                    صحیح
                   </label>
-                  {fields.length > 2 && (
-                    <Button
-                      type="button"
-                      onClick={() => remove(index)}
-                      variant="danger"
-                      size="sm"
-                      className="mt-2"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                  {form.choices.length > 2 && (
+                    <Button type="button" variant="ghost" onClick={() => removeChoice(index)}>حذف</Button>
                   )}
                 </div>
               ))}
             </div>
           )}
 
-          <div className="flex gap-3 pt-4 border-t">
-            <Button
-              type="button"
-              onClick={() => onClose(false)}
-              variant="outline"
-              className="flex-1"
-            >
-              انصراف
-            </Button>
-            <Button
-              type="submit"
-              disabled={submitting}
-              variant="primary"
-              className="flex-1"
-            >
-              {submitting ? 'در حال ذخیره...' : 'ذخیره'}
-            </Button>
+          <div className="flex gap-3 justify-end pt-2">
+            <Button type="button" variant="secondary" onClick={onClose}>انصراف</Button>
+            <Button type="submit">ذخیره سوال</Button>
           </div>
         </form>
       </div>

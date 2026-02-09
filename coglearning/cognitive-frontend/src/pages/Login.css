@@ -79,12 +79,12 @@
   border-radius: 2px;
 }
 
-.form-group {
+.auth-container .form-group {
   margin-bottom: 30px;
   text-align: right;
 }
 
-.form-group label {
+.auth-container .form-group label {
   display: block;
   margin-bottom: 10px;
   color: #2c3e50;
@@ -92,7 +92,7 @@
   font-size: 0.95rem;
 }
 
-.form-group input {
+.auth-container .form-group input {
   width: 100%;
   padding: 16px 20px;
   border: 2px solid #e8eaf2;
@@ -105,7 +105,7 @@
     inset 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
-.form-group input:focus {
+.auth-container .form-group input:focus {
   outline: none;
   border-color: #5B6CFF;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
@@ -115,11 +115,11 @@
   transform: translateY(-2px);
 }
 
-.form-group input::placeholder {
+.auth-container .form-group input::placeholder {
   color: #a0a4b0;
 }
 
-.btn {
+.auth-container .btn {
   width: 100%;
   padding: 16px;
   border: none;
@@ -133,28 +133,28 @@
   overflow: hidden;
 }
 
-.btn-primary {
+.auth-container .btn-primary {
   background: linear-gradient(135deg, #5B6CFF 0%, #764ba2 100%);
   color: white;
   box-shadow: 0 8px 20px rgba(91, 108, 255, 0.3);
 }
 
-.btn-primary:hover:not(:disabled) {
+.auth-container .btn-primary:hover:not(:disabled) {
   transform: translateY(-3px);
   box-shadow: 0 12px 25px rgba(91, 108, 255, 0.4);
 }
 
-.btn-primary:active {
+.auth-container .btn-primary:active {
   transform: translateY(-1px);
 }
 
-.btn-primary:disabled {
+.auth-container .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
-.error {
+.auth-container .error {
   background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
   border: 1px solid #fed7d7;
   color: #c53030;
@@ -166,7 +166,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.auth-link {
+.auth-container .auth-link {
   margin-top: 30px;
   color: #666;
   font-size: 0.95rem;
@@ -174,14 +174,14 @@
   border-top: 1px solid #f0f2f5;
 }
 
-.auth-link a {
+.auth-container .auth-link a {
   color: #5B6CFF;
   text-decoration: none;
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
-.auth-link a:hover {
+.auth-container .auth-link a:hover {
   color: #764ba2;
   text-decoration: underline;
 }
@@ -193,7 +193,7 @@
   100% { opacity: 1; }
 }
 
-.btn:disabled {
+.auth-container .btn:disabled {
   animation: pulse 1.5s infinite;
 }
 

@@ -10,17 +10,26 @@ const StudentDashboard = () => {
   const [activeTests, setActiveTests] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const progressPercent = (user?.cognitive_level / 10) * 100;
+  const progressPercent = Math.min(user?.cognitive_level || 1, 100);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [contentRes, testsRes] = await Promise.all([
-          contentAPI.getAvailableContent(),
+        const [contentRes, testsRes] = await Promise.allSettled([
+          contentAPI.getRecommendedContent(),
           assessmentAPI.getAvailableTests()
         ]);
-        setContents(contentRes.data);
-        setActiveTests(testsRes.data);
+        if (contentRes.status === "fulfilled") {
+          const recommended = (contentRes.value.data || []).map((rec) => rec.content).filter(Boolean);
+          setContents(recommended);
+        } else {
+          setContents([]);
+        }
+        if (testsRes.status === "fulfilled") {
+          setActiveTests(testsRes.value.data || []);
+        } else {
+          setActiveTests([]);
+        }
       } catch (err) {
         console.error("خطا در بارگذاری داده‌ها:", err);
       } finally {
@@ -31,9 +40,7 @@ const StudentDashboard = () => {
   }, []);
 
   const startTest = (testId) => {
-    assessmentAPI.startSession(testId).then(res => {
-      navigate(`/take-test/${res.data.id}`);
-    });
+    navigate(`/take-test/${testId}`);
   };
 
   return (
@@ -49,7 +56,7 @@ const StudentDashboard = () => {
         </div>
       </header>
 
-      {!user?.has_taken_placement && (
+      {!user?.has_taken_placement_test && (
         <div style={styles.placementBanner}>
           <div>
             <h3>🎯 سطح خود را دقیق‌تر تعیین کنید!</h3>
@@ -77,7 +84,7 @@ const StudentDashboard = () => {
               <div key={test.id} style={styles.testCard}>
                 <div>
                   <h4 style={{margin: '0 0 5px 0'}}>{test.title}</h4>
-                  <span style={styles.timeTag}>⏱ زمان: {test.duration} دقیقه</span>
+                  <span style={styles.timeTag}>⏱ زمان: {test.time_limit_minutes} دقیقه</span>
                 </div>
                 <button style={styles.testBtn} onClick={() => startTest(test.id)}>شروع آزمون</button>
               </div>
@@ -91,11 +98,11 @@ const StudentDashboard = () => {
             <div style={styles.contentGrid}>
               {contents.map((item) => (
                 <div key={item.id} style={styles.contentCard}>
-                  <div style={styles.contentIcon}>{item.type === 'video' ? '🎥' : '📄'}</div>
+                  <div style={styles.contentIcon}>{item.content_type === 'video' ? '🎥' : '📄'}</div>
                   <h3>{item.title}</h3>
-                  <p>{item.description?.substring(0, 60)}...</p>
+                  <p>{item.body?.substring(0, 60) || "بدون توضیحات"}</p>
                   <div style={styles.cardFooter}>
-                    <span style={styles.timeTag}>⏱ {item.study_time} دقیقه</span>
+                    <span style={styles.timeTag}>⏱ مطالعه</span>
                     <button style={styles.startBtn} onClick={() => navigate(`/content/${item.id}`)}>مطالعه</button>
                   </div>
                 </div>
@@ -119,7 +126,7 @@ const StudentDashboard = () => {
             </div>
             <button 
               style={styles.resultsLink} 
-              onClick={() => navigate('/my-results')}
+              onClick={() => navigate('/my-history')}
             >
               مشاهده کارنامه‌ها و پاسخ‌ها
             </button>

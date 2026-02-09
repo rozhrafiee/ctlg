@@ -48,7 +48,8 @@ export const AuthProvider = ({ children }) => {
     logout,
     loading,
     isAuthenticated: !!user,
-    hasTakenPlacementTest: user?.has_taken_placement_test || false
+    hasTakenPlacementTest: user?.has_taken_placement_test || false,
+    refreshUser: fetchUser,
   };
 
   return (

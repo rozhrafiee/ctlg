@@ -1,21 +1,12 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import './styles/global-styles.css';
-import './styles/page-styles.css';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
+import AppShell from './components/layout/AppShell';
 
-
-// Layouts
-import Navbar from './components/layout/Navbar';
-
-// General Pages
 import HomePage from './pages/HomePage';
-
-// Auth Pages
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ProfilePage from './pages/auth/ProfilePage';
 
-// Student Pages
 import StudentDashboard from './pages/student/StudentDashboard';
 import PlacementTestPage from './pages/student/PlacementTestPage';
 import TestListPage from './pages/student/TestListPage';
@@ -25,8 +16,10 @@ import LearningPathPage from './pages/student/LearningPathPage';
 import ProgressPage from './pages/student/ProgressPage';
 import ContentDetailPage from './pages/student/ContentDetailPage';
 import History from './pages/student/History';
+import RecommendationsPage from './pages/student/RecommendationsPage';
+import RecommendedPage from './pages/student/RecommendedPage';
+import AdaptiveDashboardPage from './pages/student/AdaptiveDashboardPage';
 
-// Teacher Pages
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import TeacherContentList from './pages/teacher/TeacherContentList';
 import CreateContentPage from './pages/teacher/CreateContentPage';
@@ -37,20 +30,23 @@ import EditTestPage from './pages/teacher/EditTestPage';
 import TestQuestionsPage from './pages/teacher/TestQuestionsPage';
 import GradingPage from './pages/teacher/GradingPage';
 
-// Protected Route Component
-function ProtectedRoute({ children, requirePlacementTest = false, teacherOnly = false }) {
+function ProtectedRoute({ children, requirePlacementTest = false, teacherOnly = false, studentOnly = false }) {
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-gray-600">در حال بارگذاری...</div>
+      <div className="min-h-screen flex items-center justify-center text-slate-500">
+        در حال بارگذاری...
       </div>
     );
   }
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (studentOnly && user.role !== 'student') {
+    return <Navigate to="/teacher/dashboard" replace />;
   }
 
   if (teacherOnly && user.role !== 'teacher' && user.role !== 'admin') {
@@ -64,14 +60,12 @@ function ProtectedRoute({ children, requirePlacementTest = false, teacherOnly = 
   return children;
 }
 
-// Public Route
 function PublicRoute({ children }) {
   const { user, loading } = useAuth();
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-gray-600">در حال بارگذاری...</div>
+      <div className="min-h-screen flex items-center justify-center text-slate-500">
+        در حال بارگذاری...
       </div>
     );
   }
@@ -86,107 +80,147 @@ function PublicRoute({ children }) {
   return children;
 }
 
-function App() {
+export default function App() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      {user && <Navbar />}
-      
-      <Routes>
-        <Route path="/" element={user ? <Navigate to="/student/dashboard" replace /> : <HomePage />} />
+    <Routes>
+      <Route
+        path="/"
+        element={
+          user
+            ? (user.role === 'teacher' || user.role === 'admin'
+                ? <Navigate to="/teacher/dashboard" replace />
+                : <Navigate to="/student/dashboard" replace />)
+            : <HomePage />
+        }
+      />
 
-        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-        <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+      <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
-        <Route path="/student/dashboard" element={
-          <ProtectedRoute requirePlacementTest><StudentDashboard /></ProtectedRoute>
-        } />
-        
-        <Route path="/student/placement-test" element={
-          <ProtectedRoute><PlacementTestPage /></ProtectedRoute>
-        } />
+      <Route path="/student/dashboard" element={
+        <ProtectedRoute studentOnly requirePlacementTest>
+          <AppShell title="داشبورد دانش‌آموز"><StudentDashboard /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/student/placement-test" element={
+        <ProtectedRoute studentOnly>
+          <AppShell title="آزمون تعیین سطح"><PlacementTestPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/student/tests" element={
+        <ProtectedRoute studentOnly requirePlacementTest>
+          <AppShell title="لیست آزمون‌ها"><TestListPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/student/tests/:testId/take" element={
+        <ProtectedRoute studentOnly>
+          <AppShell title="شرکت در آزمون"><TestTaking /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/student/tests/:sessionId/result" element={
+        <ProtectedRoute studentOnly>
+          <AppShell title="نتیجه آزمون"><TestResultPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/student/learning-path" element={
+        <ProtectedRoute studentOnly requirePlacementTest>
+          <AppShell title="مسیر یادگیری"><LearningPathPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/student/progress" element={
+        <ProtectedRoute studentOnly requirePlacementTest>
+          <AppShell title="پیشرفت من"><ProgressPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/student/content/:id" element={
+        <ProtectedRoute studentOnly requirePlacementTest>
+          <AppShell title="جزئیات محتوا"><ContentDetailPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/student/history" element={
+        <ProtectedRoute studentOnly requirePlacementTest>
+          <AppShell title="تاریخچه آزمون‌ها"><History /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/student/recommendations" element={
+        <ProtectedRoute studentOnly requirePlacementTest>
+          <AppShell title="پیشنهادها"><RecommendationsPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/student/recommended" element={
+        <ProtectedRoute requirePlacementTest>
+          <AppShell title="پیشنهادهای هوشمند"><RecommendedPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/student/adaptive-dashboard" element={
+        <ProtectedRoute requirePlacementTest>
+          <AppShell title="داشبورد تطبیقی"><AdaptiveDashboardPage /></AppShell>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/student/tests" element={
-          <ProtectedRoute requirePlacementTest><TestListPage /></ProtectedRoute>
-        } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <AppShell title="پروفایل"><ProfilePage /></AppShell>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/student/tests/:testId/take" element={
-          <ProtectedRoute requirePlacementTest><TestTaking /></ProtectedRoute>
-        } />
+      <Route path="/teacher/dashboard" element={
+        <ProtectedRoute teacherOnly>
+          <AppShell title="داشبورد استاد"><TeacherDashboard /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/teacher/contents" element={
+        <ProtectedRoute teacherOnly>
+          <AppShell title="محتواهای من"><TeacherContentList /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/teacher/contents/create" element={
+        <ProtectedRoute teacherOnly>
+          <AppShell title="ساخت محتوای جدید"><CreateContentPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/teacher/contents/:id/edit" element={
+        <ProtectedRoute teacherOnly>
+          <AppShell title="ویرایش محتوا"><EditContentPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/teacher/tests" element={
+        <ProtectedRoute teacherOnly>
+          <AppShell title="آزمون‌های من"><TeacherTestList /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/teacher/tests/create" element={
+        <ProtectedRoute teacherOnly>
+          <AppShell title="ساخت آزمون جدید"><CreateTestPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/teacher/tests/:id/edit" element={
+        <ProtectedRoute teacherOnly>
+          <AppShell title="ویرایش آزمون"><EditTestPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/teacher/tests/:id/questions" element={
+        <ProtectedRoute teacherOnly>
+          <AppShell title="سوالات آزمون"><TestQuestionsPage /></AppShell>
+        </ProtectedRoute>
+      } />
+      <Route path="/teacher/grading" element={
+        <ProtectedRoute teacherOnly>
+          <AppShell title="تصحیح و بررسی"><GradingPage /></AppShell>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/student/tests/:sessionId/result" element={
-          <ProtectedRoute requirePlacementTest><TestResultPage /></ProtectedRoute>
-        } />
-
-        <Route path="/student/learning-path" element={
-          <ProtectedRoute requirePlacementTest><LearningPathPage /></ProtectedRoute>
-        } />
-
-        <Route path="/student/progress" element={
-          <ProtectedRoute requirePlacementTest><ProgressPage /></ProtectedRoute>
-        } />
-
-        <Route path="/student/content/:id" element={
-          <ProtectedRoute requirePlacementTest><ContentDetailPage /></ProtectedRoute>
-        } />
-
-        <Route path="/student/history" element={
-          <ProtectedRoute requirePlacementTest><History /></ProtectedRoute>
-        } />
-
-        <Route path="/profile" element={
-          <ProtectedRoute><ProfilePage /></ProtectedRoute>
-        } />
-
-        <Route path="/teacher/dashboard" element={
-          <ProtectedRoute teacherOnly><TeacherDashboard /></ProtectedRoute>
-        } />
-
-        <Route path="/teacher/contents" element={
-          <ProtectedRoute teacherOnly><TeacherContentList /></ProtectedRoute>
-        } />
-
-        <Route path="/teacher/contents/create" element={
-          <ProtectedRoute teacherOnly><CreateContentPage /></ProtectedRoute>
-        } />
-
-        <Route path="/teacher/contents/:id/edit" element={
-          <ProtectedRoute teacherOnly><EditContentPage /></ProtectedRoute>
-        } />
-
-        <Route path="/teacher/tests" element={
-          <ProtectedRoute teacherOnly><TeacherTestList /></ProtectedRoute>
-        } />
-
-        <Route path="/teacher/tests/create" element={
-          <ProtectedRoute teacherOnly><CreateTestPage /></ProtectedRoute>
-        } />
-
-        <Route path="/teacher/tests/:id/edit" element={
-          <ProtectedRoute teacherOnly><EditTestPage /></ProtectedRoute>
-        } />
-
-        <Route path="/teacher/tests/:id/questions" element={
-          <ProtectedRoute teacherOnly><TestQuestionsPage /></ProtectedRoute>
-        } />
-
-        <Route path="/teacher/grading" element={
-          <ProtectedRoute teacherOnly><GradingPage /></ProtectedRoute>
-        } />
-
-        <Route path="*" element={
-          user ? (
-            user.role === 'teacher' || user.role === 'admin' ? 
-              <Navigate to="/teacher/dashboard" replace /> : 
-              <Navigate to="/student/dashboard" replace />
-          ) : (
-            <Navigate to="/" replace />
-          )
-        } />
-      </Routes>
-    </div>
+      <Route path="*" element={
+        user ? (
+          user.role === 'teacher' || user.role === 'admin'
+            ? <Navigate to="/teacher/dashboard" replace />
+            : <Navigate to="/student/dashboard" replace />
+        ) : (
+          <Navigate to="/" replace />
+        )
+      } />
+    </Routes>
   );
 }
-
-export default App;

@@ -19,8 +19,8 @@ const TeacherDashboard = () => {
           setTests(testRes.data || []);
         }
 
-        if (assessmentAPI && typeof assessmentAPI.getPendingEssays === 'function') {
-          const pendingRes = await assessmentAPI.getPendingEssays();
+        if (assessmentAPI && typeof assessmentAPI.getPendingReviews === 'function') {
+          const pendingRes = await assessmentAPI.getPendingReviews();
           setStats(prev => ({ 
             ...prev, 
             pendingReviews: pendingRes.data?.length || 0 
@@ -96,8 +96,8 @@ const TeacherDashboard = () => {
                 </div>
                 <h4 style={styles.testTitle}>{test.title}</h4>
                 <div style={styles.testInfo}>
-                  <span>🔢 {test.questions_count || 0} سوال</span>
-                  <span>📊 سطح {test.min_level || 1} تا {test.max_level || 10}</span>
+                  <span>🔢 {test.questions_count || "-" } سوال</span>
+                  <span>📊 سطح هدف: {test.target_level || test.min_level || "-"}</span>
                 </div>
                 <button 
                   onClick={() => navigate(`/edit-test/${test.id}`)} 

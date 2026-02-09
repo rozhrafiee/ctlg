@@ -10,11 +10,11 @@ export default function Exams() {
 
   const navigate = useNavigate();
   const { user } = useAuth(); 
-  // فرض: user.has_taken_placement از بک میاد
+  // فرض: user.has_taken_placement_test از بک میاد
 
   useEffect(() => {
     // ✅ اگر دانشجو تعیین سطح نداده → مستقیم بفرست placement
-    if (user?.role === "student" && user?.has_taken_placement === false) {
+    if (user?.role === "student" && user?.has_taken_placement_test === false) {
       navigate("/placement-test");
       return;
     }
@@ -40,18 +40,8 @@ export default function Exams() {
     }
   };
 
-  const startTest = async (testId) => {
-    try {
-      const res = await assessmentAPI.startTest(testId);
-
-      // ✅ هماهنگ با بک
-      const sessionId = res.data.session_id || res.data.id;
-
-      navigate(`/test-session/${sessionId}`);
-    } catch (err) {
-      console.error("Failed to start test:", err);
-      alert(err.response?.data?.detail || "امکان شروع آزمون وجود ندارد");
-    }
+  const startTest = (testId) => {
+    navigate(`/take-test/${testId}`);
   };
 
   if (loading) {

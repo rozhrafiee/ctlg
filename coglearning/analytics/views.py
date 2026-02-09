@@ -41,8 +41,9 @@ class TeacherStudentStatsView(APIView):
         # امنیت: بررسی اینکه آیا این دانشجو در آزمون‌های این استاد شرکت کرده است؟
         # استاد فقط مجاز به دیدن تحلیل‌های شاگردان خودش است
         is_my_student = TestSession.objects.filter(
-            user_id=student_id,
-            test__related_content__author=request.user
+            user_id=student_id
+        ).filter(
+            Q(test__related_content__author=request.user) | Q(test__created_by=request.user)
         ).exists()
 
         if not request.user.is_staff and not is_my_student:
@@ -68,7 +69,7 @@ class TeacherDashboardView(APIView):
         
         # آزمون‌هایی که یا متعلق به محتوای استاد هستند یا استاد سازنده آن‌هاست
         my_tests = CognitiveTest.objects.filter(
-            Q(related_content__author=user) | Q(related_content__in=my_contents)
+            Q(related_content__author=user) | Q(created_by=user)
         ).distinct()
         my_tests_count = my_tests.count()
 

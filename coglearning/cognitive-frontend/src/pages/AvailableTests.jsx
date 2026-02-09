@@ -13,21 +13,13 @@ const AvailableTests = () => {
       try {
         // ۱. دریافت اطلاعات پروفایل کاربر برای فهمیدن سطح او
         const profileRes = await authAPI.getMe();
-        const currentLevel = profileRes.data.current_level || 1; // فرض بر سطح ۱ اگر تعیین نشده بود
+        const currentLevel = profileRes.data.cognitive_level || 1;
         setUserLevel(currentLevel);
 
         // ۲. دریافت تمام آزمون‌های فعال
         const testsRes = await assessmentAPI.getAvailableTests();
         
-        // ۳. فیلتر کردن هوشمند:
-        // آزمون‌های تعیین سطح همیشه نشان داده شوند
-        // آزمون‌های عمومی فقط اگر با سطح کاربر برابر باشند
-        const filtered = testsRes.data.filter(test => {
-          if (test.test_type === 'placement') return true;
-          return test.target_level === currentLevel;
-        });
-
-        setTests(filtered);
+        setTests(testsRes.data || []);
       } catch (err) {
         console.error("خطا در دریافت لیست آزمون‌ها:", err);
       } finally {
@@ -63,7 +55,7 @@ const AvailableTests = () => {
               
               <div style={styles.meta}>
                 <span>⏰ زمان: {test.time_limit_minutes} دقیقه</span>
-                <span>❓ سوالات: {test.questions_count || 0} عدد</span>
+                <span>❓ سوالات: {test.questions_count || "-"}</span>
               </div>
 
               <button 
@@ -84,7 +76,7 @@ const styles = {
   container: { padding: '40px 20px', direction: 'rtl', fontFamily: 'Tahoma', maxWidth: '1200px', margin: '0 auto' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', borderBottom: '2px solid #eee', paddingBottom: '20px' },
   levelBadge: { background: '#3498db', color: '#fff', padding: '8px 15px', borderRadius: '20px', fontWeight: 'bold' },
-  grid: { display: 'grid', gridTemplateColumns: 'record(auto-fill, minmax(300px, 1fr))', gap: '20px' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' },
   card: { background: '#fff', borderRadius: '15px', padding: '25px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', position: 'relative', border: '1px solid #f0f0f0' },
   cardType: { position: 'absolute', top: '15px', left: '15px', fontSize: '12px', color: '#7f8c8d', background: '#ecf0f1', padding: '4px 8px', borderRadius: '5px' },
   desc: { color: '#636e72', fontSize: '14px', lineHeight: '1.6', height: '45px', overflow: 'hidden' },
