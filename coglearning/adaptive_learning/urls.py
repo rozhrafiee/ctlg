@@ -6,6 +6,7 @@ urlpatterns = [
     path("recommended/", RecommendedContentView.as_view()),
     path("learning-path/", LearningPathView.as_view()),
     path("learning-path/reset/", reset_learning_path),
+    path("learning-roadmap/", learning_roadmap),
     path("content/<int:content_id>/progress/", update_progress),
     path("progress/", UserProgressListView.as_view()),
     path("recommendations/", RecommendationsListView.as_view()),

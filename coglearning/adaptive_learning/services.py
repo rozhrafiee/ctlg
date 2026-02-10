@@ -29,17 +29,32 @@ class AdaptiveLearningEngine:
         level = user.cognitive_level or 1
         path = LearningPath.objects.create(user=user, name=f"مسیر یادگیری سطح {level}")
         
-        # ۵ محتوای بعدی که کاربر هنوز ندیده است
-        contents = LearningContent.objects.filter(
-            min_level__gte=level,
-            is_active=True
-        ).order_by('min_level')[:5]
+        # ۵ محتوای مناسب سطح کاربر (بازه سطح شامل سطح فعلی) که کاربر هنوز تکمیل نکرده است
+        base_qs = LearningContent.objects.filter(is_active=True).exclude(
+            usercontentprogress__user=user,
+            usercontentprogress__is_completed=True
+        )
+
+        contents = list(
+            base_qs.filter(min_level__lte=level, max_level__gte=level)
+            .order_by('min_level', 'id')[:5]
+        )
+
+        # اگر به اندازه کافی نبود، از محتواهای سطح‌های بالاتر هم اضافه کن
+        if len(contents) < 5:
+            need = 5 - len(contents)
+            future = list(
+                base_qs.filter(min_level__gt=level)
+                .order_by('min_level', 'id')[:need]
+            )
+            contents.extend(future)
 
         for i, c in enumerate(contents):
             LearningPathItem.objects.create(
                 path=path, 
                 content=c, 
                 order=i+1, 
-                is_unlocked=(i==0)
+                # قفل/باز بر اساس سطح مورد نیاز
+                is_unlocked=(c.min_level <= level)
             )
         return path

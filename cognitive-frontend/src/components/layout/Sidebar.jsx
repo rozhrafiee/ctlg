@@ -31,7 +31,6 @@ export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
                 <NavLink to="/student/learning-path" className={linkClass} onClick={onClose}>مسیر یادگیری</NavLink>
                 <NavLink to="/student/progress" className={linkClass} onClick={onClose}>پیشرفت</NavLink>
                 <NavLink to="/student/recommended" className={linkClass} onClick={onClose}>پیشنهادهای هوشمند</NavLink>
-                <NavLink to="/student/recommendations" className={linkClass} onClick={onClose}>پیشنهادها</NavLink>
                 <NavLink to="/student/history" className={linkClass} onClick={onClose}>تاریخچه</NavLink>
               </>
             ) : (
