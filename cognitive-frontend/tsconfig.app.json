@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "types": ["node"],
+    "composite": true,
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true, // حالا این مجاز است
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowJs": true,
+    
+    // 🟢 تغییر اصلی اینجاست:
+    "noEmit": true, 
+    // اگر باز هم ارور composite داد، خط بالا را پاک کن و از این استفاده کن:
+    // "emitDeclarationOnly": true,
+    
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src"]
+}
