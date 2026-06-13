@@ -30,7 +30,6 @@ import CreateTestPage from './pages/teacher/CreateTestPage';
 import EditTestPage from './pages/teacher/EditTestPage';
 import TestQuestionsPage from './pages/teacher/TestQuestionsPage';
 import GradingPage from './pages/teacher/GradingPage';
-import AlgorithmTestingResultsPage from './pages/teacher/AlgorithmTestingResultsPage';
 
 function ProtectedRoute({ children, requirePlacementTest = false, teacherOnly = false, studentOnly = false }) {
   const { user, loading } = useAuth();
