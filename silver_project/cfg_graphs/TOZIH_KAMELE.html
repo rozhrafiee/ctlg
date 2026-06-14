@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>توضیح کامل پروژه — تست نرم‌افزار</title>
+  <style>
+    body { font-family: Tahoma, Arial, sans-serif; background: #f0f2f5; color: #1a1a1a; line-height: 1.9; padding: 24px; direction: rtl; max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 1.4rem; border-bottom: 3px solid #1565c0; padding-bottom: 10px; margin-bottom: 20px; }
+    h2 { font-size: 1.05rem; color: #1565c0; margin: 28px 0 10px; }
+    h3 { font-size: 0.95rem; margin: 16px 0 8px; }
+    p { margin-bottom: 12px; text-align: justify; }
+    .box { background: #fff; border: 1px solid #cfd8dc; border-radius: 6px; padding: 18px 22px; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 12px 0; }
+    th, td { border: 1px solid #b0bec5; padding: 8px 10px; text-align: right; }
+    th { background: #eceff1; }
+    code, pre { font-family: Consolas, monospace; font-size: 0.82rem; background: #eceff1; direction: ltr; text-align: left; unicode-bidi: isolate; }
+    pre { padding: 12px; overflow-x: auto; border-radius: 4px; }
+    .formula { background: #fff8e1; border-right: 4px solid #f9a825; padding: 10px 14px; margin: 12px 0; font-family: Consolas, monospace; direction: ltr; text-align: center; }
+    nav { margin-bottom: 20px; font-size: 0.88rem; }
+    nav a { color: #1565c0; margin-left: 14px; }
+    ul { padding-right: 22px; margin: 8px 0 14px; }
+    li { margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">فهرست گراف‌ها</a>
+    <a href="ARAYEH_STUD.html">اسلاید ارائه</a>
+    <a href="process_catalog.html">گراف کاتالوگ</a>
+  </nav>
+
+  <h1>توضیح کامل پروژه ctlg — برای ارائه استاد</h1>
+
+  <div class="box">
+    <h2>۱. پروژه چیه و چرا این سناریو؟</h2>
+    <p>
+      ما یک سامانه سنجش شناختی داریم. کاربر (شهروند) وارد می‌شود، لیست آزمون‌های قابل انجام را می‌بیند،
+      می‌تواند جستجو کند و لیست را مرتب کند (بر اساس عنوان، سطح، زمان و…).
+    </p>
+    <p>
+      برای درس تست نرم‌افزار، نمی‌شود کل سیستم Django + React را یک‌جا تست کرد؛ باید یک
+      <strong>واحد تحت آزمون (UUT)</strong> انتخاب کنیم. ما تابع <code>process_catalog</code> در
+      <code>catalog.py</code> را UUT اصلی گرفتیم، به‌علاوه چهار الگوریتم جدا:
+      <code>bubble_sort</code>، <code>merge_sort</code>، <code>linear_search</code>، <code>binary_search</code>.
+    </p>
+    <p>
+      این تابع در بک‌اند صدا زده می‌شود: لیست آزمون‌ها از دیتابیس می‌آید، داخل <code>process_catalog</code>
+      اول (در صورت نیاز) فیلتر می‌شود، بعد مرتب، و خروجی به React برمی‌گردد.
+    </p>
+  </div>
+
+  <div class="box">
+    <h2>۲. الگوریتم‌ها توی سیستم واقعی چیکار می‌کنند؟</h2>
+    <table>
+      <tr><th>الگوریتم</th><th>کار</th><th>کی استفاده می‌شود؟</th></tr>
+      <tr>
+        <td>linear_search</td>
+        <td>از اول لیست می‌گردد؛ اگر کلمه‌ای که کاربر تایپ کرده داخل title یا description باشد، آن آزمون را نگه می‌دارد</td>
+        <td>همیشه — در <code>catalog_bridge.py</code> جستجو همیشه linear است</td>
+      </tr>
+      <tr>
+        <td>binary_search</td>
+        <td>روی لیست مرتب، تطبیق دقیق عنوان را پیدا می‌کند</td>
+        <td>فقط در تست‌ها (ACOC/CFG) — کاربر در UI انتخابش نمی‌کند</td>
+      </tr>
+      <tr>
+        <td>bubble_sort</td>
+        <td>مرتب‌سازی با مقایسه جفت‌های مجاور</td>
+        <td>اگر تعداد آزمون ≤ ۱۲ تا</td>
+      </tr>
+      <tr>
+        <td>merge_sort</td>
+        <td>تقسیم لیست، مرتب کردن نیمه‌ها، ادغام</td>
+        <td>اگر تعداد آزمون &gt; ۱۲ تا</td>
+      </tr>
+      <tr>
+        <td>process_catalog</td>
+        <td>همه را به هم وصل می‌کند + meta برمی‌گرداند (چند تا بود، چند تا ماند، کدام الگوریتم)</td>
+        <td>هر بار که API لیست آزمون را فیلتر/مرتب می‌کند</td>
+      </tr>
+    </table>
+    <p>
+      کاربر فقط «جستجو» و «مرتب بر اساس …» می‌بیند. انتخاب bubble یا merge پشت صحنه در
+      <code>resolve_algorithms</code> انجام می‌شود (آستانه ۱۲).
+    </p>
+  </div>
+
+  <div class="box">
+    <h2>۳. روش کلی کار — از کد تا تست</h2>
+    <p>طبق فصل‌های کتاب، این ترتیب را رفتیم:</p>
+    <ol>
+      <li>بخشی از کد را انتخاب کردیم (UUT)</li>
+      <li>فضای ورودی را افراز کردیم (ISP — Input Space Partitioning)</li>
+      <li>با ACOC همه ترکیب پارامترها را تست کردیم (فصل ۶)</li>
+      <li>کد را به CFG تبدیل کردیم و Node / Edge / Prime Path زدیم (فصل ۷)</li>
+      <li>جهش AOR ساختیم و Mutation Score حساب کردیم (فصل ۹)</li>
+    </ol>
+    <p>
+      نمی‌شود «همه ورودی‌های ممکن» را تست کرد — مثلاً هر رشته جستجو، هر اندازه لیست.
+      برای همین اول فضای ورودی را به کلاس‌های معادل تقسیم می‌کنیم، بعد روی همان کلاس‌ها تست می‌نویسیم.
+    </p>
+  </div>
+
+  <div class="box">
+    <h2>۴. ACOC — چطور به ۳۳۰ تست رسیدیم؟</h2>
+    <p>
+      ACOC یعنی All Combinations: هر ترکیب از پارامترهای ورودی <code>process_catalog</code> یک بار اجرا شود.
+    </p>
+    <h3>پارامترها و کلاس‌های معادل</h3>
+    <table>
+      <tr><th>پارامتر</th><th>مقادیر (کلاس)</th><th>تعداد</th></tr>
+      <tr><td>size (اندازه لیست)</td><td>خالی [] ، یک آیتم ، دو آیتم+</td><td>3</td></tr>
+      <tr><td>order (ترتیب اولیه)</td><td>sorted ، reverse ، random</td><td>3</td></tr>
+      <tr><td>sort_field</td><td>title ، min_level ، time_limit_minutes</td><td>3</td></tr>
+      <tr><td>sort_algo</td><td>bubble ، merge</td><td>2</td></tr>
+      <tr><td>query</td><td>"" ، "آزمون" ، "ناموجود"</td><td>3</td></tr>
+      <tr><td>search_algo</td><td>linear ، binary</td><td>2</td></tr>
+    </table>
+    <div class="formula">3 × 3 × 3 × 2 × 3 × 2 = 324 تست</div>
+    <p>تابع <code>test_acoc_catalog_combinations</code> با <code>@pytest.mark.parametrize</code> همین ۳۲۴ بار اجرا می‌شود.</p>
+    <p>۶ تست دیگر: <code>test_acoc_sort_produces_ordered_output</code> — ۲ الگوریتم مرتب × ۳ فیلد = ۶</p>
+    <div class="formula">324 + 6 = 330 تست ACOC</div>
+    <h3>Oracle (چطور درست بودن را چک می‌کنیم؟)</h3>
+    <pre>assert result["meta"]["total_after"] == len(result["items"])
+assert result["meta"]["total_before"] == len(items)
+assert result["meta"]["total_after"] &lt;= result["meta"]["total_before"]</pre>
+    <p>یعنی: ساختار خروجی درست باشد، تعداد قبل/بعد منطقی باشد، و لیست واقعاً مرتب شده باشد (در تست دوم).</p>
+  </div>
+
+  <div class="box">
+    <h2>۵. CFG — گراف و تست‌های Node / Edge / Prime</h2>
+    <p>
+      کد هر تابع را به گراف جریان کنترل تبدیل کردیم: مستطیل = دستور، لوزی = شرط، فلش = جهت اجرا.
+      گراف‌ها در پوشه <code>cfg_graphs/</code> هستند (مثلاً bubble_sort.html، process_catalog.html).
+    </p>
+    <h3>سه نوع پوشش (فصل ۷)</h3>
+    <ul>
+      <li><strong>Node Coverage:</strong> هر گره (هر بلوک کد/شرط) حداقل یک‌بار اجرا شود.<br>
+        مثال: <code>test_bubble_empty_list</code> → گره «if n&lt;=1» با T</li>
+      <li><strong>Edge Coverage:</strong> هر یال (هر شاخه T و F) حداقل یک‌بار طی شود.<br>
+        مثال: <code>test_bubble_swap_branch_taken</code> → شاخه swap=T</li>
+      <li><strong>Prime Path:</strong> مسیر ساده‌ای که زیرمسیر تکراری ندارد — معمولاً کل حلقه‌ها.<br>
+        مثال: <code>test_bubble_full_outer_inner_loop</code></li>
+    </ul>
+    <h3>شماره نودها</h3>
+    <p>مثلاً bubble_sort: BS1 تا BS10 — هر شماره یک بلوک در sorting.py. process_catalog: PC1–PC4 و داخل _apply_search: AS1–AS6.</p>
+    <h3>تعداد تست CFG</h3>
+    <table>
+      <tr><th>نوع</th><th>تعداد</th><th>مثال</th></tr>
+      <tr><td>Node</td><td>14</td><td>test_bubble_empty_list، test_merge_empty، …</td></tr>
+      <tr><td>Edge</td><td>9</td><td>test_bubble_swap_branch_taken، test_catalog_linear_search_path، …</td></tr>
+      <tr><td>Prime Path</td><td>6</td><td>test_bubble_full_outer_inner_loop، test_catalog_full_pipeline، …</td></tr>
+    </table>
+    <div class="formula">14 + 9 + 6 = 29 تست CFG</div>
+  </div>
+
+  <div class="box">
+    <h2>۶. Mutation Testing — ۱۴ جهش، Score چطور حساب شد؟</h2>
+    <p>
+      جهش یعنی یک تغییر کوچک عمدی در کد (مثلاً <code>n-i-1</code> را بکنی <code>n+i-1</code>).
+      اگر تست‌های ما این باگ را بگیرند → جهش <strong>KILLED</strong>.
+      اگر تست رد نشود ولی رفتار عوض شده → <strong>LIVE</strong>.
+      اگر جهش در عمل همان خروجی را بدهد → <strong>EQUIVALENT</strong>.
+    </p>
+    <p>نوع جهش ما: <strong>AOR</strong> (Arithmetic Operator Replacement) — فقط یک عملگر عوض می‌شود.</p>
+    <table>
+      <tr><th>جهش</th><th>تابع</th><th>تغییر</th><th>نتیجه</th></tr>
+      <tr><td>M-AOR-BS-01..04</td><td>bubble_sort</td><td>محدوده حلقه n-i-1</td><td>۴ تا KILLED</td></tr>
+      <tr><td>M-AOR-MS-01,02</td><td>merge_sort</td><td>mid = n//2</td><td>۲ تا KILLED</td></tr>
+      <tr><td>M-AOR-MS-03</td><td>merge_sort</td><td>(n+1)//2</td><td>EQUIVALENT</td></tr>
+      <tr><td>M-AOR-BN-01,02,04,05</td><td>binary_search</td><td>mid، left، right</td><td>۴ تا KILLED</td></tr>
+      <tr><td>M-AOR-BN-03</td><td>binary_search</td><td>سقف mid</td><td>EQUIVALENT</td></tr>
+      <tr><td>M-AOR-PC-01</td><td>catalog</td><td>total_before+1</td><td>اول LIVE، بعد KILLED</td></tr>
+      <tr><td>M-AOR-PC-02</td><td>catalog</td><td>total_after-1</td><td>KILLED</td></tr>
+    </table>
+    <p><strong>جمع:</strong> ۱۴ جهش — ۲ تا Equivalent — ۱۲ تا غیرمعادل</p>
+    <div class="formula">Mutation Score = killed / (total − equivalent) = 11 / 12 = 91.7%</div>
+    <p>
+      قبل از تقویت: PC-01 زنده بود چون فقط <code>total_after &lt;= total_before</code> چک می‌شد.
+      یک خط اضافه کردیم: <code>assert total_before == len(items)</code> → score از 83.3% به 91.7% رفت.
+    </p>
+    <h3>Score به تفکیک الگوریتم</h3>
+    <table>
+      <tr><th>الگوریتم</th><th>جهش</th><th>Killed</th><th>Score (غیرمعادل)</th></tr>
+      <tr><td>bubble_sort</td><td>4</td><td>4</td><td>100%</td></tr>
+      <tr><td>merge_sort</td><td>3</td><td>2 (+1 equiv)</td><td>100% (2/2)</td></tr>
+      <tr><td>binary_search</td><td>5</td><td>4 (+1 equiv)</td><td>100% (4/4)</td></tr>
+      <tr><td>process_catalog</td><td>2</td><td>2</td><td>100% (بعد از fix)</td></tr>
+    </table>
+  </div>
+
+  <div class="box">
+    <h2>۷. یک جهش + یک تست (برای نشان دادن)</h2>
+    <h3>جهش M-AOR-BS-03</h3>
+    <pre>for j in range(0, n - i - 2):   # به‌جای n - i - 1</pre>
+    <p>حلقه داخلی یک مقایسه کمتر می‌زند → برای ۴ آیتم خروجی مرتب نمی‌شود.</p>
+    <h3>تست</h3>
+    <pre>def test_m03_bs_killed_wrong_output_short_inner_loop(self):
+    result = bubble_sort_m03(ITEMS_4, key="title")
+    correct = bubble_sort(ITEMS_4, key="title")
+    assert got != correct   # جهش کشته شد</pre>
+  </div>
+
+  <div class="box">
+    <h2>۸. جمع کل تست‌ها</h2>
+    <table>
+      <tr><th>بخش</th><th>تعداد</th><th>فایل</th></tr>
+      <tr><td>ACOC</td><td>330</td><td>test_coverage.py</td></tr>
+      <tr><td>CFG (Node+Edge+Prime)</td><td>29</td><td>test_coverage.py</td></tr>
+      <tr><td>Mutation</td><td>17</td><td>test_mutation_killing.py</td></tr>
+      <tr><th>جمع</th><th>376</th><th></th></tr>
+    </table>
+    <h3>اجرای تست</h3>
+    <pre>cd silver_project
+python -m pytest algorithms/tests/ -v
+python -m pytest algorithms/tests/test_coverage.py -k acoc -v
+python -m pytest algorithms/tests/test_mutation_killing.py -v</pre>
+  </div>
+
+  <div class="box">
+    <h2>۹. نکته درباره process_catalog (سؤال‌های معمول)</h2>
+    <p><strong>هر سه مسیر جستجو هم‌نوع برمی‌گردانند؟</strong> بله — همه <code>list[dict]</code>. linear_search اندیس می‌دهد ولی داخل تابع به آیتم تبدیل می‌شود: <code>[items[i] for i in indices]</code>.</p>
+    <p><strong>چرا binary دو بار مرتب می‌کند؟</strong> یک‌بار bubble برای پیش‌شرط جستجوی دودویی، یک‌بار _apply_sort برای ترتیب نهایی کاربر. در production فقط linear استفاده می‌شود.</p>
+    <p><strong>meta از کجا می‌آید؟</strong> از پارامترهای ورودی بعد از اعتبارسنجی (sort_algo، search_algo)، نه از خروجی _apply_search.</p>
+  </div>
+
+  <p style="color:#546e7a;font-size:0.85rem;margin-top:24px">پروژه ctlg · silver_project/algorithms · coglearning/assessment</p>
+</body>
+</html>

@@ -27,7 +27,7 @@
   }
 
   body {
-    @apply antialiased;
+    -webkit-font-smoothing: antialiased;
     background: radial-gradient(1400px 700px at 95% -5%, rgba(13, 115, 119, 0.12), transparent 55%),
       radial-gradient(1000px 600px at -5% 10%, rgba(30, 77, 107, 0.1), transparent 50%),
       radial-gradient(800px 400px at 50% 100%, rgba(196, 167, 71, 0.04), transparent 50%),

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ارائه — تست نرم‌افزار پروژه کاتالوگ شناختی</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --slide: #1e293b;
+      --accent: #38bdf8;
+      --green: #4ade80;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: Tahoma, Arial, sans-serif; background: var(--bg); color: var(--text); direction: rtl; }
+    .deck { height: 100vh; overflow: hidden; position: relative; }
+    .slide {
+      display: none; height: 100vh; padding: 48px 56px 80px;
+      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+      overflow-y: auto;
+    }
+    .slide.active { display: flex; flex-direction: column; }
+    .slide-num { position: fixed; bottom: 20px; left: 24px; font-size: 0.8rem; color: var(--muted); z-index: 10; }
+    .nav { position: fixed; bottom: 16px; right: 24px; z-index: 10; display: flex; gap: 8px; }
+    .nav button {
+      background: var(--slide); border: 1px solid #475569; color: var(--text);
+      padding: 8px 18px; border-radius: 6px; cursor: pointer; font-family: inherit;
+    }
+    .nav button:hover { background: #334155; }
+    h1 { font-size: 1.75rem; color: var(--accent); margin-bottom: 8px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+    h2 { font-size: 1.15rem; color: var(--yellow); margin: 18px 0 10px; }
+    h3 { font-size: 0.95rem; color: var(--green); margin: 12px 0 6px; }
+    p, li { line-height: 1.85; font-size: 0.92rem; color: #e2e8f0; }
+    ul, ol { padding-right: 24px; margin: 8px 0; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+    .card {
+      background: rgba(255,255,255,0.05); border: 1px solid #475569;
+      border-radius: 8px; padding: 14px 16px;
+    }
+    .card h3 { margin-top: 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 12px 0; }
+    th, td { border: 1px solid #475569; padding: 8px 10px; text-align: right; }
+    th { background: #334155; color: var(--accent); }
+    code, pre {
+      font-family: Consolas, monospace; font-size: 0.78rem;
+      background: #0f172a; border: 1px solid #475569; border-radius: 4px;
+      direction: ltr; text-align: left; unicode-bidi: isolate;
+    }
+    pre { padding: 12px; overflow-x: auto; margin: 10px 0; white-space: pre-wrap; }
+    code { padding: 2px 6px; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+    .b-green { background: #166534; color: #bbf7d0; }
+    .b-red { background: #991b1b; color: #fecaca; }
+    .b-blue { background: #1e40af; color: #bfdbfe; }
+    .b-yellow { background: #854d0e; color: #fef08a; }
+    .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; font-size: 0.85rem; }
+    .flow span { background: #334155; padding: 6px 12px; border-radius: 6px; }
+    .flow .arrow { background: none; color: var(--accent); }
+    .big-num { font-size: 2.2rem; font-weight: 700; color: var(--accent); }
+    .fix-ok { border-right: 4px solid var(--green); padding-right: 12px; margin: 10px 0; }
+    .warn { border-right: 4px solid var(--yellow); padding-right: 12px; margin: 10px 0; }
+    a { color: var(--accent); }
+    .toc a { display: block; padding: 6px 0; color: #cbd5e1; text-decoration: none; }
+    .toc a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+<div class="deck">
+
+<!-- اسلاید ۱ -->
+<section class="slide active" data-i="1">
+  <h1>تست نرم‌افزار — کاتالوگ آزمون‌های شناختی</h1>
+  <p class="subtitle">پروژه ctlg · ACOC · CFG · Mutation Testing · ارائه برای استاد</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>UUT (واحد تحت آزمون)</h3>
+      <p><code>process_catalog</code> در <code>catalog.py</code></p>
+      <p style="margin-top:8px">+ الگوریتم‌های bubble_sort، merge_sort، linear_search، binary_search</p>
+    </div>
+    <div class="card">
+      <h3>آمار کلی</h3>
+      <p><span class="big-num">376</span> تست pytest</p>
+      <p>ACOC: 330 · CFG: 29 · Mutation: 17</p>
+      <p>Mutation Score: <span class="badge b-green">91.7%</span> (11/12)</p>
+    </div>
+  </div>
+  <h2>فهرست ارائه</h2>
+  <div class="toc grid2">
+    <div>
+      <a href="#" onclick="go(2);return false">۲. نقش الگوریتم‌ها در سیستم</a>
+      <a href="#" onclick="go(3);return false">۳. روش‌شناسی تست (ISP → ACOC → CFG → Mutation)</a>
+      <a href="#" onclick="go(4);return false">۴. ACOC — ۳۲۴ ترکیب</a>
+      <a href="#" onclick="go(5);return false">۵. CFG — Node / Edge / Prime Path</a>
+    </div>
+    <div>
+      <a href="#" onclick="go(6);return false">۶. اصلاحات معماری گراف (۴ ایراد + پاسخ)</a>
+      <a href="#" onclick="go(7);return false">۷. Mutation — ۱۴ جهش AOR</a>
+      <a href="#" onclick="go(8);return false">۸. نمونه جهش + نمونه تست</a>
+      <a href="#" onclick="go(9);return false">۹. جمع‌بندی و دستور اجرا</a>
+    </div>
+  </div>
+</section>
+
+<!-- اسلاید ۲ -->
+<section class="slide" data-i="2">
+  <h1>الگوریتم‌ها در سیستم واقعی چه می‌کنند؟</h1>
+  <div class="flow">
+    <span>دیتابیس CognitiveTest</span><span class="arrow">→</span>
+    <span>API Django</span><span class="arrow">→</span>
+    <span>process_catalog</span><span class="arrow">→</span>
+    <span>React (صفحه آزمون‌ها)</span>
+  </div>
+  <table>
+    <tr><th>الگوریتم</th><th>کار در سامانه</th><th>انتخاب خودکار</th></tr>
+    <tr><td>linear_search</td><td>جستجوی زیررشته در title/description</td><td><strong>همیشه</strong> (≤۱۲ یا بیشتر)</td></tr>
+    <tr><td>binary_search</td><td>تطبیق دقیق روی لیست مرتب</td><td>فقط در تست ACOC/CFG</td></tr>
+    <tr><td>bubble_sort</td><td>مرتب‌سازی لیست کوچک</td><td>اگر ≤ ۱۲ آیتم</td></tr>
+    <tr><td>merge_sort</td><td>مرتب‌سازی کاتالوگ بزرگ</td><td>اگر &gt; ۱۲ آیتم</td></tr>
+  </table>
+  <div class="card" style="margin-top:12px">
+    <p>کاربر فقط «جستجو» و «مرتب بر اساس عنوان/سطح» می‌بیند. انتخاب الگوریتم در <code>catalog_bridge.py</code> پشت صحنه انجام می‌شود.</p>
+  </div>
+</section>
+
+<!-- اسلاید ۳ -->
+<section class="slide" data-i="3">
+  <h1>روش‌شناسی — چرا ۳۷۶ تست؟</h1>
+  <p>نمی‌توان همه ورودی‌های ممکن را تست کرد. طبق کتاب، این مسیر را رفتیم:</p>
+  <div class="flow">
+    <span>انتخاب UUT</span><span class="arrow">→</span>
+    <span>ISP (افراز فضای ورودی)</span><span class="arrow">→</span>
+    <span>ACOC (ترکیب همه پارامترها)</span>
+  </div>
+  <div class="flow">
+    <span>تبدیل کد به CFG</span><span class="arrow">→</span>
+    <span>Node / Edge / Prime Path</span><span class="arrow">→</span>
+    <span>تست هدفمند CFG</span>
+  </div>
+  <div class="flow">
+    <span>جهش AOR دستی</span><span class="arrow">→</span>
+    <span>اجرای تست‌ها روی mutant</span><span class="arrow">→</span>
+    <span>Mutation Score</span>
+  </div>
+  <table>
+    <tr><th>لایه</th><th>تعداد</th><th>فایل</th><th>فصل کتاب</th></tr>
+    <tr><td>ACOC</td><td>330</td><td>test_coverage.py</td><td>فصل ۶</td></tr>
+    <tr><td>CFG</td><td>29</td><td>test_coverage.py</td><td>فصل ۷</td></tr>
+    <tr><td>Mutation</td><td>17</td><td>test_mutation_killing.py</td><td>فصل ۹</td></tr>
+  </table>
+</section>
+
+<!-- اسلاید ۴ -->
+<section class="slide" data-i="4">
+  <h1>ACOC — افرازبندی و ۳۲۴ ترکیب</h1>
+  <h3>۶ پارامتر ورودی process_catalog</h3>
+  <table>
+    <tr><th>پارامتر</th><th>کلاس‌های معادل</th><th>تعداد</th></tr>
+    <tr><td>size</td><td>[], 1 آیتم, 2+ آیتم</td><td>3</td></tr>
+    <tr><td>order</td><td>sorted, reverse, random</td><td>3</td></tr>
+    <tr><td>sort_field</td><td>title, min_level, time_limit</td><td>3</td></tr>
+    <tr><td>sort_algo</td><td>bubble, merge</td><td>2</td></tr>
+    <tr><td>query</td><td>"", "آزمون", "ناموجود"</td><td>3</td></tr>
+    <tr><td>search_algo</td><td>linear, binary</td><td>2</td></tr>
+  </table>
+  <p style="margin-top:12px"><strong>فرمول:</strong> 3×3×3×2×3×2 = <span class="big-num" style="font-size:1.4rem">324</span> + 6 تست مرتب‌سازی = <strong>330</strong></p>
+  <h3>Oracle (معیار درستی)</h3>
+  <pre>assert result["meta"]["total_after"] == len(result["items"])
+assert result["meta"]["total_before"] == len(items)
+assert result["meta"]["total_after"] &lt;= result["meta"]["total_before"]</pre>
+</section>
+
+<!-- اسلاید ۵ -->
+<section class="slide" data-i="5">
+  <h1>CFG — گراف، نود، یال، مسیر اصلی</h1>
+  <p>کد را به گراف جریان کنترل تبدیل کردیم → HTML در <code>cfg_graphs/</code></p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Node Coverage</h3>
+      <p>هر گره (دستور/شرط) حداقل یک‌بار اجرا شود.</p>
+      <p>مثال: <code>test_bubble_empty_list</code> → BS2=T</p>
+    </div>
+    <div class="card">
+      <h3>Edge Coverage</h3>
+      <p>هر یال T/F هر شرط حداقل یک‌بار طی شود.</p>
+      <p>مثال: <code>test_bubble_swap_branch_taken</code> → BS7=T</p>
+    </div>
+    <div class="card">
+      <h3>Prime Path</h3>
+      <p>مسیر ساده بدون زیرمسیر تکراری.</p>
+      <p>مثال: <code>test_bubble_full_outer_inner_loop</code></p>
+    </div>
+    <div class="card">
+      <h3>تعداد</h3>
+      <p>14 Node + 9 Edge + 6 Prime = <strong>29 تست</strong></p>
+      <p><a href="bubble_sort.html" target="_blank">bubble_sort.html</a> · <a href="process_catalog.html" target="_blank">process_catalog.html</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- اسلاید ۶ -->
+<section class="slide" data-i="6">
+  <h1>۴ ایراد معماری — بررسی و اصلاح</h1>
+
+  <h2>۱. تناقض نوع داده (Data Interface)</h2>
+  <div class="warn">
+    <p><strong>نگرانی:</strong> مسیر ۲ «ایندکس» برمی‌گرداند؟ مسیر ۱ «آیتم»؟</p>
+  </div>
+  <div class="fix-ok">
+    <p><strong>واقعیت کد:</strong> هر سه مسیر <code>list[dict]</code> برمی‌گردانند.</p>
+    <pre>indices = linear_search(items, query)
+return [items[i] for i in indices]   # تبدیل به آیتم</pre>
+    <p>برچسب اشتباه گراف اصلاح شد → AS2b: <code>return [items[i] for i in indices]</code></p>
+  </div>
+
+  <h2>۲. مرتب‌سازی دوبار (Redundancy)</h2>
+  <div class="fix-ok">
+    <p><strong>واقعیت:</strong> فقط در مسیر binary: bubble_sort برای پیش‌شرط جستجو، سپس PC3 مرتب‌سازی نهایی.</p>
+    <p>trade-off آموزشی — در production فقط linear استفاده می‌شود (بدون مرتب‌سازی کمکی).</p>
+  </div>
+
+  <h2>۳. جریان متادیتا (Metadata)</h2>
+  <div class="fix-ok">
+    <p><code>search_algorithm</code> و <code>sort_algorithm</code> از <strong>پارامتر ورودی</strong> بعد از PC1 می‌آید، نه از _apply_search.</p>
+    <p>در گراف: خط چین بنفش از PC1 به PC4 اضافه شد.</p>
+  </div>
+
+  <h2>۴. اتصالات CFG</h2>
+  <div class="fix-ok">
+    <p>هر سه مسیر با فلش به دایره <code>filtered</code> وصل شدند. نقاط اتصال ● مشخص شد.</p>
+    <p><a href="process_catalog.html" target="_blank">مشاهده گراف اصلاح‌شده</a></p>
+  </div>
+</section>
+
+<!-- اسلاید ۷ -->
+<section class="slide" data-i="7">
+  <h1>Mutation Testing — ۱۴ جهش AOR</h1>
+  <p>نوع جهش: <strong>AOR</strong> (Arithmetic Operator Replacement) — یک عملگر عوض می‌شود.</p>
+  <table>
+    <tr><th>ID</th><th>تابع</th><th>تغییر</th><th>وضعیت</th></tr>
+    <tr><td>M-AOR-BS-01..04</td><td>bubble_sort</td><td>n-i-1 → +, -, *</td><td><span class="badge b-green">4 KILLED</span></td></tr>
+    <tr><td>M-AOR-MS-01,02</td><td>merge_sort</td><td>n//2 → n//1, n//3</td><td><span class="badge b-green">2 KILLED</span></td></tr>
+    <tr><td>M-AOR-MS-03</td><td>merge_sort</td><td>n//2 → (n+1)//2</td><td><span class="badge b-yellow">EQUIVALENT</span></td></tr>
+    <tr><td>M-AOR-BN-01,02,04,05</td><td>binary_search</td><td>mid, left, right</td><td><span class="badge b-green">4 KILLED</span></td></tr>
+    <tr><td>M-AOR-BN-03</td><td>binary_search</td><td>سقفی vs کفی mid</td><td><span class="badge b-yellow">EQUIVALENT</span></td></tr>
+    <tr><td>M-AOR-PC-01</td><td>catalog</td><td>total_before +1</td><td><span class="badge b-green">KILLED*</span></td></tr>
+    <tr><td>M-AOR-PC-02</td><td>catalog</td><td>total_after -1</td><td><span class="badge b-green">KILLED</span></td></tr>
+  </table>
+  <div class="grid2" style="margin-top:12px">
+    <div class="card"><p>قبل از تقویت: <strong>83.3%</strong> (10/12)</p></div>
+    <div class="card"><p>بعد از assert <code>total_before</code>: <strong>91.7%</strong> (11/12)</p></div>
+  </div>
+  <h3>Score به تفکیک</h3>
+  <p>bubble 100% · merge 100% (2/2) · binary 100% (4/4) · catalog 100% (بعد از fix)</p>
+</section>
+
+<!-- اسلاید ۸ -->
+<section class="slide" data-i="8">
+  <h1>نمونه جهش + نمونه تست</h1>
+  <div class="grid2">
+    <div class="card">
+      <h3>جهش M-AOR-BS-03</h3>
+      <pre>for j in range(0, n - i - 2):  # MUTANT
+    # یک مقایسه کمتر → خروجی غلط</pre>
+      <p>برای ۴ آیتم: <code>[b,c,d,a]</code> به‌جای <code>[a,b,c,d]</code></p>
+    </div>
+    <div class="card">
+      <h3>تست kill</h3>
+      <pre>def test_m03_bs_killed_wrong_output(...):
+    result = bubble_sort_m03(ITEMS_4, ...)
+    correct = bubble_sort(ITEMS_4, ...)
+    assert got != correct  # KILLED</pre>
+    </div>
+  </div>
+  <h2>جهش LIVE → تقویت</h2>
+  <div class="card">
+    <p><strong>M-AOR-PC-01:</strong> <code>total_before = len(items) + 1</code></p>
+    <p>تست قدیمی فقط <code>total_after &lt;= total_before</code> → جهش LIVE</p>
+    <p><strong>تقویت:</strong> یک خط به ACOC:</p>
+    <pre>assert result["meta"]["total_before"] == len(items)</pre>
+    <p>→ score از 83.3% به 91.7%</p>
+  </div>
+  <h3>چطور kill / equivalent / live تشخیص می‌دهیم؟</h3>
+  <table>
+    <tr><th>وضعیت</th><th>معنی</th></tr>
+    <tr><td>KILLED</td><td>تست fail یا خروجی ≠ اصل</td></tr>
+    <tr><td>EQUIVALENT</td><td>برای همه ورودی‌ها خروجی یکسان</td></tr>
+    <tr><td>LIVE</td><td>باگ هست ولی هیچ تستی نمی‌گیرد</td></tr>
+  </table>
+</section>
+
+<!-- اسلاید ۹ -->
+<section class="slide" data-i="9">
+  <h1>جمع‌بندی و دستور اجرا</h1>
+  <div class="card">
+    <ol>
+      <li>UUT = <code>process_catalog</code> + ۴ الگوریتم</li>
+      <li>ISP → ACOC → ۳۳۰ تست ترکیبی</li>
+      <li>CFG → ۲۹ تest Node/Edge/Prime + گراف HTML</li>
+      <li>۱۴ جهش AOR → Mutation Score <strong>91.7%</strong></li>
+      <li>۴ ایراد معماری گراف بررسی و در کد/گراف توضیح داده شد</li>
+    </ol>
+  </div>
+  <h2>دستور اجرا</h2>
+  <pre>cd silver_project
+python -m pytest algorithms/tests/ -v
+python -m pytest algorithms/tests/test_coverage.py -k acoc -v
+python -m pytest algorithms/tests/test_mutation_killing.py -v</pre>
+  <h2>لینک‌ها</h2>
+  <ul>
+    <li><a href="index.html">فهرست گراف‌های CFG</a></li>
+    <li><a href="process_catalog.html">گراف process_catalog (اصلاح‌شده)</a></li>
+    <li><a href="bubble_sort.html">گراف bubble_sort</a></li>
+  </ul>
+  <p style="margin-top:20px;color:var(--muted)">کلید ← → یا دکمه‌های پایین برای حرکت بین اسلایدها</p>
+</section>
+
+</div>
+
+<div class="slide-num" id="num">۱ / ۹</div>
+<div class="nav">
+  <button onclick="prev()">قبلی</button>
+  <button onclick="next()">بعدی</button>
+</div>
+
+<script>
+  let cur = 1, total = 9;
+  function show(n) {
+    cur = Math.max(1, Math.min(total, n));
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    document.querySelector('[data-i="'+cur+'"]').classList.add('active');
+    document.getElementById('num').textContent = cur + ' / ' + total;
+  }
+  function next() { show(cur + 1); }
+  function prev() { show(cur - 1); }
+  function go(n) { show(n); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') next();
+    if (e.key === 'ArrowRight') prev();
+  });
+</script>
+</body>
+</html>

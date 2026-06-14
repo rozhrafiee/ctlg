@@ -41,7 +41,7 @@ export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
 
         {isTeacher && (
           <>
-            <NavLink to="/teacher/test-graphs" className={linkClass} onClick={onClose}>گراف تست</NavLink>
+            <NavLink to="/teacher/tozih-proje" className={linkClass} onClick={onClose}>توضیح پروژه</NavLink>
             <NavLink to="/teacher/contents" className={linkClass} onClick={onClose}>محتوا</NavLink>
             <NavLink to="/teacher/tests" className={linkClass} onClick={onClose}>آزمون‌ها</NavLink>
             <NavLink to="/teacher/grading" className={linkClass} onClick={onClose}>تصحیح</NavLink>

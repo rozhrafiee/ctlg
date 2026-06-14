@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG — linear_search</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>گراف جریان کنترل — linear_search</h1>
+    <p>searching.py</p>
+  </header>
+  <nav><a href="index.html">فهرست</a></nav>
+  <section>
+    <div class="cfg"><div id="cfg-svg"></div></div>
+    <table class="node-table">
+      <thead><tr><th>نود</th><th>کد</th></tr></thead>
+      <tbody>
+        <tr><td>LS1</td><td>if not query</td></tr>
+        <tr><td>LS2</td><td>return list(range(len(items)))</td></tr>
+        <tr><td>LS3</td><td>query_lower = str(query).lower()</td></tr>
+        <tr><td>LS4</td><td>for i in range(len(items))</td></tr>
+        <tr><td>LS5</td><td>for field in fields</td></tr>
+        <tr><td>LS6</td><td>if query_lower in value</td></tr>
+        <tr><td>LS7</td><td>matches.append(i); break</td></tr>
+        <tr><td>LS8</td><td>return matches</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+<script src="cfg-graph.js"></script>
+<script>
+CFGGraph.render('cfg-svg', {
+  id: 'ls', width: 720, height: 680,
+  nodes: [
+    { id: 'LS1', type: 'decision', x: 300, y: 12, w: 120, h: 60, lines: ['LS1: not query ?'] },
+    { id: 'LS2', type: 'return', x: 80, y: 18, w: 180, h: 48, lines: ['LS2: return range(n)'] },
+    { id: 'LS3', type: 'process', x: 260, y: 88, w: 200, h: 44, lines: ['LS3: query_lower = ...'] },
+    { id: 'LS4', type: 'decision', x: 300, y: 148, w: 120, h: 60, lines: ['LS4: i < len ?'] },
+    { id: 'LS8', type: 'return', x: 80, y: 154, w: 160, h: 44, lines: ['LS8: return matches'] },
+    { id: 'LS5', type: 'decision', x: 300, y: 228, w: 120, h: 60, lines: ['LS5: field', 'in fields?'] },
+    { id: 'LS6', type: 'decision', x: 300, y: 308, w: 120, h: 60, lines: ['LS6: query', 'in value?'] },
+    { id: 'LS7', type: 'process', x: 500, y: 316, w: 160, h: 44, lines: ['LS7: append(i); break'] },
+  ],
+  edges: [
+    { from: 'LS1', to: 'LS2', fromSide: 'left', toSide: 'right', kind: 'T' },
+    { from: 'LS1', to: 'LS3', kind: 'F' },
+    { from: 'LS3', to: 'LS4' },
+    { from: 'LS4', to: 'LS5', kind: 'T' },
+    { from: 'LS4', to: 'LS8', kind: 'F', fromSide: 'left', toSide: 'right' },
+    { from: 'LS5', to: 'LS6', kind: 'T' },
+    { from: 'LS5', to: 'LS4', kind: 'F', fromSide: 'right', toSide: 'right', waypoints: [{ x: 480, y: 258 }, { x: 480, y: 178 }], note: 'i++' },
+    { from: 'LS6', to: 'LS7', fromSide: 'right', toSide: 'left', kind: 'T' },
+    { from: 'LS6', to: 'LS5', kind: 'F', fromSide: 'left', toSide: 'left', waypoints: [{ x: 260, y: 338 }, { x: 260, y: 258 }] },
+    { from: 'LS7', to: 'LS4', fromSide: 'bottom', toSide: 'right', waypoints: [{ x: 580, y: 380 }, { x: 480, y: 380 }, { x: 480, y: 178 }] },
+  ],
+});
+</script>
+</body>
+</html>

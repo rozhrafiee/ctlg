@@ -21,7 +21,7 @@ import RecommendedPage from './pages/student/RecommendedPage';
 import AdaptiveDashboardPage from './pages/student/AdaptiveDashboardPage';
 
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
-import TestGraphsPage from './pages/teacher/TestGraphsPage';
+import ProjectDocPage from './pages/teacher/ProjectDocPage';
 import TeacherContentList from './pages/teacher/TeacherContentList';
 import CreateContentPage from './pages/teacher/CreateContentPage';
 import EditContentPage from './pages/teacher/EditContentPage';
@@ -174,13 +174,13 @@ export default function App() {
           <AppShell title="داشبورد مسئول شهری (مدرس)"><TeacherDashboard /></AppShell>
         </ProtectedRoute>
       } />
-      <Route path="/teacher/test-graphs" element={
-        <ProtectedRoute teacherOnly>
-          <AppShell title="گراف پوشش و Mutation"><TestGraphsPage /></AppShell>
-        </ProtectedRoute>
+      <Route path="/tozih-proje" element={
+        <AppShell title="توضیح پروژه"><ProjectDocPage /></AppShell>
       } />
-      <Route path="/teacher/test-graphs-preview" element={
-        <AppShell title="پیش نمایش گراف تست"><TestGraphsPage /></AppShell>
+      <Route path="/teacher/tozih-proje" element={
+        <ProtectedRoute teacherOnly>
+          <AppShell title="توضیح پروژه"><ProjectDocPage /></AppShell>
+        </ProtectedRoute>
       } />
       <Route path="/teacher/contents" element={
         <ProtectedRoute teacherOnly>

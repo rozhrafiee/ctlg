@@ -50,6 +50,8 @@ export function useAssessment() {
       const data = await request(() => api.get('/assessment/tests/'));
       return normalizeList(data);
     },
+    fetchCatalogTests: (params) =>
+      request(() => api.get('/assessment/tests/catalog/', { params })),
     fetchTestDetail: (id) => request(() => api.get(`/assessment/tests/${id}/`)),
     startTest: (id) => request(() => api.post(`/assessment/tests/${id}/start/`)),
     submitAnswer: (sessionId, questionId, payload) =>

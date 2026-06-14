@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>توضیح پروژه ctlg</title>
+  <style>
+    body { font-family: Tahoma, Arial, sans-serif; background: #f0f2f5; color: #1a1a1a; line-height: 1.9; padding: 24px; direction: rtl; max-width: 920px; margin: 0 auto; }
+    h1 { font-size: 1.45rem; border-bottom: 3px solid #1565c0; padding-bottom: 10px; }
+    h2 { font-size: 1.05rem; color: #1565c0; margin: 24px 0 8px; }
+    h3 { font-size: 0.95rem; margin: 14px 0 6px; }
+    p { margin-bottom: 10px; text-align: justify; }
+    .box { background: #fff; border: 1px solid #cfd8dc; border-radius: 6px; padding: 16px 20px; margin-bottom: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 10px 0; }
+    th, td { border: 1px solid #b0bec5; padding: 8px; text-align: right; }
+    th { background: #eceff1; }
+    code, pre { font-family: Consolas, monospace; font-size: 0.82rem; background: #eceff1; direction: ltr; text-align: left; unicode-bidi: isolate; }
+    pre { padding: 12px; overflow-x: auto; border-radius: 4px; display: block; }
+    .formula { background: #fff8e1; border-right: 4px solid #f9a825; padding: 10px; margin: 10px 0; font-family: Consolas, monospace; direction: ltr; text-align: center; font-size: 1rem; }
+    .top { margin-bottom: 20px; padding: 12px; background: #e3f2fd; border-radius: 6px; font-size: 0.9rem; }
+    .top a { color: #1565c0; margin-left: 16px; }
+    ul, ol { padding-right: 22px; margin: 8px 0; }
+  </style>
+</head>
+<body>
+
+  <div class="top">
+    <strong>لینک‌های مرتبط:</strong>
+    <a href="/arayeh-kamel.html">ارائه ۳۰ دقیقه</a>
+    <a href="/graf-ha.html">گراف‌های CFG</a>
+    <a href="/cfg_graphs/process_catalog.html">گراف کاتالوگ</a>
+  </div>
+
+  <h1>توضیح پروژه — تست نرم‌افزار (ctlg)</h1>
+
+  <div class="box">
+    <h2>۱. سناریو</h2>
+    <p>سامانه سنجش شناختی. کاربر لیست آزمون‌ها را می‌بیند، جستجو می‌زند، مرتب می‌کند.</p>
+    <p>UUT ما: تابع <code>process_catalog</code> در <code>silver_project/algorithms/catalog.py</code> به‌اضافه چهار الگوریتم bubble، merge، linear، binary.</p>
+    <p>در بک‌اند: لیست آزمون از DB → <code>process_catalog</code> → JSON به React.</p>
+  </div>
+
+  <div class="box">
+    <h2>۲. الگوریتم‌ها در سیستم</h2>
+    <table>
+      <tr><th>الگوریتم</th><th>کار</th><th>کی؟</th></tr>
+      <tr><td>linear_search</td><td>جستجوی کلمه در title/description</td><td>همیشه</td></tr>
+      <tr><td>binary_search</td><td>تطبیق دقیق روی لیست مرتب</td><td>فقط تست ACOC/CFG</td></tr>
+      <tr><td>bubble_sort</td><td>مرتب‌سازی</td><td>≤ ۱۲ آیتم</td></tr>
+      <tr><td>merge_sort</td><td>مرتب‌سازی</td><td>&gt; ۱۲ آیتم</td></tr>
+    </table>
+    <p>انتخاب خودکار در <code>coglearning/assessment/catalog_bridge.py</code> — کاربر الگوریتم نمی‌بیند.</p>
+  </div>
+
+  <div class="box">
+    <h2>۳. روش تست (خلاصه)</h2>
+    <ol>
+      <li>افراز فضای ورودی (ISP)</li>
+      <li>ACOC — فصل ۶</li>
+      <li>CFG — Node / Edge / Prime — فصل ۷</li>
+      <li>Mutation AOR — فصل ۹</li>
+    </ol>
+  </div>
+
+  <div class="box">
+    <h2>۴. ACOC — محاسبه ۳۳۰ تست</h2>
+    <table>
+      <tr><th>پارامتر</th><th>مقادیر</th><th>n</th></tr>
+      <tr><td>size</td><td>[], 1 item, 2+</td><td>3</td></tr>
+      <tr><td>order</td><td>sorted, reverse, random</td><td>3</td></tr>
+      <tr><td>sort_field</td><td>title, min_level, time_limit</td><td>3</td></tr>
+      <tr><td>sort_algo</td><td>bubble, merge</td><td>2</td></tr>
+      <tr><td>query</td><td>"", آزمون, ناموجود</td><td>3</td></tr>
+      <tr><td>search_algo</td><td>linear, binary</td><td>2</td></tr>
+    </table>
+    <div class="formula">3 × 3 × 3 × 2 × 3 × 2 = 324</div>
+    <p>+ ۶ تست مرتب‌سازی (۲ algo × ۳ field) = <strong>330</strong></p>
+    <p>فایل: <code>test_coverage.py</code> → <code>test_acoc_catalog_combinations</code></p>
+  </div>
+
+  <div class="box">
+    <h2>۵. CFG — ۲۹ تست</h2>
+    <table>
+      <tr><th>نوع</th><th>تعداد</th></tr>
+      <tr><td>Node</td><td>14</td></tr>
+      <tr><td>Edge</td><td>9</td></tr>
+      <tr><td>Prime Path</td><td>6</td></tr>
+    </table>
+    <div class="formula">14 + 9 + 6 = 29</div>
+    <p>گراف‌ها: <a href="/graf-ha.html">/graf-ha.html</a></p>
+    <p>شماره نود: BS1–BS10، MS1–MS7، LS1–LS8، PC1–PC4، AS1–AS6</p>
+  </div>
+
+  <div class="box">
+    <h2>۶. Mutation — ۱۴ جهش</h2>
+    <p>نوع: AOR (یک عملگر عوض می‌شود)</p>
+    <table>
+      <tr><th>وضعیت</th><th>تعداد</th></tr>
+      <tr><td>کل</td><td>14</td></tr>
+      <tr><td>Equivalent</td><td>2 (MS-03, BN-03)</td></tr>
+      <tr><td>Killed</td><td>11</td></tr>
+    </table>
+    <div class="formula">Score = 11 / (14 − 2) = 91.7%</div>
+    <p>فایل جهش‌ها: <code>algorithms/mutants/</code> — تست: <code>test_mutation_killing.py</code></p>
+  </div>
+
+  <div class="box">
+    <h2>۷. جمع</h2>
+    <table>
+      <tr><th>بخش</th><th>تعداد</th></tr>
+      <tr><td>ACOC</td><td>330</td></tr>
+      <tr><td>CFG</td><td>29</td></tr>
+      <tr><td>Mutation</td><td>17</td></tr>
+      <tr><th>جمع</th><th>376</th></tr>
+    </table>
+    <pre>cd silver_project
+python -m pytest algorithms/tests/ -v</pre>
+  </div>
+
+</body>
+</html>

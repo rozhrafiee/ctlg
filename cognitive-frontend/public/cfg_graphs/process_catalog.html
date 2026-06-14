@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG — process_catalog</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+  <style>
+    .cfg svg { min-width: 1000px; }
+    .cfg path.edge { stroke-width: 3; fill: none; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>گراف جریان کنترل — process_catalog</h1>
+    <p>catalog.py</p>
+  </header>
+  <nav><a href="index.html">فهرست</a></nav>
+
+  <section>
+    <div class="cfg">
+      <svg width="1000" height="860" viewBox="0 0 1000 860" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2e7d32"/></marker>
+          <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#c62828"/></marker>
+          <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#455a64"/></marker>
+        </defs>
+
+        <rect x="30" y="155" width="940" height="430" rx="6" fill="none" stroke="#90a4ae" stroke-width="1.5" stroke-dasharray="8,5"/>
+        <text x="44" y="175" font-family="Tahoma" font-size="12" font-weight="700" fill="#37474f">_apply_search</text>
+
+        <g font-family="Consolas,Tahoma,sans-serif" font-size="11" text-anchor="middle" style="direction:ltr;unicode-bidi:isolate">
+          <rect x="320" y="15" width="360" height="52" rx="5" fill="#c8e6c9" stroke="#388e3c" stroke-width="2"/>
+          <text x="500" y="38" font-weight="700">PC1: validate sort_field, sort_algo, search_algo</text>
+          <text x="500" y="54" font-size="9" fill="#546e7a">invalid → defaults</text>
+
+          <rect x="300" y="85" width="400" height="48" rx="5" fill="#bbdefb" stroke="#1565c0" stroke-width="2"/>
+          <text x="500" y="115" font-weight="700">PC2: filtered = _apply_search(...)</text>
+
+          <polygon points="500,175 565,215 500,255 435,215" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/>
+          <text x="500" y="212" font-size="11">AS1: not query ?</text>
+
+          <rect x="55" y="195" width="210" height="52" rx="5" fill="#e1bee7" stroke="#8e24aa" stroke-width="2"/>
+          <text x="160" y="218" font-weight="700">AS2: return list(items)</text>
+
+          <polygon points="500,283 580,330 500,377 420,330" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/>
+          <text x="500" y="325" font-size="10" font-weight="700">AS3: search_algo</text>
+          <text x="500" y="339" font-size="9" fill="#546e7a">== "binary" ?</text>
+
+          <rect x="680" y="285" width="280" height="90" rx="5" fill="#bbdefb" stroke="#1565c0" stroke-width="2"/>
+          <text x="820" y="310" font-weight="700">AS4: binary path</text>
+          <text x="820" y="328" font-size="9">sorted = bubble_sort(...)</text>
+          <text x="820" y="344" font-size="9">idx = binary_search(...)</text>
+          <text x="820" y="360" font-size="9">return [item] or []</text>
+
+          <rect x="55" y="400" width="290" height="80" rx="5" fill="#bbdefb" stroke="#1565c0" stroke-width="2"/>
+          <text x="200" y="425" font-weight="700">AS5: linear path</text>
+          <text x="200" y="443" font-size="9">idxs = linear_search(...)</text>
+          <text x="200" y="461" font-size="9">return [items[i] for i in idxs]</text>
+
+          <circle cx="500" cy="560" r="12" fill="#37474f" stroke="#fff" stroke-width="2"/>
+          <text x="500" y="590" font-family="Tahoma" font-size="11" font-weight="700">AS6: filtered</text>
+
+          <rect x="300" y="610" width="400" height="48" rx="5" fill="#bbdefb" stroke="#1565c0" stroke-width="2"/>
+          <text x="500" y="640" font-weight="700">PC3: sorted_items = _apply_sort(filtered, ...)</text>
+
+          <rect x="280" y="690" width="440" height="52" rx="5" fill="#e1bee7" stroke="#8e24aa" stroke-width="2"/>
+          <text x="500" y="714" font-weight="700">PC4: return { items, meta }</text>
+        </g>
+
+        <g class="edges">
+          <path class="edge" d="M 500 67 L 500 85" stroke="#455a64" marker-end="url(#b)"/>
+          <path class="edge" d="M 500 133 L 500 175" stroke="#455a64" marker-end="url(#b)"/>
+          <path class="edge" d="M 435 215 L 265 215" stroke="#2e7d32" marker-end="url(#g)"/>
+          <path class="edge" d="M 160 247 L 160 280 L 25 280 L 25 560 L 488 560" stroke="#2e7d32" marker-end="url(#g)"/>
+          <path class="edge" d="M 500 255 L 500 290" stroke="#c62828" marker-end="url(#r)"/>
+          <path class="edge" d="M 565 330 L 680 330" stroke="#2e7d32" marker-end="url(#g)"/>
+          <path class="edge" d="M 820 375 L 820 560 L 512 560" stroke="#2e7d32" marker-end="url(#g)"/>
+          <path class="edge" d="M 435 330 L 200 330 L 200 400" stroke="#c62828" marker-end="url(#r)"/>
+          <path class="edge" d="M 200 480 L 200 560 L 488 560" stroke="#c62828" marker-end="url(#r)"/>
+          <path class="edge" d="M 500 572 L 500 610" stroke="#455a64" marker-end="url(#b)"/>
+          <path class="edge" d="M 500 658 L 500 690" stroke="#455a64" marker-end="url(#b)"/>
+        </g>
+
+        <g font-family="Tahoma" font-size="11" font-weight="700">
+          <text x="350" y="208" fill="#2e7d32">T</text>
+          <text x="518" y="278" fill="#c62828">F</text>
+          <text x="618" y="318" fill="#2e7d32">T</text>
+          <text x="350" y="318" fill="#c62828">F</text>
+        </g>
+      </svg>
+    </div>
+
+    <table class="node-table">
+      <thead><tr><th>نود</th><th>خط کد</th></tr></thead>
+      <tbody>
+        <tr><td>PC1</td><td>چک کردن پارامترها</td></tr>
+        <tr><td>PC2</td><td>filtered = _apply_search(...)</td></tr>
+        <tr><td>AS1</td><td>if not query</td></tr>
+        <tr><td>AS2</td><td>return list(items)</td></tr>
+        <tr><td>AS3</td><td>if search_algo == "binary"</td></tr>
+        <tr><td>AS4</td><td>مسیر دودویی</td></tr>
+        <tr><td>AS5</td><td>مسیر خطی</td></tr>
+        <tr><td>AS6</td><td>filtered</td></tr>
+        <tr><td>PC3</td><td>_apply_sort(...)</td></tr>
+        <tr><td>PC4</td><td>return {items, meta}</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+</body>
+</html>

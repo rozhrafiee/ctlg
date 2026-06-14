@@ -8,7 +8,17 @@ from rest_framework.response import Response
 from .models import CognitiveTest, Question, Choice, TestSession, Answer
 from .serializers import *
 from .services import AssessmentService
+from .catalog_bridge import apply_catalog
 from accounts.permissions import IsTeacher
+
+
+def _student_tests_queryset(user):
+    level = user.cognitive_level or 1
+    if user.role != 'student':
+        return CognitiveTest.objects.filter(is_active=True)
+    if not user.has_taken_placement_test:
+        return CognitiveTest.objects.filter(is_active=True, test_type='placement')
+    return CognitiveTest.objects.filter(is_active=True, min_level__lte=level).exclude(test_type='placement')
 
 # --- Teacher: Test Management ---
 class TeacherTestListView(generics.ListAPIView):
@@ -158,12 +168,28 @@ class StudentTestListView(generics.ListAPIView):
     serializer_class = CognitiveTestSerializer
     permission_classes = [permissions.IsAuthenticated]
     def get_queryset(self):
-        user = self.request.user
-        level = user.cognitive_level or 1
-        if user.role != 'student': return CognitiveTest.objects.filter(is_active=True)
-        if not user.has_taken_placement_test:
-            return CognitiveTest.objects.filter(is_active=True, test_type='placement')
-        return CognitiveTest.objects.filter(is_active=True, min_level__lte=level).exclude(test_type='placement')
+        return _student_tests_queryset(self.request.user)
+
+
+@api_view(["GET"])
+@permission_classes([permissions.IsAuthenticated])
+def catalog_tests_list(request):
+    """Filter/sort test catalog — algorithms chosen automatically by context."""
+    qs = _student_tests_queryset(request.user)
+    q = request.query_params.get("q", "")
+    sort_field = request.query_params.get("sort_field", "title")
+    reverse = request.query_params.get("reverse", "false").lower() in ("1", "true", "yes")
+
+    catalog = apply_catalog(qs, query=q, sort_field=sort_field, reverse=reverse)
+
+    id_order = [item["id"] for item in catalog["items"]]
+    tests_by_id = {t.id: t for t in qs.filter(id__in=id_order)} if id_order else {}
+    ordered_tests = [tests_by_id[i] for i in id_order if i in tests_by_id]
+
+    return Response({
+        "results": CognitiveTestSerializer(ordered_tests, many=True).data,
+        "catalog_meta": catalog["meta"],
+    })
 
 @api_view(["GET"])
 @permission_classes([permissions.IsAuthenticated])

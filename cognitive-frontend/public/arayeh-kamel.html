@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ارائه کامل — تست نرم‌افزار ctlg</title>
+  <style>
+    :root {
+      --bg1: #fdf2f8;
+      --bg2: #f5f3ff;
+      --bg3: #fce7f3;
+      --slide-bg: linear-gradient(135deg, #fff5f7 0%, #faf5ff 45%, #f3e8ff 100%);
+      --pink: #ec4899;
+      --pink-soft: #fbcfe8;
+      --purple: #a855f7;
+      --purple-soft: #e9d5ff;
+      --lavender: #c4b5fd;
+      --text: #581c87;
+      --text-soft: #7e22ce;
+      --muted: #9333ea99;
+      --card: rgba(255,255,255,0.82);
+      --shadow: 0 8px 32px rgba(168,85,247,0.12);
+      --border: rgba(236,72,153,0.22);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+      background: var(--bg1);
+      color: var(--text);
+      direction: rtl;
+      overflow: hidden;
+    }
+    .deck { height: 100vh; position: relative; }
+    .progress {
+      position: fixed; top: 0; left: 0; height: 4px;
+      background: linear-gradient(90deg, var(--pink), var(--purple));
+      transition: width 0.35s ease; z-index: 20;
+    }
+    .slide {
+      display: none;
+      height: 100vh;
+      padding: 44px 52px 88px;
+      background: var(--slide-bg);
+      overflow-y: auto;
+      animation: fadeIn 0.4s ease;
+    }
+    .slide.active { display: flex; flex-direction: column; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide-header {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 18px; padding-bottom: 14px;
+      border-bottom: 2px solid var(--pink-soft);
+    }
+    .slide-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--pink-soft), var(--purple-soft));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; flex-shrink: 0;
+    }
+    h1 {
+      font-size: 1.65rem;
+      background: linear-gradient(90deg, #be185d, #7c3aed);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.35;
+    }
+    h2 {
+      font-size: 1.05rem; color: var(--pink);
+      margin: 16px 0 10px;
+      padding-right: 12px;
+      border-right: 4px solid var(--purple);
+    }
+    h3 { font-size: 0.92rem; color: var(--purple); margin: 10px 0 6px; }
+    p, li { line-height: 1.9; font-size: 0.88rem; color: var(--text-soft); }
+    ul, ol { padding-right: 22px; margin: 6px 0; }
+    .subtitle { color: var(--muted); font-size: 0.88rem; margin-top: 4px; }
+    .tag {
+      display: inline-block; padding: 3px 12px; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 700; margin-left: 6px;
+    }
+    .tag-p { background: var(--pink-soft); color: #9d174d; }
+    .tag-v { background: var(--purple-soft); color: #5b21b6; }
+    .tag-g { background: #d1fae5; color: #065f46; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 10px; }
+    .grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-top: 10px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+    .card h3 { margin-top: 0; }
+    .card.highlight {
+      border-color: var(--pink);
+      background: linear-gradient(135deg, #fff1f2, #fdf4ff);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 10px 0; }
+    th, td {
+      border: 1px solid var(--pink-soft);
+      padding: 8px 10px; text-align: right;
+    }
+    th {
+      background: linear-gradient(90deg, var(--pink-soft), var(--purple-soft));
+      color: #6b21a8; font-weight: 700;
+    }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.5); }
+    code, pre {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.74rem;
+      background: #fdf4ff;
+      border: 1px solid var(--purple-soft);
+      border-radius: 8px;
+      direction: ltr; text-align: left; unicode-bidi: isolate;
+      color: #6b21a8;
+    }
+    pre { padding: 12px; overflow-x: auto; margin: 8px 0; white-space: pre-wrap; line-height: 1.6; }
+    code { padding: 2px 7px; }
+    .formula {
+      text-align: center; font-size: 1.15rem; font-weight: 700;
+      padding: 14px; margin: 12px 0;
+      background: linear-gradient(90deg, #fce7f3, #ede9fe);
+      border-radius: 12px; border: 1px dashed var(--pink);
+      direction: ltr; color: #7c3aed;
+    }
+    .big-num {
+      font-size: 2rem; font-weight: 800;
+      background: linear-gradient(90deg, var(--pink), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .flow {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      margin: 12px 0; font-size: 0.82rem;
+    }
+    .flow span {
+      background: white; border: 1px solid var(--purple-soft);
+      padding: 8px 14px; border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(168,85,247,0.08);
+    }
+    .flow .arrow { background: none; border: none; box-shadow: none; color: var(--pink); font-size: 1.1rem; }
+    .badge {
+      display: inline-block; padding: 2px 10px; border-radius: 10px;
+      font-size: 0.72rem; font-weight: 700;
+    }
+    .b-k { background: #fecdd3; color: #9f1239; }
+    .b-e { background: #ddd6fe; color: #5b21b6; }
+    .b-l { background: #fde68a; color: #92400e; }
+    .b-ok { background: #bbf7d0; color: #14532d; }
+    .timeline { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .timeline-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 10px 14px; background: white;
+      border-radius: 12px; border-right: 4px solid var(--purple);
+    }
+    .timeline-num {
+      min-width: 28px; height: 28px; border-radius: 50%;
+      background: var(--purple-soft); color: var(--purple);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 700;
+    }
+    .nav-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--pink-soft);
+      padding: 12px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      z-index: 15;
+    }
+    .nav-bar button {
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      border: none; color: white;
+      padding: 10px 22px; border-radius: 12px;
+      cursor: pointer; font-family: inherit; font-size: 0.85rem;
+      font-weight: 700; transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .nav-bar button:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(236,72,153,0.35); }
+    .nav-bar button:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: none; }
+    .slide-info { font-size: 0.82rem; color: var(--muted); }
+    .dots { display: flex; gap: 5px; flex-wrap: wrap; max-width: 40vw; justify-content: center; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--purple-soft); cursor: pointer; transition: 0.2s;
+    }
+    .dot.active { background: var(--pink); transform: scale(1.3); }
+    a { color: var(--purple); font-weight: 600; }
+    .title-slide {
+      justify-content: center; align-items: center; text-align: center;
+    }
+    .title-slide h1 { font-size: 2.2rem; margin-bottom: 12px; }
+    .title-slide .hero {
+      max-width: 680px; padding: 36px;
+      background: rgba(255,255,255,0.75);
+      border-radius: 24px; border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .stat-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+    .stat {
+      min-width: 120px; padding: 16px;
+      background: white; border-radius: 16px;
+      border: 1px solid var(--pink-soft);
+    }
+    .stat .num { font-size: 1.8rem; font-weight: 800; color: var(--pink); }
+    .stat .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+    .links-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .link-btn {
+      display: inline-block; padding: 8px 16px;
+      background: white; border: 1px solid var(--purple-soft);
+      border-radius: 10px; text-decoration: none; font-size: 0.8rem;
+      transition: 0.2s;
+    }
+    .link-btn:hover { background: var(--purple-soft); }
+    .compare { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .compare .card { text-align: center; }
+    @media (max-width: 900px) {
+      .grid2, .grid3, .grid4, .compare { grid-template-columns: 1fr; }
+      .slide { padding: 32px 20px 100px; }
+      h1 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+<!-- ۱ -->
+<section class="slide active title-slide" data-i="1">
+  <div class="hero">
+    <div style="font-size:2.5rem;margin-bottom:12px">🌸</div>
+    <h1>تست نرم‌افزار پروژه کاتالوگ شناختی</h1>
+    <p class="subtitle" style="font-size:1rem;margin-top:12px">ACOC · CFG · Mutation Testing</p>
+    <p style="margin-top:16px;font-size:0.9rem">سامانه سنجش شناختی — UUT: <code>process_catalog</code></p>
+    <div class="stat-row">
+      <div class="stat"><div class="num">376</div><div class="lbl">تست pytest</div></div>
+      <div class="stat"><div class="num">91.7%</div><div class="lbl">Mutation Score</div></div>
+      <div class="stat"><div class="num">14</div><div class="lbl">جهش AOR</div></div>
+    </div>
+    <p style="margin-top:20px;font-size:0.78rem;color:var(--muted)">← → برای حرکت · F برای تمام‌صفحه · ~۳۰ دقیقه</p>
+  </div>
+</section>
+
+<!-- ۲ -->
+<section class="slide" data-i="2">
+  <div class="slide-header"><div class="slide-icon">📋</div><div><h1>فهرست ارائه</h1><p class="subtitle">مسیر ۳۰ دقیقه‌ای — بدون جا ماندن</p></div></div>
+  <div class="grid2">
+    <div class="card">
+      <h3>بخش ۱ — سیستم (۵ دقیقه)</h3>
+      <ol>
+        <li>سناریو و معماری</li>
+        <li>UUT و فایل‌های سورس</li>
+        <li>نقش الگوریتم‌ها در سامانه</li>
+        <li>جریان <code>process_catalog</code></li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>بخش ۲ — ACOC (۷ دقیقه)</h3>
+      <ol start="5">
+        <li>چرا ISP و ACOC؟</li>
+        <li>۶ پارامتر و افرازبندی</li>
+        <li>فرمول ۳۳۰ تست</li>
+        <li>نمونه تست و oracle</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>بخش ۳ — CFG (۸ دقیقه)</h3>
+      <ol start="9">
+        <li>رسم گراف از سورس</li>
+        <li>Node · Edge · Prime Path</li>
+        <li>مثال bubble_sort</li>
+        <li>۲۹ تست CFG</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>بخش ۴ — Mutation (۱۰ دقیقه)</h3>
+      <ol start="13">
+        <li>۱۴ mutant AOR</li>
+        <li>نمونه kill / equivalent / live</li>
+        <li>تقویت score</li>
+        <li>پاسخ ۳ سؤال تکلیف</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ۳ -->
+<section class="slide" data-i="3">
+  <div class="slide-header"><div class="slide-icon">🏗️</div><div><h1>سناریو — سامانه چه می‌کند؟</h1></div></div>
+  <p>کاربر (دانشجو/مدرس) لیست <strong>آزمون‌های شناختی</strong> را می‌بیند، جستجو می‌زند، مرتب می‌کند.</p>
+  <div class="flow">
+    <span>PostgreSQL / Django</span><span class="arrow">→</span>
+    <span>catalog_bridge.py</span><span class="arrow">→</span>
+    <span>process_catalog</span><span class="arrow">→</span>
+    <span>JSON API</span><span class="arrow">→</span>
+    <span>React Frontend</span>
+  </div>
+  <div class="grid2">
+    <div class="card highlight">
+      <h3>بک‌اند</h3>
+      <p><code>coglearning/</code> — Django REST<br>
+      <code>silver_project/algorithms/</code> — الگوریتم‌های UUT</p>
+    </div>
+    <div class="card highlight">
+      <h3>فرانت</h3>
+      <p><code>cognitive-frontend/</code> — React<br>
+      کاربر الگوریتم نمی‌بیند — انتخاب خودکار</p>
+    </div>
+  </div>
+  <h2>چرا الگوریتم دستی؟</h2>
+  <p>طبق الزام درس — بدون <code>sorted()</code> و <code>in</code> built-in برای UUT؛ bubble، merge، linear، binary خودمان پیاده‌سازی شده.</p>
+</section>
+
+<!-- ۴ -->
+<section class="slide" data-i="4">
+  <div class="slide-header"><div class="slide-icon">🎯</div><div><h1>UUT — کد تحت تست</h1></div></div>
+  <table>
+    <tr><th>فایل</th><th>تابع</th><th>نقش</th></tr>
+    <tr><td><code>catalog.py</code></td><td><code>process_catalog</code></td><td><strong>UUT اصلی</strong> — اعتبارسنجی + جستجو + مرتب + meta</td></tr>
+    <tr><td><code>searching.py</code></td><td><code>linear_search</code></td><td>جستجوی زیررشته در title/description</td></tr>
+    <tr><td><code>searching.py</code></td><td><code>binary_search</code></td><td>تطبیق دقیق روی لیست مرتب</td></tr>
+    <tr><td><code>sorting.py</code></td><td><code>bubble_sort</code></td><td>مرتب‌سازی O(n²)</td></tr>
+    <tr><td><code>sorting.py</code></td><td><code>merge_sort</code></td><td>مرتب‌سازی O(n log n)</td></tr>
+  </table>
+  <h2>ورودی process_catalog</h2>
+  <pre>items, query="", sort_algo="bubble", search_algo="linear",
+sort_field="title", reverse=False</pre>
+  <h2>خروجی</h2>
+  <pre>{ "items": [...], "meta": { total_before, total_after, sort_algorithm, ... } }</pre>
+</section>
+
+<!-- ۵ -->
+<section class="slide" data-i="5">
+  <div class="slide-header"><div class="slide-icon">⚙️</div><div><h1>الگوریتم‌ها در سیستم واقعی</h1></div></div>
+  <table>
+    <tr><th>الگوریتم</th><th>کار</th><th>کی استفاده می‌شود؟</th></tr>
+    <tr><td><code>linear_search</code></td><td>query در title و description</td><td><span class="badge b-ok">همیشه</span> در production</td></tr>
+    <tr><td><code>bubble_sort</code></td><td>مرتب‌سازی</td><td>لیست ≤ ۱۲ آیتم</td></tr>
+    <tr><td><code>merge_sort</code></td><td>مرتب‌سازی</td><td>لیست &gt; ۱۲ آیتم (کاتالوگ بزرگ)</td></tr>
+    <tr><td><code>binary_search</code></td><td>تطبیق دقیق</td><td><span class="badge b-e">فقط تست</span> ACOC/CFG</td></tr>
+  </table>
+  <div class="card highlight" style="margin-top:14px">
+    <h3>catalog_bridge.py — انتخاب خودکار</h3>
+    <pre>search_algo = "linear"   # همیشه
+sort_algo = "bubble" if item_count &lt;= 12 else "merge"</pre>
+    <p style="margin-top:8px">کاربر فقط «جستجو» و «مرتب‌سازی» می‌بیند — نه نام الگوریتم.</p>
+  </div>
+</section>
+
+<!-- ۶ -->
+<section class="slide" data-i="6">
+  <div class="slide-header"><div class="slide-icon">🔀</div><div><h1>جریان process_catalog</h1></div></div>
+  <div class="timeline">
+    <div class="timeline-item"><div class="timeline-num">1</div><div><strong>PC1</strong> — validate: sort_field، sort_algo، search_algo (نامعتبر → default)</div></div>
+    <div class="timeline-item"><div class="timeline-num">2</div><div><strong>PC2</strong> — <code>filtered = _apply_search(...)</code></div></div>
+    <div class="timeline-item"><div class="timeline-num">3</div><div><strong>AS1–AS6</strong> — داخل _apply_search: query خالی؟ binary یا linear؟</div></div>
+    <div class="timeline-item"><div class="timeline-num">4</div><div><strong>PC3</strong> — <code>sorted_items = _apply_sort(filtered, ...)</code></div></div>
+    <div class="timeline-item"><div class="timeline-num">5</div><div><strong>PC4</strong> — return { items, meta }</div></div>
+  </div>
+  <p style="margin-top:12px"><a href="/cfg_graphs/process_catalog.html" target="_blank">🔗 گراف CFG process_catalog</a></p>
+</section>
+
+<!-- ۷ -->
+<section class="slide" data-i="7">
+  <div class="slide-header"><div class="slide-icon">❓</div><div><h1>چرا نمی‌توانیم همه حالات را تست کنیم؟</h1></div></div>
+  <div class="grid2">
+    <div class="card">
+      <h3>مشکل</h3>
+      <p>ورودی‌ها: اندازه لیست، ترتیب، فیلد مرتب، الگوریتم، query، ...<br>
+      ترکیب‌ها → <strong>بی‌نهایت</strong> حالت ممکن</p>
+    </div>
+    <div class="card highlight">
+      <h3>راه‌حل کتاب (فصل ۶)</h3>
+      <p><strong>ISP</strong> — افراز فضای ورودی به بلوک‌های معنی‌دار<br>
+      <strong>ACOC</strong> — ترکیب همه بلوک‌ها = پوشش systematic</p>
+    </div>
+  </div>
+  <h2>استرategie کلی پروژه</h2>
+  <div class="compare">
+    <div class="card"><div class="big-num">330</div><p>ACOC — فضای ورودی</p><span class="tag tag-p">فصل ۶</span></div>
+    <div class="card"><div class="big-num">29</div><p>CFG — ساختار کد</p><span class="tag tag-v">فصل ۷</span></div>
+    <div class="card"><div class="big-num">14</div><p>Mutation — کیفیت تست</p><span class="tag tag-g">فصل ۹</span></div>
+  </div>
+</section>
+
+<!-- ۸ -->
+<section class="slide" data-i="8">
+  <div class="slide-header"><div class="slide-icon">📊</div><div><h1>ACOC — افرازبندی ورودی (ISP)</h1></div></div>
+  <table>
+    <tr><th>پارامتر</th><th>بلوک‌ها (Values)</th><th>n</th></tr>
+    <tr><td><code>size</code></td><td>[], 1 item, 2+ items</td><td>3</td></tr>
+    <tr><td><code>order</code></td><td>sorted, reverse, random</td><td>3</td></tr>
+    <tr><td><code>sort_field</code></td><td>title, min_level, time_limit_minutes</td><td>3</td></tr>
+    <tr><td><code>sort_algo</code></td><td>bubble, merge</td><td>2</td></tr>
+    <tr><td><code>query</code></td><td>"", "آزمون", "ناموجود"</td><td>3</td></tr>
+    <tr><td><code>search_algo</code></td><td>linear, binary</td><td>2</td></tr>
+  </table>
+  <div class="formula">3 × 3 × 3 × 2 × 3 × 2 = 324</div>
+  <p>+ ۶ تست oracle مرتب‌سازی (۲ algo × ۳ field) = <strong>330 تست ACOC</strong></p>
+  <p><code>test_coverage.py → test_acoc_catalog_combinations</code></p>
+</section>
+
+<!-- ۹ -->
+<section class="slide" data-i="9">
+  <div class="slide-header"><div class="slide-icon">🧪</div><div><h1>نمونه تست ACOC</h1></div></div>
+  <pre>@pytest.mark.parametrize("size", [[], [1 item], [2+]])
+@pytest.mark.parametrize("order", ["sorted","reverse","random"])
+@pytest.mark.parametrize("sort_field", ["title","min_level","time_limit"])
+@pytest.mark.parametrize("sort_algo", ["bubble","merge"])
+@pytest.mark.parametrize("query", ["","آزمون","ناموجود"])
+@pytest.mark.parametrize("search_algo", ["linear","binary"])
+def test_acoc_catalog_combinations(...):
+    result = process_catalog(items, query=..., sort_algo=..., ...)
+    assert result["meta"]["total_after"] == len(result["items"])
+    assert result["meta"]["total_after"] &lt;= result["meta"]["total_before"]
+    assert result["meta"]["total_before"] == len(items)  # ← kill PC-01</pre>
+  <div class="card highlight">
+    <h3>Oracle (مرجع صحت)</h3>
+    <p>تعداد بعد ≤ قبل · total_after = len(items) · total_before = len ورودی · برای sort: هر جفت مجاور مرتب است</p>
+  </div>
+</section>
+
+<!-- ۱۰ -->
+<section class="slide" data-i="10">
+  <div class="slide-header"><div class="slide-icon">🕸️</div><div><h1>CFG — Control Flow Graph</h1></div></div>
+  <p>کد → گراف (گره = statement/شرط، یال = جریان + T/F) → تست از روی گراف</p>
+  <div class="grid3">
+    <div class="card highlight">
+      <h3>Node Coverage</h3>
+      <p>هر <strong>گره</strong> حداقل یک‌بار اجرا شود</p>
+      <p class="big-num" style="font-size:1.4rem">14 تست</p>
+    </div>
+    <div class="card highlight">
+      <h3>Edge Coverage</h3>
+      <p>هر <strong>یال</strong> (شاخه T/F) پوشش داده شود</p>
+      <p class="big-num" style="font-size:1.4rem">9 تست</p>
+    </div>
+    <div class="card highlight">
+      <h3>Prime Path</h3>
+      <p>مسیرهای <strong>اصلی</strong> (حلقه تو در تو، recursion)</p>
+      <p class="big-num" style="font-size:1.4rem">6 تست</p>
+    </div>
+  </div>
+  <p style="margin-top:12px">جمع CFG: <strong>29</strong> · کل پروژه: <strong>376</strong> pytest</p>
+</section>
+
+<!-- ۱۱ -->
+<section class="slide" data-i="11">
+  <div class="slide-header"><div class="slide-icon">🫧</div><div><h1>مثال CFG — bubble_sort</h1></div></div>
+  <table>
+    <tr><th>نود</th><th>کد / شرط</th><th>نوع</th></tr>
+    <tr><td>BS1</td><td>شروع</td><td>start</td></tr>
+    <tr><td>BS2</td><td>n &lt;= 1 ?</td><td>decision ◇</td></tr>
+    <tr><td>BS3</td><td>return arr</td><td>return</td></tr>
+    <tr><td>BS4</td><td>for i in range(n)</td><td>loop</td></tr>
+    <tr><td>BS6</td><td>j &lt; n-i-1 ?</td><td>decision ◇</td></tr>
+    <tr><td>BS7</td><td>_should_swap ?</td><td>decision ◇</td></tr>
+    <tr><td>BS9</td><td>not swapped ? → break</td><td>decision ◇</td></tr>
+  </table>
+  <div class="links-row">
+    <a class="link-btn" href="/cfg_graphs/bubble_sort.html" target="_blank">گراف bubble_sort</a>
+    <a class="link-btn" href="/cfg_graphs/merge_sort.html" target="_blank">merge_sort</a>
+    <a class="link-btn" href="/cfg_graphs/linear_search.html" target="_blank">linear_search</a>
+    <a class="link-btn" href="/graf-ha.html" target="_blank">همه گراف‌ها</a>
+  </div>
+</section>
+
+<!-- ۱۲ -->
+<section class="slide" data-i="12">
+  <div class="slide-header"><div class="slide-icon">●</div><div><h1>Node Coverage — نمونه تست‌ها</h1></div></div>
+  <table>
+    <tr><th>تست</th><th>هدف</th><th>نود پوشش‌داده‌شده</th></tr>
+    <tr><td><code>test_bubble_empty_list</code></td><td>[]</td><td>BS2=T → BS3</td></tr>
+    <tr><td><code>test_bubble_single_element</code></td><td>یک عنصر</td><td>BS2=T</td></tr>
+    <tr><td><code>test_merge_multiple</code></td><td>[c,a,b]</td><td>MS2=F → تقسیم + merge</td></tr>
+    <tr><td><code>test_linear_empty_query</code></td><td>query=""</td><td>LS1=T → LS2</td></tr>
+    <tr><td><code>test_catalog_invalid_algo_defaults</code></td><td>algo نامعتبر</td><td>PC1 validation</td></tr>
+  </table>
+  <pre>def test_bubble_empty_list(self):
+    assert bubble_sort([]) == []</pre>
+</section>
+
+<!-- ۱۳ -->
+<section class="slide" data-i="13">
+  <div class="slide-header"><div class="slide-icon">↔️</div><div><h1>Edge Coverage — شاخه T و F</h1></div></div>
+  <table>
+    <tr><th>تست</th><th>ورودی</th><th>یال</th></tr>
+    <tr><td><code>test_bubble_swap_branch_taken</code></td><td>[b, a]</td><td>BS7 → T (swap)</td></tr>
+    <tr><td><code>test_bubble_swap_branch_not_taken</code></td><td>[a, b]</td><td>BS7 → F</td></tr>
+    <tr><td><code>test_bubble_early_exit_no_swaps</code></td><td>already sorted</td><td>BS9 → T (break)</td></tr>
+    <tr><td><code>test_binary_left_branch</code></td><td>search "a"</td><td>BN → left</td></tr>
+    <tr><td><code>test_catalog_binary_search_path</code></td><td>search_algo=binary</td><td>AS3 → T</td></tr>
+    <tr><td><code>test_catalog_linear_search_path</code></td><td>search_algo=linear</td><td>AS3 → F</td></tr>
+  </table>
+</section>
+
+<!-- ۱۴ -->
+<section class="slide" data-i="14">
+  <div class="slide-header"><div class="slide-icon">🛤️</div><div><h1>Prime Path Coverage</h1></div></div>
+  <p>مسیرهایی که از حلقه بیرونی→داخلی یا recursion عبور می‌کنند — ساده‌ترین مسیر ساده نیست.</p>
+  <table>
+    <tr><th>تست</th><th>الگوریتم</th><th>مسیر</th></tr>
+    <tr><td><code>test_bubble_full_outer_inner_loop</code></td><td>bubble</td><td>BS4→BS6→BS7 چندبار</td></tr>
+    <tr><td><code>test_merge_recursive_divide</code></td><td>merge</td><td>تقسیم بازگشتی + _merge</td></tr>
+    <tr><td><code>test_binary_search_loop_multiple_iterations</code></td><td>binary</td><td>while چند iteration</td></tr>
+    <tr><td><code>test_catalog_full_pipeline</code></td><td>catalog</td><td>search → sort کامل</td></tr>
+  </table>
+  <pre>def test_bubble_full_outer_inner_loop(self):
+    items = [d, c, b, a]
+    assert bubble_sort(items) == [a, b, c, d]</pre>
+</section>
+
+<!-- ۱۵ -->
+<section class="slide" data-i="15">
+  <div class="slide-header"><div class="slide-icon">🧬</div><div><h1>Mutation Testing — فصل ۹</h1></div></div>
+  <p>یک <strong>عملگر حسابی</strong> در سورس عوض می‌شود → mutant → اگر تست fail کند = <span class="badge b-k">KILLED</span></p>
+  <div class="grid2">
+    <div class="card">
+      <h3>نوع جهش: AOR</h3>
+      <p>Arithmetic Operator Replacement<br>
+      <code>+ ↔ -</code> · <code>* ↔ /</code> · <code>//2 ↔ //3</code> · <code>n-i-1 ↔ n-i-2</code></p>
+    </div>
+    <div class="card highlight">
+      <h3>محل فایل‌ها</h3>
+      <p><code>algorithms/mutants/sorting_mutants.py</code><br>
+      <code>searching_mutants.py</code><br>
+      <code>catalog_mutants.py</code></p>
+    </div>
+  </div>
+  <h2>وضعیت‌های mutant</h2>
+  <p><span class="badge b-k">KILLED</span> تست fail ·
+  <span class="badge b-e">EQUIVALENT</span> همیشه خروجی = اصل ·
+  <span class="badge b-l">LIVE</span> تست‌ها pass — باگ پنهان</p>
+</section>
+
+<!-- ۱۶ -->
+<section class="slide" data-i="16">
+  <div class="slide-header"><div class="slide-icon">📋</div><div><h1>جدول ۱۴ Mutant AOR</h1></div></div>
+  <table>
+    <tr><th>ID</th><th>تابع</th><th>تغییر</th><th>وضعیت</th></tr>
+    <tr><td>M-AOR-BS-01</td><td>bubble</td><td>n-i-1 → n+i-1</td><td><span class="badge b-k">KILLED</span> IndexError</td></tr>
+    <tr><td>M-AOR-BS-02</td><td>bubble</td><td>n-i-1 → n-i+1</td><td><span class="badge b-k">KILLED</span> IndexError</td></tr>
+    <tr><td>M-AOR-BS-03</td><td>bubble</td><td>n-i-1 → n-i-2</td><td><span class="badge b-k">KILLED</span> خروجی غلط</td></tr>
+    <tr><td>M-AOR-BS-04</td><td>bubble</td><td>n-i-1 → n*i-1</td><td><span class="badge b-k">KILLED</span> بدون sort</td></tr>
+    <tr><td>M-AOR-MS-01</td><td>merge</td><td>n//2 → n//1</td><td><span class="badge b-k">KILLED</span> RecursionError</td></tr>
+    <tr><td>M-AOR-MS-02</td><td>merge</td><td>n//2 → n//3</td><td><span class="badge b-k">KILLED</span> RecursionError</td></tr>
+    <tr><td>M-AOR-MS-03</td><td>merge</td><td>n//2 → (n+1)//2</td><td><span class="badge b-e">EQUIVALENT</span></td></tr>
+    <tr><td>M-AOR-BN-01..05</td><td>binary</td><td>mid, left, right</td><td>3 KILLED · 1 EQUIVALENT</td></tr>
+    <tr><td>M-AOR-PC-01</td><td>catalog</td><td>total_before+1</td><td><span class="badge b-k">KILLED</span> (بعد fix)</td></tr>
+    <tr><td>M-AOR-PC-02</td><td>catalog</td><td>total_after-1</td><td><span class="badge b-k">KILLED</span> ACOC</td></tr>
+  </table>
+</section>
+
+<!-- ۱۷ -->
+<section class="slide" data-i="17">
+  <div class="slide-header"><div class="slide-icon">💥</div><div><h1>نمونه Mutant + تست Kill</h1></div></div>
+  <h2>Mutant: M-AOR-BS-03</h2>
+  <pre># اصل:  for j in range(0, n - i - 1):
+# mutant: for j in range(0, n - i - 2):   # یک مقایسه کمتر</pre>
+  <h2>تست:</h2>
+  <pre>def test_m03_bs_killed_wrong_output_short_inner_loop(self):
+    result = bubble_sort_m03(ITEMS_4, key="title")  # [d,c,b,a]
+    correct = bubble_sort(ITEMS_4, key="title")
+    assert got != correct   # [b,c,d,a] ≠ [a,b,c,d] → KILLED ✓</pre>
+  <div class="card highlight">
+    <h3>چطور می‌گوییم kill شد؟</h3>
+    <p>تابع mutant را با همان ورودی اجرا می‌کنیم — اگر <strong>exception</strong> یا <strong>assert fail</strong> → KILLED. اگر خروجی یکسان → LIVE یا EQUIVALENT.</p>
+  </div>
+</section>
+
+<!-- ۱۸ -->
+<section class="slide" data-i="18">
+  <div class="slide-header"><div class="slide-icon">📈</div><div><h1>Mutation Score</h1></div></div>
+  <div class="grid2">
+    <div class="card highlight" style="text-align:center">
+      <div class="big-num">14</div><p>کل mutant</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <div class="big-num">2</div><p>Equivalent (MS-03, BN-03)</p>
+    </div>
+  </div>
+  <div class="formula">Score = Killed / (Total − Equivalent) = 11 / 12 = 91.7%</div>
+  <table>
+    <tr><th>الگوریتم</th><th>Mutant</th><th>Killable</th><th>Killed</th><th>Score</th></tr>
+    <tr><td>bubble_sort</td><td>4</td><td>4</td><td>4</td><td>100%</td></tr>
+    <tr><td>merge_sort</td><td>3</td><td>2</td><td>2</td><td>100%*</td></tr>
+    <tr><td>binary_search</td><td>5</td><td>3</td><td>3</td><td>100%*</td></tr>
+    <tr><td>catalog</td><td>2</td><td>2</td><td>2</td><td>100%</td></tr>
+  </table>
+  <p style="font-size:0.78rem">* یک EQUIVALENT در هر دسته از مخرج حذف شده</p>
+</section>
+
+<!-- ۱۹ -->
+<section class="slide" data-i="19">
+  <div class="slide-header"><div class="slide-icon">🔧</div><div><h1>داستان PC-01 — تقویت Mutation</h1></div></div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Mutant PC-01</h3>
+      <pre>"total_before": len(items) + 1</pre>
+      <p>meta غلط — ولی items درست</p>
+    </div>
+    <div class="card">
+      <h3>قبل از fix</h3>
+      <p>فقط: <code>total_after &lt;= total_before</code><br>
+      هر دو pass → <span class="badge b-l">LIVE</span><br>
+      Score = 83.3%</p>
+    </div>
+  </div>
+  <div class="card highlight">
+    <h3>بعد از fix — یک خط assert</h3>
+    <pre>assert result["meta"]["total_before"] == len(items)</pre>
+    <p>→ PC-01 <span class="badge b-k">KILLED</span> · Score = <strong>91.7%</strong></p>
+  </div>
+  <p>درس: ACOC تعداد ترکیب را پوشش می‌دهد ولی <strong>oracle</strong> باید دقیق باشد.</p>
+</section>
+
+<!-- ۲۰ -->
+<section class="slide" data-i="20">
+  <div class="slide-header"><div class="slide-icon">🎯</div><div><h1>کدام تست کدام Mutant را می‌کشد؟</h1></div></div>
+  <table>
+    <tr><th>Mutant</th><th>مجموعه تست</th><th>مکانیزم kill</th></tr>
+    <tr><td>BS-01..04</td><td>test_mutation_killing.py</td><td>IndexError / خروجی ≠ oracle</td></tr>
+    <tr><td>MS-01,02</td><td>test_mutation_killing.py</td><td>RecursionError</td></tr>
+    <tr><td>MS-03</td><td>—</td><td>EQUIVALENT — قابل kill نیست</td></tr>
+    <tr><td>BN-01,02,04,05</td><td>test_mutation_killing.py</td><td>خروجی غلط / IndexError / timeout</td></tr>
+    <tr><td>BN-03</td><td>—</td><td>EQUIVALENT</td></tr>
+    <tr><td>PC-02</td><td><strong>ACOC</strong> (330 تست)</td><td>total_after ≠ len(items)</td></tr>
+    <tr><td>PC-01</td><td><strong>ACOC + assert جدید</strong></td><td>total_before ≠ len(items)</td></tr>
+  </table>
+</section>
+
+<!-- ۲۱ -->
+<section class="slide" data-i="21">
+  <div class="slide-header"><div class="slide-icon">❶</div><div><h1>سؤال ۱ — کدام معیار پوشش بهتر بود؟</h1></div></div>
+  <table>
+    <tr><th>معیار</th><th>قوت</th><th>ضعف در پروژه ما</th></tr>
+    <tr><td><strong>ACOC</strong></td><td>همه ترکیب پارامترها</td><td>PC-01 را اول miss کرد (oracle ضعیف)</td></tr>
+    <tr><td><strong>CFG</strong></td><td>شاخه‌ها و حلقه‌ها</td><td>فضای ورودی کامل نیست</td></tr>
+    <tr><td><strong>Mutation</strong></td><td>باگ واقعی را می‌گیرد</td><td>نیاز به ساخت mutant</td></tr>
+  </table>
+  <div class="card highlight">
+    <h3>پاسخ</h3>
+    <p><strong>Mutation</strong> قوی‌ترین معیار کیفیت است — score 91.7% نشان می‌دهد تست‌ها واقعاً باگ inject شده را می‌گیرند.
+    <strong>CFG</strong> برای طراحی تست ساختاری ضروری بود.
+    <strong>ACOC</strong> برای پوشش systematic ورودی — هر سه با هم complement هستند.</p>
+  </div>
+</section>
+
+<!-- ۲۲ -->
+<section class="slide" data-i="22">
+  <div class="slide-header"><div class="slide-icon">❷</div><div><h1>سؤال ۲ — کدام تست‌ها شکست خوردند؟</h1></div></div>
+  <div class="grid2">
+    <div class="card highlight">
+      <h3>روی کد اصلی (Original)</h3>
+      <p class="big-num" style="font-size:1.5rem">0 شکست</p>
+      <p>376/376 pytest passed ✓</p>
+    </div>
+    <div class="card">
+      <h3>روی Mutantها</h3>
+      <p class="big-num" style="font-size:1.5rem">11 شکست</p>
+      <p>= 11 mutant KILLED (مطلوب است!)</p>
+    </div>
+  </div>
+  <h2>نکته مهم</h2>
+  <p>PC-01 با suite قدیمی <strong>شکست نمی‌خورد</strong> — mutant LIVE بود نه اینکه تست ما fail باشد.
+  بعد assert تقویت شد → kill شد.</p>
+</section>
+
+<!-- ۲۳ -->
+<section class="slide" data-i="23">
+  <div class="slide-header"><div class="slide-icon">❸</div><div><h1>سؤال ۳ — چطور Score را بهبود دهیم؟</h1></div></div>
+  <div class="timeline">
+    <div class="timeline-item"><div class="timeline-num">✓</div><div><strong>انجام شد:</strong> assert روی total_before → 83.3% → 91.7%</div></div>
+    <div class="timeline-item"><div class="timeline-num">—</div><div><strong>MS-03, BN-03:</strong> EQUIVALENT — از score خارج · بالاتر از 91.7% بدون mutant جدیر ممکن نیست</div></div>
+    <div class="timeline-item"><div class="timeline-num">+</div><div>assert روی meta.sort_algorithm، meta.query، مقایسه با oracle مستقل</div></div>
+    <div class="timeline-item"><div class="timeline-num">+</div><div>تست boundary: n=0,1,2 برای sort · لیست 13 آیتم برای switch bubble→merge</div></div>
+  </div>
+</section>
+
+<!-- ۲۴ -->
+<section class="slide" data-i="24">
+  <div class="slide-header"><div class="slide-icon">📦</div><div><h1>خلاصه نهایی — یک نگاه</h1></div></div>
+  <div class="grid4">
+    <div class="card" style="text-align:center"><div class="big-num">330</div><p>ACOC</p></div>
+    <div class="card" style="text-align:center"><div class="big-num">29</div><p>CFG</p></div>
+    <div class="card" style="text-align:center"><div class="big-num">17</div><p>Mutation tests</p></div>
+    <div class="card" style="text-align:center"><div class="big-num">376</div><p>کل pytest</p></div>
+  </div>
+  <pre style="margin-top:14px">cd silver_project
+python -m pytest algorithms/tests/ -v</pre>
+  <div class="links-row">
+    <a class="link-btn" href="/arayeh-kamel.html">این ارائه</a>
+    <a class="link-btn" href="/tozih-proje.html">توضیح متنی</a>
+    <a class="link-btn" href="/graf-ha.html">گراف CFG</a>
+    <a class="link-btn" href="/cfg_graphs/process_catalog.html">گراف UUT</a>
+  </div>
+</section>
+
+<!-- ۲۵ -->
+<section class="slide title-slide" data-i="25">
+  <div class="hero">
+    <div style="font-size:2.5rem">💜</div>
+    <h1>سپاس از توجه شما</h1>
+    <p class="subtitle" style="margin-top:12px">سؤالی هست؟</p>
+    <div class="stat-row">
+      <div class="stat"><div class="num" style="font-size:1.2rem">UUT</div><div class="lbl">process_catalog</div></div>
+      <div class="stat"><div class="num" style="font-size:1.2rem">91.7%</div><div class="lbl">Mutation Score</div></div>
+      <div class="stat"><div class="num" style="font-size:1.2rem">376</div><div class="lbl">Tests Passed</div></div>
+    </div>
+    <p style="margin-top:24px;font-size:0.85rem;color:var(--muted)">
+      ctlg · سامانه سنجش شناختی · ACOC · CFG · Mutation
+    </p>
+  </div>
+</section>
+
+</div>
+
+<nav class="nav-bar">
+  <button id="prev" disabled>→ قبلی</button>
+  <div class="dots" id="dots"></div>
+  <span class="slide-info" id="info">1 / 25</span>
+  <button id="next">بعدی ←</button>
+</nav>
+
+<script>
+(function () {
+  const slides = [...document.querySelectorAll('.slide')];
+  const total = slides.length;
+  let cur = 0;
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  const info = document.getElementById('info');
+  const progress = document.getElementById('progress');
+  const dotsEl = document.getElementById('dots');
+
+  slides.forEach((_, i) => {
+    const d = document.createElement('span');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.title = 'اسلاید ' + (i + 1);
+    d.addEventListener('click', () => go(i));
+    dotsEl.appendChild(d);
+  });
+  const dots = [...dotsEl.querySelectorAll('.dot')];
+
+  function go(n) {
+    if (n < 0 || n >= total) return;
+    slides[cur].classList.remove('active');
+    dots[cur].classList.remove('active');
+    cur = n;
+    slides[cur].classList.add('active');
+    dots[cur].classList.add('active');
+    slides[cur].scrollTop = 0;
+    info.textContent = (cur + 1) + ' / ' + total;
+    progress.style.width = ((cur + 1) / total * 100) + '%';
+    prev.disabled = cur === 0;
+    next.disabled = cur === total - 1;
+  }
+
+  prev.addEventListener('click', () => go(cur - 1));
+  next.addEventListener('click', () => go(cur + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(cur + 1); }
+    if (e.key === 'ArrowRight' || e.key === 'PageUp') { e.preventDefault(); go(cur - 1); }
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End') go(total - 1);
+    if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+
+  go(0);
+})();
+</script>
+</body>
+</html>

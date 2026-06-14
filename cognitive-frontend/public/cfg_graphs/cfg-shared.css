@@ -1,0 +1,27 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Tahoma, Arial, sans-serif; background: #f5f7fa; color: #212121; padding: 24px; direction: rtl; line-height: 1.7; }
+.wrap { max-width: 1040px; margin: 0 auto; }
+header { background: #fff; border: 1px solid #cfd8dc; padding: 16px 20px; margin-bottom: 16px; border-radius: 6px; }
+header h1 { font-size: 1.1rem; margin-bottom: 4px; }
+header p { font-size: 0.82rem; color: #546e7a; }
+nav { margin-bottom: 16px; font-size: 0.85rem; }
+nav a { color: #1565c0; text-decoration: none; margin-left: 10px; }
+nav a:hover { text-decoration: underline; }
+section { background: #fff; border: 1px solid #cfd8dc; padding: 20px; margin-bottom: 16px; border-radius: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; font-size: 0.78rem; }
+.legend::before { content: 'راهنما: '; font-weight: 700; }
+.legend { content: none; }
+section .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; font-size: 0.78rem; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border: 1px solid #b0bec5; background: #fafafa; }
+.legend span::before { content: ''; width: 14px; height: 14px; border: 1px solid #546e7a; display: inline-block; }
+.legend .s-start::before { background: #c8e6c9; }
+.legend .s-proc::before { background: #bbdefb; }
+.legend .s-dec::before { background: #fff9c4; transform: rotate(45deg); width: 10px; height: 10px; }
+.legend .s-ret::before { background: #e1bee7; }
+.cfg { border: 1px solid #b0bec5; padding: 12px; overflow-x: auto; background: #fff; }
+svg { display: block; margin: 0 auto; }
+.flow-hint { font-size: 0.82rem; color: #37474f; margin-bottom: 12px; padding: 8px 12px; background: #fff8e1; border-right: 3px solid #f9a825; }
+.node-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 14px; }
+.node-table th, .node-table td { border: 1px solid #b0bec5; padding: 8px; text-align: right; }
+.node-table th { background: #eceff1; }
+code { font-family: Consolas, monospace; font-size: 0.78rem; background: #eceff1; padding: 1px 4px; direction: ltr; unicode-bidi: isolate; }

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG — binary_search</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>گراف جریان کنترل — binary_search</h1>
+    <p>searching.py</p>
+  </header>
+  <nav><a href="index.html">فهرست</a></nav>
+  <section>
+    <div class="cfg"><div id="cfg-svg"></div></div>
+    <table class="node-table">
+      <thead><tr><th>نود</th><th>کد</th></tr></thead>
+      <tbody>
+        <tr><td>BN1</td><td>if not query or len(items)==0</td></tr>
+        <tr><td>BN2</td><td>return -1</td></tr>
+        <tr><td>BN3</td><td>left=0; right=len-1; query_lower=...</td></tr>
+        <tr><td>BN4</td><td>while left &lt;= right</td></tr>
+        <tr><td>BN5</td><td>return -1 (پایان حلقه)</td></tr>
+        <tr><td>BN6</td><td>mid = (left+right)//2</td></tr>
+        <tr><td>BN7</td><td>if mid_val == query</td></tr>
+        <tr><td>BN8</td><td>return mid</td></tr>
+        <tr><td>BN9</td><td>if mid_val &lt; query</td></tr>
+        <tr><td>BN10</td><td>left = mid + 1</td></tr>
+        <tr><td>BN11</td><td>right = mid - 1</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+<script src="cfg-graph.js"></script>
+<script>
+CFGGraph.render('cfg-svg', {
+  id: 'bn', width: 700, height: 640,
+  nodes: [
+    { id: 'BN1', type: 'decision', x: 290, y: 12, w: 120, h: 64, lines: ['BN1: not query', 'or len==0 ?'] },
+    { id: 'BN2', type: 'return', x: 80, y: 20, w: 150, h: 44, lines: ['BN2: return -1'] },
+    { id: 'BN3', type: 'process', x: 250, y: 92, w: 200, h: 48, lines: ['BN3: left=0; right=n-1'] },
+    { id: 'BN4', type: 'decision', x: 290, y: 160, w: 120, h: 60, lines: ['BN4: left <= right ?'] },
+    { id: 'BN5', type: 'return', x: 80, y: 168, w: 150, h: 44, lines: ['BN5: return -1'] },
+    { id: 'BN6', type: 'process', x: 250, y: 240, w: 200, h: 44, lines: ['BN6: mid=(l+r)//2'] },
+    { id: 'BN7', type: 'decision', x: 290, y: 300, w: 120, h: 60, lines: ['BN7: mid_val==query ?'] },
+    { id: 'BN8', type: 'return', x: 500, y: 308, w: 130, h: 44, lines: ['BN8: return mid'] },
+    { id: 'BN9', type: 'decision', x: 240, y: 380, w: 140, h: 60, lines: ['BN9: mid_val < query ?'] },
+    { id: 'BN10', type: 'process', x: 480, y: 388, w: 150, h: 44, lines: ['BN10: left = mid + 1'] },
+    { id: 'BN11', type: 'process', x: 60, y: 388, w: 150, h: 44, lines: ['BN11: right = mid - 1'] },
+  ],
+  edges: [
+    { from: 'BN1', to: 'BN2', fromSide: 'left', toSide: 'right', kind: 'T' },
+    { from: 'BN1', to: 'BN3', kind: 'F' },
+    { from: 'BN3', to: 'BN4' },
+    { from: 'BN4', to: 'BN6', kind: 'T' },
+    { from: 'BN4', to: 'BN5', kind: 'F', fromSide: 'left', toSide: 'right' },
+    { from: 'BN6', to: 'BN7' },
+    { from: 'BN7', to: 'BN8', fromSide: 'right', toSide: 'left', kind: 'T' },
+    { from: 'BN7', to: 'BN9', kind: 'F' },
+    { from: 'BN9', to: 'BN10', fromSide: 'right', toSide: 'left', kind: 'T' },
+    { from: 'BN9', to: 'BN11', fromSide: 'left', toSide: 'right', kind: 'F' },
+    { from: 'BN10', to: 'BN4', fromSide: 'bottom', toSide: 'right', waypoints: [{ x: 555, y: 460 }, { x: 620, y: 460 }, { x: 620, y: 190 }] },
+    { from: 'BN11', to: 'BN4', fromSide: 'bottom', toSide: 'left', waypoints: [{ x: 135, y: 460 }, { x: 200, y: 460 }, { x: 200, y: 190 }] },
+  ],
+});
+</script>
+</body>
+</html>

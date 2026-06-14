@@ -27,7 +27,19 @@ export default function RegisterPage() {
       await register(form);
       navigate('/profile');
     } catch (err) {
-      setError('ثبت‌نام ناموفق بود.');
+      const data = err?.response?.data;
+      if (typeof data === 'string') {
+        setError(data);
+      } else if (data && typeof data === 'object') {
+        const msg = Object.entries(data)
+          .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(' ') : v}`)
+          .join(' · ');
+        setError(msg || 'ثبت‌نام ناموفق بود.');
+      } else if (err?.message?.includes('Network')) {
+        setError('اتصال به سرور برقرار نشد. Backend را روی پورت 8000 اجرا کنید.');
+      } else {
+        setError('ثبت‌نام ناموفق بود.');
+      }
     }
   };
 

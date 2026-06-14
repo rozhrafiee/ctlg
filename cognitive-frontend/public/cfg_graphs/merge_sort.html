@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG — merge_sort</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>گراف جریان کنترل — merge_sort</h1>
+    <p>sorting.py · MS1 تا MS7</p>
+  </header>
+  <nav><a href="index.html">فهرست</a></nav>
+  <section>
+    <div class="cfg"><div id="cfg-svg"></div></div>
+    <table class="node-table">
+      <thead><tr><th>نود</th><th>کد</th></tr></thead>
+      <tbody>
+        <tr><td>MS1</td><td>arr = list(items); n = len(arr)</td></tr>
+        <tr><td>MS2</td><td>if n &lt;= 1</td></tr>
+        <tr><td>MS3</td><td>return arr</td></tr>
+        <tr><td>MS4</td><td>mid = n // 2</td></tr>
+        <tr><td>MS5</td><td>left = merge_sort(arr[:mid])</td></tr>
+        <tr><td>MS6</td><td>right = merge_sort(arr[mid:])</td></tr>
+        <tr><td>MS7</td><td>return _merge(left, right)</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+<script src="cfg-graph.js"></script>
+<script>
+CFGGraph.render('cfg-svg', {
+  id: 'ms', width: 520, height: 520,
+  nodes: [
+    { id: 'MS1', type: 'start', x: 160, y: 12, w: 200, h: 44, lines: ['MS1: arr=list(items); n=len(arr)'] },
+    { id: 'MS2', type: 'decision', x: 200, y: 72, w: 120, h: 60, lines: ['MS2: n <= 1 ?'] },
+    { id: 'MS3', type: 'return', x: 20, y: 78, w: 130, h: 44, lines: ['MS3: return arr'] },
+    { id: 'MS4', type: 'process', x: 160, y: 152, w: 200, h: 44, lines: ['MS4: mid = n // 2'] },
+    { id: 'MS5', type: 'process', x: 100, y: 216, w: 320, h: 48, lines: ['MS5: left = merge_sort(arr[:mid])', '↻ recursive'] },
+    { id: 'MS6', type: 'process', x: 100, y: 284, w: 320, h: 48, lines: ['MS6: right = merge_sort(arr[mid:])', '↻ recursive'] },
+    { id: 'MS7', type: 'return', x: 120, y: 352, w: 280, h: 48, lines: ['MS7: return _merge(left, right)'] },
+  ],
+  edges: [
+    { from: 'MS1', to: 'MS2' },
+    { from: 'MS2', to: 'MS3', fromSide: 'left', toSide: 'right', kind: 'T' },
+    { from: 'MS2', to: 'MS4', kind: 'F' },
+    { from: 'MS4', to: 'MS5' },
+    { from: 'MS5', to: 'MS6' },
+    { from: 'MS6', to: 'MS7' },
+  ],
+});
+</script>
+</body>
+</html>

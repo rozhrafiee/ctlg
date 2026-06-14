@@ -17,6 +17,7 @@ urlpatterns = [
     path("sessions/<int:session_id>/questions/<int:question_id>/answer/", submit_answer),#tested
     path("sessions/<int:session_id>/finish/", finish_test_session),#tested
     path("tests/", StudentTestListView.as_view()),#tested
+    path("tests/catalog/", catalog_tests_list),
     path("teacher/reviews/pending/", PendingReviewsListView.as_view()),#tested
     path("teacher/sessions/<int:session_id>/", get_session_details),
     path("teacher/sessions/<int:session_id>/grade/", submit_manual_grade),
