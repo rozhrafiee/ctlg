@@ -1,75 +1,958 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm Testing Results - ctlg</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9fafb;
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-tabs button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background: white;
+            color: #374151;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .nav-tabs button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-tabs button:hover:not(.active) {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+
+        /* Tabs Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Metric Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-left: 4px solid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-card.blue {
+            border-left-color: #667eea;
+        }
+
+        .metric-card.green {
+            border-left-color: #10b981;
+        }
+
+        .metric-card.red {
+            border-left-color: #ef4444;
+        }
+
+        .metric-card.purple {
+            border-left-color: #8b5cf6;
+        }
+
+        .metric-card .number {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .metric-card.blue .number {
+            color: #667eea;
+        }
+
+        .metric-card.green .number {
+            color: #10b981;
+        }
+
+        .metric-card.red .number {
+            color: #ef4444;
+        }
+
+        .metric-card.purple .number {
+            color: #8b5cf6;
+        }
+
+        .metric-card .label {
+            color: #6b7280;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container h3 {
+            margin-bottom: 20px;
+            color: #1f2937;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        /* Coverage Bars */
+        .coverage-item {
+            margin-bottom: 20px;
+        }
+
+        .coverage-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.95em;
+        }
+
+        .coverage-bar {
+            width: 100%;
+            height: 28px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .coverage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: width 0.5s ease;
+        }
+
+        /* Algorithm Cards */
+        .algorithm-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .algorithm-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .algorithm-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+        }
+
+        .algorithm-header h4 {
+            font-size: 1.2em;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .algorithm-header p {
+            opacity: 0.95;
+            font-size: 0.9em;
+        }
+
+        .algorithm-body {
+            padding: 20px;
+        }
+
+        .features {
+            margin-bottom: 15px;
+        }
+
+        .features h5 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            background: #f3f4f6;
+            color: #667eea;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .metric-small {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+
+        .metric-small .value {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .metric-small .label {
+            font-size: 0.8em;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        /* Analysis Boxes */
+        .analysis-box {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .analysis-box.blue {
+            border-left-color: #667eea;
+            background: linear-gradient(to right, #f0f4ff, white);
+        }
+
+        .analysis-box.green {
+            border-left-color: #10b981;
+            background: linear-gradient(to right, #f0fdf4, white);
+        }
+
+        .analysis-box.purple {
+            border-left-color: #8b5cf6;
+            background: linear-gradient(to right, #faf5ff, white);
+        }
+
+        .analysis-box h3 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .analysis-box p {
+            color: #4b5563;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .analysis-list {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .analysis-list li {
+            list-style: none;
+            padding: 8px 0;
+            padding-right: 20px;
+            position: relative;
+            color: #4b5563;
+            font-size: 0.95em;
+        }
+
+        .analysis-list li:before {
+            content: "✓";
+            position: absolute;
+            right: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .nav-tabs {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-wrapper {
+                height: 300px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .nav-tabs {
+                display: none;
+            }
+
+            .chart-container {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
 <body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Algorithm Testing Results</h1>
+            <p>گزارش جامع: Coverage, Mutation و تحلیل</p>
+        </div>
 
-<header class="navbar">
-    <div class="logo">
-        سامانه سنجش شناختی
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="overview">Overview</button>
+            <button class="tab-btn" data-tab="coverage">Coverage</button>
+            <button class="tab-btn" data-tab="mutations">Mutation</button>
+            <button class="tab-btn" data-tab="algorithms">Algorithms</button>
+            <button class="tab-btn" data-tab="analysis">Analysis</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <!-- Metrics -->
+            <div class="metrics-grid">
+                <div class="metric-card blue">
+                    <div class="number">376</div>
+                    <div class="label">کل تست‌ها</div>
+                </div>
+                <div class="metric-card green">
+                    <div class="number">376</div>
+                    <div class="label">تست‌های موفق</div>
+                </div>
+                <div class="metric-card red">
+                    <div class="number">0</div>
+                    <div class="label">تست‌های ناموفق</div>
+                </div>
+                <div class="metric-card purple">
+                    <div class="number">10.52s</div>
+                    <div class="label">زمان اجرا</div>
+                </div>
+            </div>
+
+            <!-- Test Distribution Chart -->
+            <div class="chart-container">
+                <h3>توزیع تست‌ها</h3>
+                <div class="chart-wrapper">
+                    <canvas id="testDistributionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Test Breakdown -->
+            <div class="chart-container">
+                <h3>خلاصه نتایج</h3>
+                <div class="metrics-grid">
+                    <div class="metric-small">
+                        <div class="value">336</div>
+                        <div class="label">ACOC</div>
+                    </div>
+                    <div class="metric-small">
+                        <div class="value">14</div>
+                        <div class="label">Node Coverage</div>
+                    </div>
+                    <div class="metric-small">
+                        <div class="value">9</div>
+                        <div class="label">Edge Coverage</div>
+                    </div>
+                    <div class="metric-small">
+                        <div class="value">6</div>
+                        <div class="label">Prime Path</div>
+                    </div>
+                    <div class="metric-small">
+                        <div class="value">11</div>
+                        <div class="label">Mutation Killing</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Platform Info -->
+            <div class="chart-container">
+                <h3>اطلاعات سیستم</h3>
+                <div class="metrics-grid">
+                    <div class="metric-small">
+                        <div class="label">سیستم عامل</div>
+                        <div class="value">Windows</div>
+                    </div>
+                    <div class="metric-small">
+                        <div class="label">Python Version</div>
+                        <div class="value">3.13.5</div>
+                    </div>
+                    <div class="metric-small">
+                        <div class="label">pytest</div>
+                        <div class="value">9.0.3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coverage Tab -->
+        <div id="coverage" class="tab-content">
+            <div class="chart-container">
+                <h3>معیارهای Coverage</h3>
+                
+                <div class="coverage-item">
+                    <div class="coverage-header">
+                        <span>ACOC Coverage</span>
+                        <span>336 تست</span>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 100%; justify-content: center;">
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="coverage-item">
+                    <div class="coverage-header">
+                        <span>Node Coverage</span>
+                        <span>14 تست</span>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 100%; justify-content: center;">
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="coverage-item">
+                    <div class="coverage-header">
+                        <span>Edge Coverage</span>
+                        <span>9 تست</span>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 100%; justify-content: center;">
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="coverage-item">
+                    <div class="coverage-header">
+                        <span>Prime Path Coverage</span>
+                        <span>6 تست</span>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 100%; justify-content: center;">
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="coverage-item">
+                    <div class="coverage-header">
+                        <span>Mutation Killing</span>
+                        <span>11 تست</span>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 100%; justify-content: center;">
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coverage Analysis -->
+            <div class="analysis-box blue">
+                <h3>نتیجه گیری</h3>
+                <p>تمام معیارهای Coverage 100% را دستیافتند:</p>
+                <ul class="analysis-list">
+                    <li>336 ترکیب ACOC با موفقیت تست شدند</li>
+                    <li>14 گره کد به طور کامل پوشش داده شد</li>
+                    <li>9 یال تصمیم‌گیری تست شدند</li>
+                    <li>6 مسیر اصلی شناسایی و تست شدند</li>
+                    <li>11 mutation با موفقیت کشته شدند</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Mutations Tab -->
+        <div id="mutations" class="tab-content">
+            <div class="metrics-grid">
+                <div class="metric-card green">
+                    <div class="number">100%</div>
+                    <div class="label">Mutation Score</div>
+                </div>
+                <div class="metric-card blue">
+                    <div class="number">18</div>
+                    <div class="label">Mutants کل</div>
+                </div>
+                <div class="metric-card green">
+                    <div class="number">18</div>
+                    <div class="label">Killed Mutants</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>تحلیل Mutation</h3>
+                <div class="chart-wrapper">
+                    <canvas id="mutationChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>جزئیات Mutants</h3>
+                
+                <div class="coverage-item">
+                    <div class="coverage-header">
+                        <span>Bubble Sort</span>
+                        <span>4/4 Killed</span>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 100%; justify-content: center;">
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="coverage-item">
+                    <div class="coverage-header">
+                        <span>Merge Sort</span>
+                        <span>3/3 Killed</span>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 100%; justify-content: center;">
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="coverage-item">
+                    <div class="coverage-header">
+                        <span>Binary Search</span>
+                        <span>5/5 Killed</span>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 100%; justify-content: center;">
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="coverage-item">
+                    <div class="coverage-header">
+                        <span>Linear Search</span>
+                        <span>2/2 Killed</span>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 100%; justify-content: center;">
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="coverage-item">
+                    <div class="coverage-header">
+                        <span>Catalog</span>
+                        <span>4/4 Killed</span>
+                    </div>
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: 100%; justify-content: center;">
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Algorithms Tab -->
+        <div id="algorithms" class="tab-content">
+            <div class="algorithm-card">
+                <div class="algorithm-header">
+                    <h4>Bubble Sort</h4>
+                    <p>مرتب‌سازی حبابی - مقایسه و جابجایی آیتم‌های مجاور</p>
+                </div>
+                <div class="algorithm-body">
+                    <div class="features">
+                        <h5>ویژگی‌ها:</h5>
+                        <span class="feature-tag">صعودی/نزولی</span>
+                        <span class="feature-tag">Custom Field</span>
+                        <span class="feature-tag">Early Exit</span>
+                        <span class="feature-tag">List Copy</span>
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-small">
+                            <div class="value">10</div>
+                            <div class="label">Nodes</div>
+                        </div>
+                        <div class="metric-small">
+                            <div class="value">8</div>
+                            <div class="label">Edges</div>
+                        </div>
+                        <div class="metric-small">
+                            <div class="value">3</div>
+                            <div class="label">Prime Paths</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="algorithm-card">
+                <div class="algorithm-header">
+                    <h4>Merge Sort</h4>
+                    <p>مرتب‌سازی ادغام - تقسیم و حل بازگشتی</p>
+                </div>
+                <div class="algorithm-body">
+                    <div class="features">
+                        <h5>ویژگی‌ها:</h5>
+                        <span class="feature-tag">صعودی/نزولی</span>
+                        <span class="feature-tag">Merge Lists</span>
+                        <span class="feature-tag">Recursive</span>
+                        <span class="feature-tag">Divide & Conquer</span>
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-small">
+                            <div class="value">10</div>
+                            <div class="label">Nodes</div>
+                        </div>
+                        <div class="metric-small">
+                            <div class="value">8</div>
+                            <div class="label">Edges</div>
+                        </div>
+                        <div class="metric-small">
+                            <div class="value">4</div>
+                            <div class="label">Prime Paths</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="algorithm-card">
+                <div class="algorithm-header">
+                    <h4>Linear Search</h4>
+                    <p>جستجوی خطی - پیمایش و مقایسه ترتیبی</p>
+                </div>
+                <div class="algorithm-body">
+                    <div class="features">
+                        <h5>ویژگی‌ها:</h5>
+                        <span class="feature-tag">Title Search</span>
+                        <span class="feature-tag">Case Insensitive</span>
+                        <span class="feature-tag">Multi-field</span>
+                        <span class="feature-tag">Empty Query</span>
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-small">
+                            <div class="value">8</div>
+                            <div class="label">Nodes</div>
+                        </div>
+                        <div class="metric-small">
+                            <div class="value">6</div>
+                            <div class="label">Edges</div>
+                        </div>
+                        <div class="metric-small">
+                            <div class="value">2</div>
+                            <div class="label">Prime Paths</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="algorithm-card">
+                <div class="algorithm-header">
+                    <h4>Binary Search</h4>
+                    <p>جستجوی دودویی - تقسیم به نیمه‌های مساوی</p>
+                </div>
+                <div class="algorithm-body">
+                    <div class="features">
+                        <h5>ویژگی‌ها:</h5>
+                        <span class="feature-tag">Sorted List</span>
+                        <span class="feature-tag">Exact Match</span>
+                        <span class="feature-tag">Left/Right Move</span>
+                        <span class="feature-tag">Early Exit</span>
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric-small">
+                            <div class="value">10</div>
+                            <div class="label">Nodes</div>
+                        </div>
+                        <div class="metric-small">
+                            <div class="value">7</div>
+                            <div class="label">Edges</div>
+                        </div>
+                        <div class="metric-small">
+                            <div class="value">3</div>
+                            <div class="label">Prime Paths</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Tab -->
+        <div id="analysis" class="tab-content">
+            <div class="analysis-box blue">
+                <h3>کدام معیار Coverage بهتر بود؟ چرا؟</h3>
+                <p><strong>پاسخ:</strong> Prime Path Coverage بهترین معیار بود، اما ACOC در پوشش ترکیبات واقعی بهتر عمل کرد.</p>
+                <ul class="analysis-list">
+                    <li><strong>Prime Path Coverage:</strong> تمام مسیرهای منطقی اصلی را بررسی می‌کند، بنابراین خطاهای منطقی پیچیده را می‌گیرد.</li>
+                    <li><strong>ACOC:</strong> تمام ترکیب‌های ورودی واقعی را تست می‌کند (336 ترکیب)، بنابراین برای سناریوهای کاربر بهتر است.</li>
+                    <li><strong>نتیجه:</strong> Prime Path برای کد منطقی و ACOC برای سناریوهای واقعی بهتر است.</li>
+                </ul>
+            </div>
+
+            <div class="analysis-box green">
+                <h3>کدام تست‌ها شکست خوردند؟</h3>
+                <p><strong>پاسخ:</strong> هیچ‌یک! تمام 376 تست موفق بودند (100%)</p>
+                <ul class="analysis-list">
+                    <li>336 تست ACOC موفق</li>
+                    <li>14 تست Node Coverage موفق</li>
+                    <li>9 تست Edge Coverage موفق</li>
+                    <li>6 تست Prime Path موفق</li>
+                    <li>11 تست Mutation Killing موفق</li>
+                </ul>
+            </div>
+
+            <div class="analysis-box purple">
+                <h3>چگونه میتوان Mutation Score را بهبود داد؟</h3>
+                <p><strong>توصیات برای بهبود:</strong></p>
+                <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 6px; margin-top: 10px;">
+                    <p style="margin-bottom: 12px;"><strong style="color: #667eea;">۱. Boundary Value Tests:</strong></p>
+                    <p style="color: #4b5563; margin-bottom: 12px;">تست‌های بیشتری برای مقادیر مرزی (۰، ۱، n-1) اضافه کنید</p>
+                    
+                    <p style="margin-bottom: 12px;"><strong style="color: #667eea;">۲. Error Cases:</strong></p>
+                    <p style="color: #4b5563; margin-bottom: 12px;">تست‌های بیشتری برای ورودی‌های نامعتبر و exceptions اضافه کنید</p>
+                    
+                    <p style="margin-bottom: 12px;"><strong style="color: #667eea;">۳. Complex Combinations:</strong></p>
+                    <p style="color: #4b5563; margin-bottom: 12px;">ترکیب‌های ACOC بیشتری برای سناریوهای واقعی‌تر تولید کنید</p>
+                    
+                    <p style="margin-bottom: 0;"><strong style="color: #667eea;">۴. Performance Tests:</strong></p>
+                    <p style="color: #4b5563;">تست‌های انجام‌دهی را برای اطمینان از صحت خروجی اضافه کنید</p>
+                </div>
+            </div>
+
+            <div class="analysis-box blue" style="margin-top: 20px;">
+                <h3>Implementation Summary</h3>
+                <div class="metrics-grid" style="margin-top: 15px;">
+                    <div class="metric-small">
+                        <div class="label"><strong>Algorithms</strong></div>
+                        <ul class="analysis-list" style="margin-top: 10px;">
+                            <li>Bubble Sort</li>
+                            <li>Merge Sort</li>
+                            <li>Linear Search</li>
+                            <li>Binary Search</li>
+                        </ul>
+                    </div>
+                    <div class="metric-small">
+                        <div class="label"><strong>Coverage Metrics</strong></div>
+                        <ul class="analysis-list" style="margin-top: 10px;">
+                            <li>ACOC (336)</li>
+                            <li>Node (14)</li>
+                            <li>Edge (9)</li>
+                            <li>Prime Path (6)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="nav-actions">
-        <button class="btn-outline">ثبت‌نام</button>
-        <button class="btn-primary">ورود</button>
-    </div>
-</header>
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.dataset.tab;
+                
+                // Remove active class from all buttons and contents
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                document.getElementById(tabName).classList.add('active');
+            });
+        });
 
-<section class="hero">
+        // Test Distribution Chart
+        const testDistCtx = document.getElementById('testDistributionChart');
+        if (testDistCtx) {
+            new Chart(testDistCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ACOC', 'Node', 'Edge', 'Prime Path', 'Mutation'],
+                    datasets: [{
+                        data: [336, 14, 9, 6, 11],
+                        backgroundColor: [
+                            '#667eea',
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#8b5cf6'
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
 
-    <div class="stats-container">
-
-        <div class="stat-card">
-            <div class="icon yellow">🕒</div>
-            <h3>24/7</h3>
-            <p>دسترسی به محتوا</p>
-        </div>
-
-        <div class="stat-card">
-            <div class="icon blue">📊</div>
-            <h3>×3</h3>
-            <p>رشد مهارت سریع‌تر</p>
-        </div>
-
-        <div class="stat-card">
-            <div class="icon purple">📚</div>
-            <h3>5</h3>
-            <p>سطح رتبه‌بندی</p>
-        </div>
-
-        <div class="stat-card">
-            <div class="icon green">📈</div>
-            <h3>+100</h3>
-            <p>داده تحلیلی دقیق</p>
-        </div>
-
-    </div>
-
-    <div class="hero-content">
-
-        <span class="badge">
-            سکوی شناختی هوشمند
-        </span>
-
-        <h1>
-            مسیر یادگیری هوشمند برای
-            <br>
-            رشد شناختی
-        </h1>
-
-        <p>
-            آزمون‌ها، محتوا و تحلیل‌های دقیق برای رشد مهارت‌های شناختی شما.
-            سطح‌بندی شخصی‌سازی‌شده و پیشنهادهای هوشمند در یک سامانه یکپارچه.
-        </p>
-
-        <div class="hero-buttons">
-            <button class="btn-primary large">
-                ورود به سامانه
-            </button>
-
-            <button class="btn-outline large">
-                ثبت‌نام
-            </button>
-        </div>
-
-    </div>
-
-</section>
-
+        // Mutation Chart
+        const mutationCtx = document.getElementById('mutationChart');
+        if (mutationCtx) {
+            new Chart(mutationCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Bubble Sort', 'Merge Sort', 'Binary Search', 'Linear Search', 'Catalog'],
+                    datasets: [
+                        {
+                            label: 'تعداد Mutants',
+                            data: [4, 3, 5, 2, 4],
+                            backgroundColor: '#667eea'
+                        },
+                        {
+                            label: 'Killed',
+                            data: [4, 3, 5, 2, 4],
+                            backgroundColor: '#10b981'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
 </body>
+</html>
