@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG ساده — binary_search</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>CFG: The if statement — binary_search (inner branch)</h1>
+    <p>searching.py · شاخهٔ اصلی داخل حلقه while</p>
+  </header>
+  <nav>
+    <a href="index.html">فهرست</a>
+    <a href="process_test.html">قبلی</a>
+  </nav>
+  <p class="note">if بدون else — یک شاخه return می‌دهد؛ شاخهٔ دیگر به حلقه برمی‌گردد.</p>
+  <div class="code-block">while (left &lt;= right) {
+  mid = (left + right) // 2;
+  if (mid_val == query_lower) {
+    return mid;
+  }
+  ... left/right update ...
+}
+return -1;</div>
+  <div class="cfg"><div id="cfg-svg"></div></div>
+</div>
+<script src="cfg-textbook.js"></script>
+<script>
+CFGTextbook.render('cfg-svg', {
+  width: 520, height: 420, entry: 1,
+  title: 'binary_search — searching.py',
+  nodes: [
+    { id: 1, x: 260, y: 70 },
+    { id: 2, x: 120, y: 190, code: 'return mid', side: 'right' },
+    { id: 3, x: 260, y: 300, code: 'update left or right\n(loop continues)', side: 'right' },
+  ],
+  edges: [
+    { from: 1, to: 2, label: 'mid_val == query', lx: -30, ly: -8 },
+    { from: 1, to: 3, label: 'mid_val != query', lx: 18, ly: -8 },
+  ],
+});
+</script>
+</body>
+</html>

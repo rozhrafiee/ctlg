@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG ساده — process_test_completion</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>CFG: The if-else statement — process_test_completion</h1>
+    <p>assessment/services.py · منطق پایان آزمون در بک‌اند</p>
+  </header>
+  <nav>
+    <a href="index.html">فهرست</a>
+    <a href="apply_search.html">قبلی</a>
+    <a href="binary_search.html">بعدی</a>
+  </nav>
+  <p class="note">مثال کلاسیک if-else با ادغام — همان ساختار اسلاید SWE 637.</p>
+  <div class="code-block">if (has_essay) {
+  session.status = 'pending_review';
+} else {
+  session.status = 'completed';
+  apply_level_logic(user, session);
+  update_analytics_profile(session);
+}
+
+session.save();</div>
+  <div class="cfg"><div id="cfg-svg"></div></div>
+</div>
+<script src="cfg-textbook.js"></script>
+<script>
+CFGTextbook.render('cfg-svg', {
+  width: 560, height: 500, entry: 1,
+  title: 'process_test_completion — services.py',
+  nodes: [
+    { id: 1, x: 280, y: 70 },
+    { id: 2, x: 120, y: 210, code: "status = 'pending_review'", side: 'right' },
+    { id: 3, x: 440, y: 210, code: "status = 'completed';\napply_level_logic(...);\nupdate_analytics(...)", side: 'left' },
+    { id: 4, x: 280, y: 370, code: 'session.save()', side: 'right' },
+  ],
+  edges: [
+    { from: 1, to: 2, label: 'has_essay', lx: -10, ly: -10 },
+    { from: 1, to: 3, label: '!has_essay', lx: 10, ly: -10 },
+    { from: 2, to: 4, lx: -20, ly: 0 },
+    { from: 3, to: 4, lx: 20, ly: 0 },
+  ],
+});
+</script>
+</body>
+</html>

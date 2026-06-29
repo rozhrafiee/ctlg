@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG — فصل ۷ — ctlg</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+  <style>
+    .list { list-style: none; }
+    .list li { margin-bottom: 10px; padding: 12px 14px; border: 1px solid #cfd8dc; background: #fafafa; border-radius: 4px; }
+    .list a { color: #1565c0; font-weight: 700; text-decoration: none; }
+    .list a:hover { text-decoration: underline; }
+    .list span { display: block; font-size: 0.82rem; color: #607d8b; margin-top: 4px; }
+    .list .tag { display: inline-block; font-size: 0.72rem; background: #e3f2fd; color: #1565c0; padding: 2px 6px; border-radius: 3px; margin-left: 6px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>فصل ۷ — Graph Coverage (SWE 637)</h1>
+    <p>دایرهٔ آبی شماره‌دار · شرط روی یال · dummy node برای حلقه</p>
+  </header>
+  <nav>
+    <a href="/graf-ha.html">بازگشت</a>
+    <a href="/tozih-proje.html">توضیح پروژه</a>
+    <a href="/arayeh-kamel.html">ارائه</a>
+  </nav>
+
+  <p class="note">همهٔ مباحث Ch07-Part1 و Part2: CFG · NC/EC/PPC · DU Paths · Subsumption</p>
+
+  <section class="sec">
+    <h2>مفاهیم و جدول‌های پوشش</h2>
+    <ul class="list">
+      <li>
+        <a href="concepts.html">مفاهیم فصل ۷</a>
+        <span>Path · Tour · NC · EC · PPC · Def/Use · Subsumption</span>
+      </li>
+      <li>
+        <a href="coverage.html">Edge Coverage · Prime Path · DU Paths</a>
+        <span>جدول TR و Test Path برای binary_search + جمع ۲۹ تست pytest</span>
+      </li>
+    </ul>
+  </section>
+
+  <section class="sec">
+    <h2>CFG — if / if-else</h2>
+    <ul class="list">
+      <li><a href="apply_search.html">if-else — _apply_search</a><span>catalog.py · UUT · binary / linear</span></li>
+      <li><a href="process_test.html">if-else — process_test_completion</a><span>services.py · has_essay</span></li>
+      <li><a href="linear_search.html">if — linear_search</a><span>not query → return all</span></li>
+      <li><a href="binary_search.html">if — binary_search (داخل حلقه)</a><span>mid_val == query</span></li>
+    </ul>
+  </section>
+
+  <section class="sec">
+    <h2>CFG — while / for (Ch07-Part2)</h2>
+    <ul class="list">
+      <li>
+        <a href="binary_search_while.html">while — binary_search</a>
+        <span class="tag">dummy node</span>
+        <span>گره ۴ = شرط while · یال‌های left&lt;=right و loop-back</span>
+      </li>
+      <li>
+        <a href="bubble_sort_for.html">for — bubble_sort</a>
+        <span class="tag">init + increment</span>
+        <span>گره ۱ initialize · گره ۴ j++</span>
+      </li>
+      <li>
+        <a href="linear_search_for.html">for nested — linear_search</a>
+        <span>حلقهٔ i و field</span>
+      </li>
+    </ul>
+  </section>
+</div>
+</body>
+</html>

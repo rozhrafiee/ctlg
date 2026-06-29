@@ -25,52 +25,53 @@
 <body>
 <div class="wrap">
   <div class="top">
-    <strong>صفحات جدا از سامانه:</strong>
+    <strong>صفحات پروژه:</strong>
     <a href="/tozih-proje.html">توضیح پروژه</a>
-    <a href="/">سامانه سنجش شناختی</a>
+    <a href="/arayeh-kamel.html">ارائه ۳۰ دقیقه</a>
+    <a href="/">سامانه</a>
   </div>
 
   <header>
-    <h1>گراف جریان کنترل (CFG)</h1>
-    <p>الگوریتم‌های پروژه ctlg — خارج از اپ React</p>
+    <h1>فصل ۷ — Graph Coverage (SWE 637)</h1>
+    <p>سبک کتاب درسی: دایرهٔ آبی · شرط روی یال · dummy node برای حلقه</p>
   </header>
 
   <section>
-    <h2>فهرست گراف‌ها</h2>
+    <h2>شروع از اینجا</h2>
     <ul class="graph-list">
       <li>
-        <a href="/cfg_graphs/bubble_sort.html">مرتب‌سازی حبابی</a>
-        <span>bubble_sort — لیست کوچک</span>
+        <a href="/cfg_simple/index.html">فهرست کامل CFG + پوشش</a>
+        <span>if · if-else · while · for · EC · PPC · DU Paths · مفاهیم</span>
       </li>
       <li>
-        <a href="/cfg_graphs/merge_sort.html">مرتب‌سازی ادغامی</a>
-        <span>merge_sort — لیست بزرگ</span>
+        <a href="/cfg_simple/concepts.html">مفاهیم فصل ۷</a>
+        <span>NC · EC · PPC · Data Flow · Subsumption</span>
       </li>
       <li>
-        <a href="/cfg_graphs/linear_search.html">جستجوی خطی</a>
-        <span>linear_search</span>
-      </li>
-      <li>
-        <a href="/cfg_graphs/binary_search.html">جستجوی دودویی</a>
-        <span>binary_search</span>
-      </li>
-      <li>
-        <a href="/cfg_graphs/process_catalog.html">پردازش کاتالوگ آزمون</a>
-        <span>process_catalog — UUT اصلی</span>
+        <a href="/cfg_simple/coverage.html">جدول Edge / Prime / DU</a>
+        <span>binary_search — Test Requirements و Test Paths</span>
       </li>
     </ul>
   </section>
 
   <section>
-    <h2>ارائه ۳۰ دقیقه‌ای</h2>
+    <h2>گراف‌های CFG</h2>
+    <ul class="graph-list">
+      <li><a href="/cfg_simple/apply_search.html">_apply_search (UUT)</a><span>if-else — catalog.py</span></li>
+      <li><a href="/cfg_simple/binary_search_while.html">binary_search</a><span>while + dummy node</span></li>
+      <li><a href="/cfg_simple/bubble_sort_for.html">bubble_sort</a><span>for loop</span></li>
+      <li><a href="/cfg_simple/linear_search_for.html">linear_search</a><span>nested for</span></li>
+      <li><a href="/cfg_simple/linear_search.html">linear_search — if</a></li>
+      <li><a href="/cfg_simple/process_test.html">process_test_completion</a><span>if-else — Django</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>تست‌ها</h2>
     <ul class="graph-list">
       <li>
-        <a href="/arayeh-kamel.html">ارائه کامل HTML (پاستلی صورتی–بنفش)</a>
-        <span>۲۵ اسلاید · ACOC · CFG · Mutation · پاسخ سؤالات استاد</span>
-      </li>
-      <li>
-        <a href="/cfg_graphs/ARAYEH_STUD.html">ارائه قبلی (تیره)</a>
-        <span>نسخه compact</span>
+        <span>۲۹ تست CFG در <code>silver_project/algorithms/tests/test_coverage.py</code></span>
+        <span>Node 14 · Edge 9 · Prime 6</span>
       </li>
     </ul>
   </section>

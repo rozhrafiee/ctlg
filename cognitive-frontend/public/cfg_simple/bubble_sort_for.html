@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG — bubble_sort (for)</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>CFG: The for Loop — bubble_sort (inner loop)</h1>
+    <p>sorting.py · گره ۱ = init · گره ۴ = increment (implicit)</p>
+  </header>
+  <nav>
+    <a href="index.html">فهرست</a>
+    <a href="binary_search_while.html">while loop</a>
+    <a href="coverage.html">پوشش</a>
+  </nav>
+  <div class="code-block">for (j = 0; j &lt; n-i-1; j++) {
+  if (_should_swap(val_a, val_b))
+    swap(arr[j], arr[j+1]);
+}</div>
+  <div class="cfg"><div id="cfg-svg"></div></div>
+  <p class="note">گره ۱ به‌صورت ضمنی حلقه را initialize می‌کند · گره ۴ به‌صورت ضمنی j++ می‌زند.</p>
+</div>
+<script src="cfg-textbook.js"></script>
+<script>
+CFGTextbook.render('cfg-svg', {
+  width: 580, height: 520, entry: 1,
+  title: 'bubble_sort inner for — sorting.py',
+  nodes: [
+    { id: 1, x: 290, y: 60, dummy: true, code: 'j = 0', side: 'right', note: 'implicitly initializes loop' },
+    { id: 2, x: 290, y: 160, code: 'j < n-i-1 ?', side: 'right' },
+    { id: 3, x: 290, y: 280, code: 'if swap: swap()', side: 'right' },
+    { id: 4, x: 290, y: 390, code: 'j = j + 1', side: 'right', note: 'implicitly increments loop' },
+    { id: 5, x: 120, y: 280, code: 'exit inner loop', side: 'right' },
+  ],
+  edges: [
+    { from: 1, to: 2 },
+    { from: 2, to: 3, label: 'j < n-i-1', lx: 350, ly: 215 },
+    { from: 2, to: 5, label: 'j >= n-i-1', lx: 200, ly: 215,
+      waypoints: [{ x: 120, y: 160 }] },
+    { from: 3, to: 4 },
+    { from: 4, to: 1, waypoints: [{ x: 480, y: 390 }, { x: 480, y: 60 }] },
+  ],
+});
+</script>
+</body>
+</html>

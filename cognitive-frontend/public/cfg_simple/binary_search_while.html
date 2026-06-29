@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG — binary_search (while)</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>CFG: The while Loop — binary_search</h1>
+    <p>searching.py · گره ۲ = dummy node (شرط حلقه)</p>
+  </header>
+  <nav>
+    <a href="index.html">فهرست</a>
+    <a href="coverage.html">Edge / Prime / DU</a>
+    <a href="bubble_sort_for.html">for loop</a>
+  </nav>
+  <div class="code-block">if (not query || len(items)==0) return -1;
+
+left = 0; right = len(items)-1;
+while (left &lt;= right) {
+  mid = (left + right) // 2;
+  if (mid_val == query) return mid;
+  if (mid_val &lt; query) left = mid+1;
+  else right = mid-1;
+}
+return -1;</div>
+  <div class="cfg"><div id="cfg-svg"></div></div>
+  <p class="note">یال‌های حلقه را روی گراف بکش و برچسب بزن — مثل اسلاید SWE 637.</p>
+</div>
+<script src="cfg-textbook.js"></script>
+<script>
+CFGTextbook.render('cfg-svg', {
+  width: 620, height: 560, entry: 1,
+  title: 'binary_search — searching.py',
+  nodes: [
+    { id: 1, x: 310, y: 55 },
+    { id: 2, x: 130, y: 55, code: 'return -1', side: 'right' },
+    { id: 3, x: 310, y: 140, code: 'left=0; right=n-1;\nquery_lower=...', side: 'right' },
+    { id: 4, x: 310, y: 240, dummy: true, code: 'while (left<=right)', side: 'right' },
+    { id: 5, x: 310, y: 350, code: 'mid; mid_val;\ncompare', side: 'right' },
+    { id: 6, x: 130, y: 350, code: 'return mid', side: 'right' },
+    { id: 7, x: 490, y: 350, code: 'left=mid+1\nor right=mid-1', side: 'left' },
+    { id: 8, x: 310, y: 470, code: 'return -1', side: 'right' },
+  ],
+  edges: [
+    { from: 1, to: 2, label: 'empty', lx: 220, ly: 42 },
+    { from: 1, to: 3, label: 'ok', lx: 350, ly: 95 },
+    { from: 3, to: 4 },
+    { from: 4, to: 5, label: 'left <= right', lx: 350, ly: 288 },
+    { from: 4, to: 8, label: 'left > right', lx: 420, ly: 355,
+      waypoints: [{ x: 480, y: 240 }, { x: 480, y: 470 }] },
+    { from: 5, to: 6, label: 'mid_val==query', lx: 220, ly: 342 },
+    { from: 5, to: 7, label: 'mid_val!=query', lx: 420, ly: 342 },
+    { from: 7, to: 4, waypoints: [{ x: 560, y: 350 }, { x: 560, y: 240 }, { x: 400, y: 240 }] },
+  ],
+});
+</script>
+</body>
+</html>

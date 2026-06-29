@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG ساده — linear_search</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>CFG: The if statement — linear_search</h1>
+    <p>searching.py · سبک SWE 637 (دایره شماره‌دار + شرط روی یال)</p>
+  </header>
+  <nav>
+    <a href="index.html">فهرست</a>
+    <a href="apply_search.html">بعدی: _apply_search</a>
+  </nav>
+  <p class="note">if بدون else — شاخهٔ true خروج می‌دهد؛ شاخهٔ false ادامهٔ تابع است.</p>
+  <div class="code-block">if (not query) {
+  return list(range(len(items)));
+}
+
+query_lower = str(query).lower();
+... search in items ...
+return matches;</div>
+  <div class="cfg"><div id="cfg-svg"></div></div>
+</div>
+<script src="cfg-textbook.js"></script>
+<script>
+CFGTextbook.render('cfg-svg', {
+  width: 520, height: 420, entry: 1,
+  title: 'linear_search — searching.py',
+  nodes: [
+    { id: 1, x: 260, y: 70 },
+    { id: 2, x: 120, y: 180, code: 'return list(range(len(items)))', side: 'right' },
+    { id: 3, x: 260, y: 280, code: 'query_lower = ...\nsearch loops\nreturn matches', side: 'right' },
+  ],
+  edges: [
+    { from: 1, to: 2, label: 'not query', lx: -30, ly: -8 },
+    { from: 1, to: 3, label: 'query', lx: 18, ly: -8 },
+  ],
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG — linear_search (for)</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>CFG: nested for — linear_search</h1>
+    <p>searching.py · حلقهٔ بیرونی i · حلقهٔ داخلی field</p>
+  </header>
+  <nav><a href="index.html">فهرست</a><a href="linear_search.html">if</a></nav>
+  <div class="code-block">for (i = 0; i &lt; len(items); i++) {
+  for (field in fields) {
+    if (query_lower in value) {
+      matches.append(i); break;
+    }
+  }
+}
+return matches;</div>
+  <div class="cfg"><div id="cfg-svg"></div></div>
+</div>
+<script src="cfg-textbook.js"></script>
+<script>
+CFGTextbook.render('cfg-svg', {
+  width: 640, height: 580, entry: 1,
+  title: 'linear_search — searching.py',
+  nodes: [
+    { id: 1, x: 320, y: 50, dummy: true, code: 'i = 0', side: 'right' },
+    { id: 2, x: 320, y: 140, code: 'i < len ?', side: 'right' },
+    { id: 3, x: 320, y: 240, dummy: true, code: 'field in fields', side: 'right' },
+    { id: 4, x: 320, y: 340, code: 'query in value ?', side: 'right' },
+    { id: 5, x: 520, y: 340, code: 'append(i); break', side: 'left' },
+    { id: 6, x: 320, y: 450, code: 'i++', side: 'right' },
+    { id: 7, x: 120, y: 340, code: 'return matches', side: 'right' },
+  ],
+  edges: [
+    { from: 1, to: 2 },
+    { from: 2, to: 3, label: 'i < len', lx: 360, ly: 185 },
+    { from: 2, to: 7, label: 'i >= len', lx: 220, ly: 240,
+      waypoints: [{ x: 120, y: 140 }] },
+    { from: 3, to: 4, label: 'more fields', lx: 360, ly: 285 },
+    { from: 3, to: 6, label: 'done fields', lx: 450, ly: 285,
+      waypoints: [{ x: 480, y: 240 }, { x: 480, y: 450 }] },
+    { from: 4, to: 5, label: 'match', lx: 440, ly: 332 },
+    { from: 4, to: 3, label: 'no match', lx: 250, ly: 290,
+      waypoints: [{ x: 200, y: 340 }, { x: 200, y: 240 }] },
+    { from: 5, to: 6, waypoints: [{ x: 560, y: 400 }, { x: 480, y: 450 }] },
+    { from: 6, to: 1, waypoints: [{ x: 560, y: 450 }, { x: 560, y: 50 }] },
+  ],
+});
+</script>
+</body>
+</html>

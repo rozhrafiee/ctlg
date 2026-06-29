@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG ساده — _apply_search</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>CFG: The if-else statement — _apply_search</h1>
+    <p>catalog.py · UUT اصلی پروژه</p>
+  </header>
+  <nav>
+    <a href="index.html">فهرست</a>
+    <a href="linear_search.html">قبلی</a>
+    <a href="process_test.html">بعدی</a>
+  </nav>
+  <p class="note">دقیقاً مثل اسلاید if-else: دو شاخه به یک نقطهٔ ادغام (join) می‌رسند.</p>
+  <div class="code-block">if (search_algo == "binary") {
+  sorted = bubble_sort(items, key=sort_field);
+  idx = binary_search(sorted, query, key=sort_field);
+  return [sorted[idx]] if idx >= 0 else [];
+} else {
+  indices = linear_search(items, query);
+  return [items[i] for i in indices];
+}</div>
+  <div class="cfg"><div id="cfg-svg"></div></div>
+</div>
+<script src="cfg-textbook.js"></script>
+<script>
+CFGTextbook.render('cfg-svg', {
+  width: 560, height: 480, entry: 1,
+  title: '_apply_search — catalog.py',
+  nodes: [
+    { id: 1, x: 280, y: 70 },
+    { id: 2, x: 120, y: 200, code: 'bubble_sort + binary_search\nreturn filtered item', side: 'right' },
+    { id: 3, x: 440, y: 200, code: 'linear_search\nreturn matched items', side: 'left' },
+    { id: 4, x: 280, y: 340, code: 'return filtered list', side: 'right' },
+  ],
+  edges: [
+    { from: 1, to: 2, label: 'search_algo == "binary"', lx: -10, ly: -10 },
+    { from: 1, to: 3, label: 'search_algo != "binary"', lx: 10, ly: -10 },
+    { from: 2, to: 4, lx: -20, ly: 0 },
+    { from: 3, to: 4, lx: 20, ly: 0 },
+  ],
+});
+</script>
+</body>
+</html>

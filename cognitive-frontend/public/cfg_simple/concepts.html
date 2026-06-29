@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مفاهیم فصل ۷ — SWE 637</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>مفاهیم فصل ۷ — Graph Coverage</h1>
+    <p>Ch07-Part1 + Ch07-Part2 · خلاصه برای پروژه ctlg</p>
+  </header>
+  <nav><a href="index.html">فهرست</a><a href="coverage.html">جدول‌های پوشش</a></nav>
+
+  <section class="sec">
+    <h2>۱. گراف و مسیر</h2>
+    <ul>
+      <li><strong>Path:</strong> دنبالهٔ گره‌ها — مثلاً [1, 3, 4, 5, 6]</li>
+      <li><strong>Test Path:</strong> مسیری که یک تست در CFG طی می‌کند</li>
+      <li><strong>Tour:</strong> پیمایش یال/گره · <strong>Sidetrip:</strong> انحراف موقت از مسیر اصلی</li>
+      <li><strong>SESE:</strong> Single-Entry Single-Exit — هر بلوک یک ورودی و یک خروجی</li>
+    </ul>
+  </section>
+
+  <section class="sec">
+    <h2>۲. معیارهای پوشش ساختاری</h2>
+    <table class="data">
+      <tr><th>معیار</th><th>Test Requirement</th><th>در پروژه</th></tr>
+      <tr><td><strong>Node Coverage (NC)</strong></td><td>هر گره ≥ ۱ بار</td><td>۱۴ تست</td></tr>
+      <tr><td><strong>Edge Coverage (EC)</strong></td><td>هر یال ≥ ۱ بار</td><td>۹ تست + جدول <a href="coverage.html">coverage.html</a></td></tr>
+      <tr><td><strong>Edge-Pair (EPC)</strong></td><td>هر جفت یال مجاور</td><td>با PPC پوشش می‌شود</td></tr>
+      <tr><td><strong>Prime Path (PPC)</strong></td><td>هر prime path ≥ ۱ بار</td><td>۶ تست + جدول PPC</td></tr>
+      <tr><td><strong>Complete Path (CPC)</strong></td><td>همه مسیرها</td><td>غیرممکن برای حلقهٔ بی‌نهایت</td></tr>
+    </table>
+  </section>
+
+  <section class="sec">
+    <h2>۳. Subsumption (شمول)</h2>
+    <p class="formula">NC ⊂ EC ⊂ EPC ⊂ PPC</p>
+    <p>پوشش قوی‌تر، پوشش ضعیف‌تر را شامل می‌شود. PPC برای حلقه‌ها مناسب‌تر از EC است.</p>
+  </section>
+
+  <section class="sec">
+    <h2>۴. CFG برای کد — قوانین رسم</h2>
+    <table class="data">
+      <tr><th>ساختار</th><th>صفحه CFG</th></tr>
+      <tr><td>if / if-else</td><td><a href="linear_search.html">linear_search</a> · <a href="apply_search.html">_apply_search</a></td></tr>
+      <tr><td>while</td><td><a href="binary_search_while.html">binary_search</a> (dummy node)</td></tr>
+      <tr><td>for</td><td><a href="bubble_sort_for.html">bubble_sort</a> · <a href="linear_search_for.html">linear_search</a></td></tr>
+    </table>
+  </section>
+
+  <section class="sec">
+    <h2>۵. Data Flow Coverage</h2>
+    <ul>
+      <li><strong>Def:</strong> جایی که متغیر مقدار می‌گیرد</li>
+      <li><strong>Use:</strong> جایی که مقدار خوانده می‌شود</li>
+      <li><strong>DU pair:</strong> (گرهٔ def, گرهٔ use)</li>
+      <li><strong>DU path:</strong> مسیر def-clear از def تا use</li>
+    </ul>
+    <table class="data">
+      <tr><th>معیار</th><th>شرط</th></tr>
+      <tr><td>All-Defs (ADC)</td><td>هر def ≥ ۱ use</td></tr>
+      <tr><td>All-Uses (AUC)</td><td>هر DU pair ≥ ۱ بار</td></tr>
+      <tr><td>All-DU-Paths (ADUPC)</td><td>هر DU path ≥ ۱ بار</td></tr>
+    </table>
+    <p>جدول کامل: <a href="coverage.html#du">coverage.html</a></p>
+    <p class="formula">ADC ⊂ AUC ⊂ ADUPC</p>
+  </section>
+
+  <section class="sec">
+    <h2>۶. پیاده‌سازی در ctlg</h2>
+    <table class="data">
+      <tr><th>فصل</th><th>روش</th><th>تعداد</th></tr>
+      <tr><td>۶</td><td>ACOC (ISP)</td><td>330</td></tr>
+      <tr><td>۷</td><td>CFG Node/Edge/Prime + DU</td><td>29</td></tr>
+      <tr><td>۹</td><td>Mutation AOR</td><td>17</td></tr>
+      <tr><th colspan="2">جمع pytest</th><th>376</th></tr>
+    </table>
+    <pre>cd silver_project
+python -m pytest algorithms/tests/ -v</pre>
+  </section>
+</div>
+</body>
+</html>

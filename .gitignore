@@ -56,15 +56,5 @@ Thumbs.db
 *.sln
 *.sw?
 
-# Cursor canvas sidecars (generated)
-*.canvas.data.json
-
-# Local / temp artifacts
-allfiles.txt
-fix-canvas-encoding.cjs
-fix-canvas-encoding.ps1
-repair-canvas-text.cjs
-cfg-coverage-testing.canvas.tsx
-
 #virtual environment
 venv/

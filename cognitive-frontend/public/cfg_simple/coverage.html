@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>پوشش ساختاری — binary_search</title>
+  <link rel="stylesheet" href="cfg-shared.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Edge Coverage · Prime Path · DU Paths</h1>
+    <p>binary_search — searching.py · فصل ۷ (Ch07 Part 1 &amp; 2)</p>
+  </header>
+  <nav>
+    <a href="index.html">فهرست</a>
+    <a href="binary_search_while.html">گراف CFG</a>
+    <a href="concepts.html">مفاهیم</a>
+  </nav>
+
+  <section class="sec">
+    <h2>گره‌های CFG (۸ گره)</h2>
+    <table class="data">
+      <tr><th>گره</th><th>کد</th></tr>
+      <tr><td>1</td><td>if not query or len(items)==0</td></tr>
+      <tr><td>2</td><td>return -1</td></tr>
+      <tr><td>3</td><td>left=0; right=n-1; query_lower=...</td></tr>
+      <tr><td>4</td><td>dummy: while (left &lt;= right)</td></tr>
+      <tr><td>5</td><td>mid; mid_val; compare</td></tr>
+      <tr><td>6</td><td>return mid</td></tr>
+      <tr><td>7</td><td>left=mid+1 or right=mid-1</td></tr>
+      <tr><td>8</td><td>return -1</td></tr>
+    </table>
+  </section>
+
+  <section class="sec">
+    <h2>Edge Coverage (EC) — Test Requirements</h2>
+    <p>هر یال حداقل یک‌بار طی شود (مثل اسلاید Control Flow TRs — EC).</p>
+    <table class="data">
+      <tr><th>TR</th><th>یال</th><th>شرط</th></tr>
+      <tr><td>A</td><td>[1, 2]</td><td>ورودی خالی</td></tr>
+      <tr><td>B</td><td>[1, 3]</td><td>ورودی معتبر</td></tr>
+      <tr><td>C</td><td>[3, 4]</td><td>ورود به حلقه</td></tr>
+      <tr><td>D</td><td>[4, 5]</td><td>left &lt;= right</td></tr>
+      <tr><td>E</td><td>[4, 8]</td><td>left &gt; right</td></tr>
+      <tr><td>F</td><td>[5, 6]</td><td>mid_val == query</td></tr>
+      <tr><td>G</td><td>[5, 7]</td><td>mid_val != query</td></tr>
+      <tr><td>H</td><td>[7, 4]</td><td>بازگشت به شرط حلقه</td></tr>
+    </table>
+    <h3>Test Paths (EC)</h3>
+    <table class="data">
+      <tr><th>تست pytest</th><th>Test Path</th><th>یال‌های پوشش‌داده‌شده</th></tr>
+      <tr><td><code>test_binary_empty_query</code></td><td>[1, 2]</td><td>A</td></tr>
+      <tr><td><code>test_binary_found</code></td><td>[1, 3, 4, 5, 6]</td><td>B, C, D, F</td></tr>
+      <tr><td><code>test_binary_not_found</code></td><td>[1, 3, 4, 5, 7, 4, 8]</td><td>B, C, D, G, H, E</td></tr>
+      <tr><td><code>test_binary_left_branch</code></td><td>[1, 3, 4, 5, 7, 4, 5, 6]</td><td>+ sidetrip H → F</td></tr>
+    </table>
+    <p class="formula">مسیر کامل EC (یک تست با sidetrip): [1, 3, 4, 5, 7, 4, 5, 6] + تست جدا برای [1,2] و [4,8]</p>
+  </section>
+
+  <section class="sec">
+    <h2>Prime Path Coverage (PPC)</h2>
+    <p>مسیر ساده‌ای که زیرمسیر تکراری ندارد — حلقهٔ ۴→۵→۷→۴.</p>
+    <table class="data">
+      <tr><th>TR</th><th>Prime Path</th></tr>
+      <tr><td>A</td><td>[4, 5, 7, 4]</td></tr>
+      <tr><td>B</td><td>[5, 7, 4, 5]</td></tr>
+      <tr><td>C</td><td>[7, 4, 5, 7]</td></tr>
+      <tr><td>D</td><td>[1, 3, 4, 5, 6]</td></tr>
+      <tr><td>E</td><td>[1, 3, 4, 8]</td></tr>
+      <tr><td>F</td><td>[1, 2]</td></tr>
+    </table>
+    <h3>Test Paths (PPC) — Touring with Sidetrips</h3>
+    <table class="data">
+      <tr><th>#</th><th>Test Path</th><th>TRهای پوشش‌داده‌شده</th><th>تست pytest</th></tr>
+      <tr><td>i</td><td>[1, 3, 4, 5, 7, 4, 5, 6]</td><td>A, B, D (+ sidetrip C)</td><td><code>test_binary_left_branch</code></td></tr>
+      <tr><td>ii</td><td>[1, 3, 4, 5, 7, 4, 8]</td><td>A, E</td><td><code>test_binary_not_found</code></td></tr>
+      <tr><td>iii</td><td>[1, 3, 4, 5, 6]</td><td>D</td><td><code>test_binary_found</code></td></tr>
+      <tr><td>iv</td><td>[1, 2]</td><td>F</td><td><code>test_binary_empty_query</code></td></tr>
+      <tr><td>v</td><td>[1, 3, 4, 5, 7, 4, 5, 7, 4, 5, 6]</td><td>A, B, C, D</td><td><code>test_binary_search_loop_multiple_iterations</code></td></tr>
+    </table>
+  </section>
+
+  <section class="sec">
+    <h2>DU Paths — Data Flow Coverage</h2>
+    <p>Def = تعریف متغیر · Use = استفاده · DU pair = (گرهٔ def, گرهٔ use)</p>
+    <table class="data">
+      <tr><th>variable</th><th>DU Pairs</th><th>DU Paths</th></tr>
+      <tr>
+        <td><strong>left</strong></td>
+        <td>(3,4) (3,5) (7,4) (7,5)</td>
+        <td>[3,4] [3,4,5] [7,4] [7,4,5]</td>
+      </tr>
+      <tr>
+        <td><strong>right</strong></td>
+        <td>(3,4) (3,5) (7,4) (7,5)</td>
+        <td>[3,4] [3,4,5] [7,4] [7,4,5]</td>
+      </tr>
+      <tr>
+        <td><strong>mid</strong></td>
+        <td>(5,5) (5,6) (5,7)</td>
+        <td>[5] [5,6] [5,7]</td>
+      </tr>
+      <tr>
+        <td><strong>query_lower</strong></td>
+        <td>(3,5) (3,7)</td>
+        <td>[3,4,5] [3,4,5,7]</td>
+      </tr>
+      <tr>
+        <td><strong>mid_val</strong></td>
+        <td>(5,5) (5,7)</td>
+        <td>[5] [5,7]</td>
+      </tr>
+    </table>
+    <h3>Def / Use در هر گره</h3>
+    <table class="data">
+      <tr><th>گره</th><th>Def</th><th>Use</th></tr>
+      <tr><td>1</td><td>—</td><td>query, items</td></tr>
+      <tr><td>3</td><td>left, right, query_lower</td><td>items</td></tr>
+      <tr><td>4</td><td>—</td><td>left, right</td></tr>
+      <tr><td>5</td><td>mid, mid_val</td><td>left, right, query_lower</td></tr>
+      <tr><td>7</td><td>left or right</td><td>mid_val, query_lower, left, right</td></tr>
+    </table>
+    <p class="note">معیار All-DU-Paths (ADUPC): هر DU path حداقل یک‌بار اجرا شود — تست‌های <code>test_binary_*</code> این مسیرها را می‌پیمایند.</p>
+  </section>
+
+  <section class="sec">
+    <h2>Node Coverage — بقیهٔ الگوریتم‌ها</h2>
+    <table class="data">
+      <tr><th>الگوریتم</th><th>Node</th><th>Edge</th><th>Prime</th></tr>
+      <tr><td>bubble_sort</td><td>4</td><td>4</td><td>2</td></tr>
+      <tr><td>merge_sort</td><td>3</td><td>2</td><td>2</td></tr>
+      <tr><td>linear_search</td><td>3</td><td>2</td><td>1</td></tr>
+      <tr><td>process_catalog</td><td>2</td><td>1</td><td>1</td></tr>
+      <tr><th>جمع pytest</th><th>14</th><th>9</th><th>6</th></tr>
+    </table>
+    <p>فایل: <code>silver_project/algorithms/tests/test_coverage.py</code></p>
+  </section>
+</div>
+</body>
+</html>
