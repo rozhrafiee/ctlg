@@ -31,6 +31,8 @@ export function useAdaptive() {
       request(() => api.post(`/adaptive-learning/content/${contentId}/progress/`, { percent })),
     fetchContentDetail: (id) => request(() => api.get(`/adaptive-learning/content/${id}/`)),
     fetchAdaptiveDashboard: () => request(() => api.get('/adaptive-learning/dashboard/')),
+    fetchLearningRoadmap: (limit = 25) =>
+      request(() => api.get('/adaptive-learning/learning-roadmap/', { params: { limit } })),
     fetchRecommendations: () => request(() => api.get('/adaptive-learning/recommendations/')),
     markRecommendationClicked: (id) =>
       request(() => api.post(`/adaptive-learning/recommendations/${id}/click/`)),

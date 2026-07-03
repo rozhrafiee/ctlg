@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAdaptive } from '../../hooks/useAdaptive';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
 import PageHeader from '../../components/ui/PageHeader';
 import {
   BarChart,

@@ -31,7 +31,6 @@ export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
                 <NavLink to="/student/learning-path" className={linkClass} onClick={onClose}>مسیر یادگیری</NavLink>
                 <NavLink to="/student/progress" className={linkClass} onClick={onClose}>پیشرفت</NavLink>
                 <NavLink to="/student/recommended" className={linkClass} onClick={onClose}>پیشنهادهای هوشمند</NavLink>
-                <NavLink to="/student/recommendations" className={linkClass} onClick={onClose}>پیشنهادها</NavLink>
                 <NavLink to="/student/history" className={linkClass} onClick={onClose}>تاریخچه</NavLink>
               </>
             ) : (
@@ -42,6 +41,7 @@ export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
 
         {isTeacher && (
           <>
+            <NavLink to="/teacher/test-graphs" className={linkClass} onClick={onClose}>گراف تست</NavLink>
             <NavLink to="/teacher/contents" className={linkClass} onClick={onClose}>محتوا</NavLink>
             <NavLink to="/teacher/tests" className={linkClass} onClick={onClose}>آزمون‌ها</NavLink>
             <NavLink to="/teacher/grading" className={linkClass} onClick={onClose}>تصحیح</NavLink>

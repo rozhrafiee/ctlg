@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { useAdaptive } from '../../hooks/useAdaptive';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
@@ -25,8 +26,11 @@ const RANK_TIERS = [
 export default function StudentDashboard() {
   const { user } = useAuth();
   const { fetchStudentDashboard } = useAnalytics();
+  const { markRecommendationClicked } = useAdaptive();
   const [data, setData] = useState(null);
   const [loadError, setLoadError] = useState(null);
+  const [recExpandedId, setRecExpandedId] = useState(null);
+  const [readRecIds, setReadRecIds] = useState(new Set());
 
   useEffect(() => {
     const load = async () => {
@@ -132,13 +136,57 @@ export default function StudentDashboard() {
 
       <Card className="border-primary/10">
         <h3 className="section-title mb-3 text-neutral-800">پیشنهادها</h3>
-        <div className="grid md:grid-cols-3 gap-3">
-          {(displayData.top_recommendations || []).map((rec) => (
-            <div key={rec.id} className="rounded-xl bg-primary-soft/30 p-4 text-sm border border-primary/10">
-              <div className="font-semibold text-neutral-900">{rec.content?.title}</div>
-              <div className="text-xs text-neutral-500 mt-1">{rec.recommendation_type}</div>
-            </div>
-          ))}
+        <div className="space-y-3">
+          {(displayData.top_recommendations || []).map((rec) => {
+            const isExpanded = recExpandedId === rec.id;
+            const isRead = rec.is_clicked || readRecIds.has(rec.id);
+            const body = rec.content?.body;
+            const hasBody = body && body.trim().length > 0;
+            return (
+              <div key={rec.id} className="rounded-xl bg-primary-soft/30 border border-primary/10 overflow-hidden">
+                <div
+                  className="flex items-center justify-between p-4 cursor-pointer"
+                  onClick={() => hasBody && setRecExpandedId(isExpanded ? null : rec.id)}
+                  role={hasBody ? 'button' : undefined}
+                  aria-expanded={isExpanded}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-neutral-900">{rec.content?.title}</div>
+                    <div className="text-xs text-neutral-500 mt-1">{rec.recommendation_type}</div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                    {hasBody && (
+                      <button
+                        type="button"
+                        className="text-xs text-neutral-500 hover:text-neutral-700 underline-offset-2 hover:underline"
+                        onClick={() => setRecExpandedId(isExpanded ? null : rec.id)}
+                      >
+                        {isExpanded ? 'بستن' : 'باز کردن'}
+                      </button>
+                    )}
+                    <Button
+                      variant={isRead ? 'ghost' : 'secondary'}
+                      className={isRead ? '!bg-emerald-100 !text-emerald-800 !border-emerald-200 cursor-default' : ''}
+                      onClick={() => {
+                        if (!isRead) {
+                          markRecommendationClicked(rec.id);
+                          setReadRecIds((s) => new Set([...s, rec.id]));
+                        }
+                      }}
+                      disabled={isRead}
+                    >
+                      خوانده شد
+                    </Button>
+                  </div>
+                </div>
+                {hasBody && isExpanded && (
+                  <div className="px-4 pb-4 pt-0 text-sm text-neutral-700 whitespace-pre-wrap border-t border-primary/10 mt-0 pt-3">
+                    {body}
+                  </div>
+                )}
+              </div>
+            );
+          })}
           {!displayData.top_recommendations?.length && (
             <div className="text-sm text-neutral-500">پیشنهادی ثبت نشده است.</div>
           )}
