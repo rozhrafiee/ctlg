@@ -27,7 +27,3 @@ The system follows a client–server architecture with a web-based frontend, bac
 ## Case Demonstration
 
 A case-based scenario simulating misinformation propagation during an urban public service disruption is included to demonstrate practical applicability.
-
-## License
-
-Released under an open-source license. See the LICENSE file for details.
