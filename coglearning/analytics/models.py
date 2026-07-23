@@ -51,3 +51,33 @@ class UserPerformanceSummary(models.Model):
             'focus': self.avg_focus_score,
             'logic': self.avg_logic_score
         }
+
+
+class UserAbandonmentSample(models.Model):
+    """
+    Training row for predicting whether a user abandons the system.
+
+    Features:
+      - avg_login_interval_days: average days between logins
+      - duration_of_use_minutes: total/typical usage duration
+      - failed_tests_count: number of failed tests
+      - progress_rate: learning progress rate (0–1)
+    Label:
+      - abandoned: True if the user left the system
+    """
+    avg_login_interval_days = models.FloatField()
+    duration_of_use_minutes = models.FloatField()
+    failed_tests_count = models.PositiveIntegerField()
+    progress_rate = models.FloatField(help_text='Learning progress rate between 0 and 1')
+    abandoned = models.BooleanField()
+    is_synthetic = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'User abandonment sample'
+        verbose_name_plural = 'User abandonment samples'
+
+    def __str__(self):
+        status = 'abandoned' if self.abandoned else 'retained'
+        return f'Sample #{self.pk} ({status})'

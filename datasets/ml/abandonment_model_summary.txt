@@ -1,0 +1,9 @@
+Best model: Calibrated_HGB
+Threshold: 0.500
+Accuracy: 0.7800
+Precision: 0.7860
+Recall: 0.8009
+F1: 0.7934
+ROC-AUC: 0.8503
+Avg Precision: 0.8542
+Confusion: {'tn': 143, 'fp': 46, 'fn': 42, 'tp': 169}
