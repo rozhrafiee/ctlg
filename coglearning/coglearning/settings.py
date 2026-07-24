@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'accounts',
     'assessment',
     "adaptive_learning",
-    "analytics",
+    "analytics.apps.AnalyticsConfig",
 
 
 ]
@@ -155,6 +155,9 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+# No login/entry for this many days → mark ترک‌کرده and deactivate account
+ABANDONMENT_INACTIVITY_DAYS = int(os.getenv('ABANDONMENT_INACTIVITY_DAYS', '30'))
 
 # Link to your custom User model
 AUTH_USER_MODEL = "accounts.User"

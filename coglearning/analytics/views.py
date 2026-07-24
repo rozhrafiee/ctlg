@@ -16,14 +16,86 @@ from adaptive_learning.models import LearningContent, LearningPath, UserContentP
 from adaptive_learning.serializers import RecommendationSerializer
 
 class UserMyStatsView(APIView):
-    """آمار شخصی شهروند برای نمایش در پروفایل - بهینه شده"""
+    """آمار شخصی شهروند برای نمایش در پروفایل - بدون فیلدهای مدل ترک سیستم"""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        # دیگر نیازی به آپدیت دستی نیست، چون نمرات در لحظه پایان آزمون ذخیره شده‌اند
         summary, _ = UserPerformanceSummary.objects.get_or_create(user=request.user)
-        serializer = UserPerformanceSummarySerializer(summary)
-        return Response(serializer.data)
+        return Response({
+            'avg_memory_score': summary.avg_memory_score,
+            'avg_focus_score': summary.avg_focus_score,
+            'avg_logic_score': summary.avg_logic_score,
+            'total_tests_completed': summary.total_tests_completed,
+            'last_updated': summary.last_updated,
+        })
+
+
+class AdminEngagementMetricsView(APIView):
+    """
+    Admin-only: CSV engagement / abandonment-model fields for all citizens.
+    """
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
+
+    def get(self, request):
+        from analytics.services import ABANDONMENT_INACTIVITY_DAYS
+
+        summaries = (
+            UserPerformanceSummary.objects
+            .select_related('user')
+            .filter(user__role='student')
+            .order_by('-last_updated')
+        )
+        rows = []
+        abandoned_count = 0
+        for s in summaries:
+            s = AnalyticsService.evaluate_abandonment(s.user, summary=s, save=True)
+            inactive_days = round(AnalyticsService.days_since_last_entry(s.user), 1)
+            if s.abandoned:
+                abandoned_count += 1
+            rows.append({
+                'user_id': s.user_id,
+                'username': s.user.username,
+                'display_name': (
+                    f"{s.user.first_name} {s.user.last_name}".strip() or s.user.username
+                ),
+                'cognitive_level': s.user.cognitive_level or 1,
+                'date_joined': s.user.date_joined.isoformat(),
+                'is_active': s.user.is_active,
+                'days_inactive': inactive_days,
+                'avg_login_interval_days': s.avg_login_interval_days,
+                'duration_of_use_minutes': s.duration_of_use_minutes,
+                'failed_tests_count': s.failed_tests_count,
+                'progress_rate': s.progress_rate,
+                'abandoned': s.abandoned,
+                'avg_memory_score': s.avg_memory_score,
+                'avg_focus_score': s.avg_focus_score,
+                'avg_logic_score': s.avg_logic_score,
+                'total_tests_completed': s.total_tests_completed,
+                'last_updated': s.last_updated.isoformat() if s.last_updated else None,
+            })
+
+        return Response({
+            'total_citizens': len(rows),
+            'abandoned_count': abandoned_count,
+            'active_count': len(rows) - abandoned_count,
+            'abandonment_rule': {
+                'metric': 'days_since_last_entry',
+                'threshold_days': ABANDONMENT_INACTIVITY_DAYS,
+                'description': (
+                    f'اگر شهروند حداقل {ABANDONMENT_INACTIVITY_DAYS} روز وارد سامانه نشود، '
+                    f'به‌عنوان ترک‌کرده علامت می‌خورد و حساب غیرفعال می‌شود.'
+                ),
+            },
+            'csv_fields': [
+                'avg_login_interval_days',
+                'duration_of_use_minutes',
+                'failed_tests_count',
+                'progress_rate',
+                'abandoned',
+            ],
+            'citizens': rows,
+        })
+
 
 class AdminGlobalStatsView(APIView):
     """گزارش کلان برای مدیریت سیستم"""
@@ -114,10 +186,12 @@ class StudentDashboardView(APIView):
         user = request.user
 
         def safe_response(identity, cognitive_profile=None, learning_status=None,
-                         top_recommendations=None, recent_test_results=None, alerts=None, chart_data=None):
+                         top_recommendations=None, recent_test_results=None, alerts=None,
+                         chart_data=None, peer_cohort=None):
             return Response({
                 "identity": identity,
                 "cognitive_profile": cognitive_profile or {},
+                "peer_cohort": peer_cohort or {},
                 "learning_status": learning_status,
                 "top_recommendations": top_recommendations or [],
                 "recent_test_results": recent_test_results or [],
@@ -135,6 +209,8 @@ class StudentDashboardView(APIView):
 
         try:
             performance, _ = UserPerformanceSummary.objects.get_or_create(user=user)
+            AnalyticsService.update_user_performance_summary(user)
+            performance.refresh_from_db()
         except Exception as e:
             logger.exception("StudentDashboard: UserPerformanceSummary get_or_create failed: %s", e)
             return safe_response(identity, alerts=[{"type": "warning", "message": "بارگذاری داشبورد با خطا مواجه شد. لطفاً بعداً تلاش کنید."}])
@@ -185,10 +261,21 @@ class StudentDashboardView(APIView):
             pass
 
         try:
-            cognitive_profile = UserPerformanceSummarySerializer(performance).data
+            cognitive_profile = {
+                'avg_memory_score': performance.avg_memory_score,
+                'avg_focus_score': performance.avg_focus_score,
+                'avg_logic_score': performance.avg_logic_score,
+                'total_tests_completed': performance.total_tests_completed,
+            }
         except Exception as e:
             logger.exception("StudentDashboard: cognitive_profile serialize failed: %s", e)
             cognitive_profile = {}
+
+        try:
+            peer_cohort = AnalyticsService.get_peer_cohort(user, window_days=14, limit=12)
+        except Exception as e:
+            logger.exception("StudentDashboard: peer_cohort failed: %s", e)
+            peer_cohort = {}
 
         chart_data = {}
         try:
@@ -206,6 +293,7 @@ class StudentDashboardView(APIView):
         return safe_response(
             identity=identity,
             cognitive_profile=cognitive_profile,
+            peer_cohort=peer_cohort,
             learning_status=path_data,
             top_recommendations=top_recommendations,
             recent_test_results=recent_test_results,

@@ -1,20 +1,18 @@
 """
-Generate synthetic training rows for user abandonment prediction.
+Generate synthetic training rows aligned with the live abandonment rule:
 
-Features:
-  - avg_login_interval_days
-  - duration_of_use_minutes
-  - failed_tests_count
-  - progress_rate (0–1)
+  abandoned = True  if  avg_login_interval_days >= ABANDONMENT_INACTIVITY_DAYS (30)
+  abandoned = False otherwise
 
-Label:
-  - abandoned (bool)
+avg_login_interval_days here stands for days since last platform entry
+(same metric used by AnalyticsService.evaluate_abandonment).
+
+Secondary features are correlated for realism but do NOT define the label.
 """
 
 from __future__ import annotations
 
 import csv
-import math
 import random
 from pathlib import Path
 
@@ -22,6 +20,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from analytics.models import UserAbandonmentSample
+from analytics.services import ABANDONMENT_INACTIVITY_DAYS
 
 
 FEATURE_FIELDS = [
@@ -33,33 +32,31 @@ FEATURE_FIELDS = [
 ]
 
 
-def _sigmoid(x: float) -> float:
-    return 1.0 / (1.0 + math.exp(-x))
-
-
-def generate_sample(rng: random.Random) -> dict:
+def generate_sample(rng: random.Random, threshold_days: int = ABANDONMENT_INACTIVITY_DAYS) -> dict:
     """
-    Sample features with a learnable abandonment signal plus noise.
+    Generate one row under the 30-day inactivity rule.
 
-    Higher login gaps, more failed tests, lower usage duration, and lower
-    progress increase abandonment probability.
+    - Abandoned users: days since last entry in [threshold, threshold+60]
+    - Active users: days since last entry in [0.2, threshold)
+    Secondary fields are mildly correlated with abandonment for a learnable model.
     """
-    avg_login_interval_days = round(rng.uniform(0.2, 45.0), 2)
-    duration_of_use_minutes = round(rng.uniform(5.0, 600.0), 1)
-    failed_tests_count = rng.randint(0, 25)
-    progress_rate = round(rng.uniform(0.0, 1.0), 3)
+    will_abandon = rng.random() < 0.48  # near-balanced classes
 
-    # Standardized-ish linear combination → abandonment probability
-    logit = (
-        -1.2
-        + 0.09 * avg_login_interval_days
-        - 0.004 * duration_of_use_minutes
-        + 0.14 * failed_tests_count
-        - 2.4 * progress_rate
-        + rng.uniform(-0.35, 0.35)
-    )
-    abandon_prob = _sigmoid(logit)
-    abandoned = rng.random() < abandon_prob
+    if will_abandon:
+        # No entry for at least `threshold_days` days → ترک‌کرده
+        avg_login_interval_days = round(rng.uniform(threshold_days, threshold_days + 60), 2)
+        duration_of_use_minutes = round(rng.uniform(5.0, 180.0), 1)
+        failed_tests_count = rng.randint(3, 25)
+        progress_rate = round(rng.uniform(0.0, 0.55), 3)
+    else:
+        # Entered within the last `threshold_days` days → still active
+        avg_login_interval_days = round(rng.uniform(0.2, threshold_days - 0.01), 2)
+        duration_of_use_minutes = round(rng.uniform(60.0, 600.0), 1)
+        failed_tests_count = rng.randint(0, 12)
+        progress_rate = round(rng.uniform(0.35, 1.0), 3)
+
+    # Label is deterministic from the platform rule
+    abandoned = avg_login_interval_days >= threshold_days
 
     return {
         'avg_login_interval_days': avg_login_interval_days,
@@ -70,13 +67,16 @@ def generate_sample(rng: random.Random) -> dict:
     }
 
 
-def generate_dataset(n: int, seed: int) -> list[dict]:
+def generate_dataset(n: int, seed: int, threshold_days: int = ABANDONMENT_INACTIVITY_DAYS) -> list[dict]:
     rng = random.Random(seed)
-    return [generate_sample(rng) for _ in range(n)]
+    return [generate_sample(rng, threshold_days=threshold_days) for _ in range(n)]
 
 
 class Command(BaseCommand):
-    help = 'Generate synthetic abandonment-prediction samples and insert them into the database'
+    help = (
+        'Generate abandonment samples using the 30-day inactivity rule '
+        'and insert them into the database'
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -90,6 +90,12 @@ class Command(BaseCommand):
             type=int,
             default=42,
             help='RNG seed for reproducibility (default: 42)',
+        )
+        parser.add_argument(
+            '--threshold-days',
+            type=int,
+            default=ABANDONMENT_INACTIVITY_DAYS,
+            help=f'Inactivity days for ترک‌کرده (default: {ABANDONMENT_INACTIVITY_DAYS})',
         )
         parser.add_argument(
             '--clear',
@@ -113,6 +119,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         count = options['count']
         seed = options['seed']
+        threshold_days = options['threshold_days']
         clear = options['clear']
         csv_path = options['csv']
         from_csv = options['from_csv']
@@ -138,7 +145,7 @@ class Command(BaseCommand):
                     })
             self.stdout.write(f'Loaded {len(rows)} rows from {path.resolve()}')
         else:
-            rows = generate_dataset(count, seed)
+            rows = generate_dataset(count, seed, threshold_days=threshold_days)
 
         samples = [
             UserAbandonmentSample(
@@ -158,7 +165,8 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 f'Inserted {len(rows)} samples '
-                f'(abandoned={abandoned_n}, retained={retained_n}, seed={seed})'
+                f'(abandoned={abandoned_n}, retained={retained_n}, '
+                f'threshold={threshold_days}d, seed={seed})'
             )
         )
 

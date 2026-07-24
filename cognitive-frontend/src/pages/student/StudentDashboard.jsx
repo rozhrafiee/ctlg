@@ -96,6 +96,60 @@ export default function StudentDashboard() {
         </div>
       </div>
 
+      {(data?.peer_cohort?.peers?.length > 0) && (
+        <Card className="border-primary/10">
+          <h3 className="section-title mb-2 text-neutral-800">رقابت با هم‌دوره‌ای‌ها</h3>
+          <p className="text-sm text-neutral-500 mb-2">
+            شهروندانی که تقریباً هم‌زمان با شما ثبت‌نام کرده‌اند (±{data.peer_cohort.window_days ?? 14} روز)
+          </p>
+          <div className="rounded-xl border border-primary/15 bg-primary-soft/20 px-4 py-3 mb-4 text-sm text-neutral-700">
+            {data.peer_cohort.motivation_message}
+            <div className="mt-2 text-xs text-neutral-500">
+              سطح شما: <span className="font-semibold text-primary">{data.peer_cohort.user_level}</span>
+              {' · '}
+              میانگین گروه: <span className="font-semibold">{data.peer_cohort.cohort_avg_level}</span>
+              {' · '}
+              نفر جلوتر: <span className="font-semibold">{data.peer_cohort.peers_ahead}</span>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-right text-neutral-500 border-b border-neutral-200">
+                  <th className="py-2 px-2 font-medium">شهروند</th>
+                  <th className="py-2 px-2 font-medium">سطح</th>
+                  <th className="py-2 px-2 font-medium">حافظه</th>
+                  <th className="py-2 px-2 font-medium">تمرکز</th>
+                  <th className="py-2 px-2 font-medium">منطق</th>
+                  <th className="py-2 px-2 font-medium">پیشرفت</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.peer_cohort.peers
+                  .slice()
+                  .sort((a, b) => (b.cognitive_level ?? 0) - (a.cognitive_level ?? 0))
+                  .map((peer) => {
+                    const ahead = (peer.cognitive_level ?? 0) > level;
+                    const behind = (peer.cognitive_level ?? 0) < level;
+                    return (
+                      <tr key={peer.username} className="border-b border-neutral-100">
+                        <td className="py-2.5 px-2 font-medium text-neutral-800">{peer.display_name || peer.username}</td>
+                        <td className={`py-2.5 px-2 font-semibold ${ahead ? 'text-amber-700' : behind ? 'text-emerald-700' : 'text-primary'}`}>
+                          {peer.cognitive_level}
+                        </td>
+                        <td className="py-2.5 px-2 text-neutral-700">{peer.avg_memory_score}</td>
+                        <td className="py-2.5 px-2 text-neutral-700">{peer.avg_focus_score}</td>
+                        <td className="py-2.5 px-2 text-neutral-700">{peer.avg_logic_score}</td>
+                        <td className="py-2.5 px-2 text-neutral-700">{Math.round((peer.progress_rate ?? 0) * 100)}%</td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
       <Card className="border-primary/10">
         <h3 className="section-title mb-3 text-neutral-800">سطح‌بندی رتبه‌ها</h3>
         <p className="text-sm text-neutral-500 mb-4">رتبه فعلی شما: <span className="font-semibold text-primary">{rank}</span></p>

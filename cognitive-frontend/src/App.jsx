@@ -21,7 +21,6 @@ import RecommendedPage from './pages/student/RecommendedPage';
 import AdaptiveDashboardPage from './pages/student/AdaptiveDashboardPage';
 
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
-import TestGraphsPage from './pages/teacher/TestGraphsPage';
 import TeacherContentList from './pages/teacher/TeacherContentList';
 import CreateContentPage from './pages/teacher/CreateContentPage';
 import EditContentPage from './pages/teacher/EditContentPage';
@@ -30,8 +29,11 @@ import CreateTestPage from './pages/teacher/CreateTestPage';
 import EditTestPage from './pages/teacher/EditTestPage';
 import TestQuestionsPage from './pages/teacher/TestQuestionsPage';
 import GradingPage from './pages/teacher/GradingPage';
+import AdminEngagementPage from './pages/admin/AdminEngagementPage';
 
-function ProtectedRoute({ children, requirePlacementTest = false, teacherOnly = false, studentOnly = false }) {
+// App routes (test-graphs removed)
+
+function ProtectedRoute({ children, requirePlacementTest = false, teacherOnly = false, studentOnly = false, adminOnly = false }) {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -44,6 +46,10 @@ function ProtectedRoute({ children, requirePlacementTest = false, teacherOnly = 
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (adminOnly && user.role !== 'admin') {
+    return <Navigate to="/teacher/dashboard" replace />;
   }
 
   if (studentOnly && user.role !== 'student') {
@@ -174,14 +180,6 @@ export default function App() {
           <AppShell title="داشبورد مسئول شهری (مدرس)"><TeacherDashboard /></AppShell>
         </ProtectedRoute>
       } />
-      <Route path="/teacher/test-graphs" element={
-        <ProtectedRoute teacherOnly>
-          <AppShell title="گراف پوشش و Mutation"><TestGraphsPage /></AppShell>
-        </ProtectedRoute>
-      } />
-      <Route path="/teacher/test-graphs-preview" element={
-        <AppShell title="پیش نمایش گراف تست"><TestGraphsPage /></AppShell>
-      } />
       <Route path="/teacher/contents" element={
         <ProtectedRoute teacherOnly>
           <AppShell title="محتواهای من"><TeacherContentList /></AppShell>
@@ -220,6 +218,12 @@ export default function App() {
       <Route path="/teacher/grading" element={
         <ProtectedRoute teacherOnly>
           <AppShell title="تصحیح و بررسی"><GradingPage /></AppShell>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/admin/engagement" element={
+        <ProtectedRoute adminOnly>
+          <AppShell title="شاخص‌های ترک سیستم"><AdminEngagementPage /></AppShell>
         </ProtectedRoute>
       } />
 

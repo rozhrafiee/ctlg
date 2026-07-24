@@ -10,23 +10,39 @@ export default function TeacherDashboard() {
   const [dashboard, setDashboard] = useState(null);
   const [studentId, setStudentId] = useState('');
   const [report, setReport] = useState(null);
+  const [loadError, setLoadError] = useState(null);
 
   useEffect(() => {
     const load = async () => {
-      const data = await fetchTeacherDashboard();
-      setDashboard(data);
+      setLoadError(null);
+      try {
+        const data = await fetchTeacherDashboard();
+        setDashboard(data);
+      } catch {
+        setLoadError('بارگذاری داشبورد ناموفق بود. لطفاً دوباره وارد شوید یا بعداً تلاش کنید.');
+        setDashboard(null);
+      }
     };
     load();
   }, []);
 
   const loadReport = async () => {
     if (!studentId) return;
-    const data = await fetchStudentReport(studentId);
-    setReport(data);
+    try {
+      const data = await fetchStudentReport(studentId);
+      setReport(data);
+    } catch {
+      setReport({ error: 'دریافت گزارش ناموفق بود.' });
+    }
   };
 
   return (
     <div className="space-y-6">
+      {loadError && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {loadError}
+        </div>
+      )}
       <div className="surface p-6 border-primary/10">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-primary">پنل تخصصی مسئولان شهری (مدرسان)</h2>

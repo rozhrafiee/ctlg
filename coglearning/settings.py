@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'accounts',
     'assessment',
     "adaptive_learning",
-    "analytics",
+    "analytics.apps.AnalyticsConfig",
 
 
 ]

@@ -10,6 +10,7 @@ const linkClass = ({ isActive }) =>
 export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
   const { user } = useAuth();
   const isTeacher = user?.role === 'teacher' || user?.role === 'admin';
+  const isAdmin = user?.role === 'admin';
 
   const nav = (
     <>
@@ -41,18 +42,23 @@ export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
 
         {isTeacher && (
           <>
-            <NavLink to="/teacher/test-graphs" className={linkClass} onClick={onClose}>گراف تست</NavLink>
             <NavLink to="/teacher/contents" className={linkClass} onClick={onClose}>محتوا</NavLink>
             <NavLink to="/teacher/tests" className={linkClass} onClick={onClose}>آزمون‌ها</NavLink>
             <NavLink to="/teacher/grading" className={linkClass} onClick={onClose}>تصحیح</NavLink>
           </>
         )}
 
+        {isAdmin && (
+          <NavLink to="/admin/engagement" className={linkClass} onClick={onClose}>
+            شاخص‌های ترک سیستم
+          </NavLink>
+        )}
+
         <NavLink to="/profile" className={linkClass} onClick={onClose}>پروفایل</NavLink>
       </nav>
 
       <div className="px-6 py-6 text-xs text-neutral-500 border-t border-neutral-100">
-        <Badge tone="teal" className="mb-2">{user?.role === 'student' ? 'Citizen' : user?.role === 'teacher' ? 'مسئول شهری (مدرس)' : (user?.role || 'guest')}</Badge>
+        <Badge tone="teal" className="mb-2">{user?.role === 'student' ? 'Citizen' : user?.role === 'teacher' ? 'مسئول شهری (مدرس)' : user?.role === 'admin' ? 'مدیر سیستم' : (user?.role || 'guest')}</Badge>
         <div className="truncate">{user?.username}</div>
       </div>
     </>

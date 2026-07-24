@@ -10,11 +10,14 @@ class IsAdminUser(permissions.BasePermission):
         )
 
 class IsTeacher(permissions.BasePermission):
-    """دسترسی مخصوص اساتید"""
+    """دسترسی مسئول شهری (مدرس) و مدیر سیستم"""
     def has_permission(self, request, view):
         return (
-            request.user.is_authenticated and 
-            request.user.role == 'teacher'
+            request.user.is_authenticated and
+            (
+                request.user.role in ('teacher', 'admin')
+                or request.user.is_superuser
+            )
         )
 
 class IsStudent(permissions.BasePermission):
