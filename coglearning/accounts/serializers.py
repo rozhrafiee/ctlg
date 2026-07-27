@@ -42,8 +42,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'email', 'first_name', 'last_name', 
-            'role', 'cognitive_level', 'has_taken_placement_test', 
-            'level_history'
+            'id', 'username', 'email', 'first_name', 'last_name',
+            'role', 'cognitive_level', 'has_taken_placement_test',
+            'preferred_sort_algorithm', 'preferred_search_algorithm',
+            'default_sort_field', 'level_history',
         ]
         read_only_fields = ['cognitive_level', 'has_taken_placement_test']

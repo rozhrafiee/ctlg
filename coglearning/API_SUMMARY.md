@@ -14,7 +14,7 @@
 تصحیح دستی	POST	/api/assessment/teacher/sessions/{id}/grade/	ثبت نمره تشریحی و اعمال نهایی ارتقای سطح ۱-۱۰۰
 ۳. فرآیند شرکت در آزمون - شهروند (Assessment - Citizen)
 عملکرد	متد	آدرس	منطق و ملاحظات
-لیست آزمون‌های مجاز	GET	/api/assessment/tests/	فیلتر شده بر اساس سطح کاربر و وضعیت تعیین سطح
+لیست آزمون‌های مجاز	GET	/api/assessment/tests/	فیلتر سطح + کاتالوگ الگوریتمی؛ query: q, search_algo, sort_algo, sort_by, sort_order → {results, catalog_meta}
 شروع آزمون	POST	/api/assessment/tests/{id}/start/	ایجاد سشن و ست کردن زمان انقضا (expires_at)
 ثبت پاسخ	POST	/api/assessment/sessions/{id}/questions/{qid}/answer/	ثبت جواب تستی یا متنی + زمان صرف شده
 پایان آزمون	POST	/api/assessment/sessions/{id}/finish/	محاسبه آنی نمره تستی و ارتقای خودکار سطح کاربر

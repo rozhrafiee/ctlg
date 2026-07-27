@@ -13,20 +13,44 @@
 
 ## 2. محل پیاده سازی در پروژه
 
-پیاده سازی اصلی الگوریتم ها در مسیرهای زیر انجام شده است:
+پیاده‌سازی الگوریتم‌ها برای **runtime API** در مسیرهای زیر است:
 
 - `coglearning/algorithms/sorting.py`
 - `coglearning/algorithms/searching.py`
 - `coglearning/algorithms/catalog.py`
 - `coglearning/algorithms/utils.py`
-- `coglearning/algorithms/tests/test_coverage.py`
 
-اتصال الگوریتم ها به سناریوی واقعی پروژه در این فایل ها انجام شده است:
+سوئیت تست و جهش (pytest / ACOC / Mutation) در:
 
-- `coglearning/accounts/models.py`: ذخیره ترجیحات کاربر شامل الگوریتم مرتب سازی، الگوریتم جستجو و فیلد مرتب سازی پیش فرض.
-- `coglearning/assessment/views.py`: استفاده از `process_catalog` در `StudentTestListView` برای فیلتر و مرتب کردن آزمون های قابل دسترس.
-- `cognitive-frontend/src/pages/Profile.jsx`: دریافت ترجیحات پیش فرض کاربر از طریق فرم پروفایل.
-- `cognitive-frontend/src/pages/AvailableTests.jsx`: دریافت ورودی جستجو، الگوریتم جستجو، الگوریتم مرتب سازی، فیلد و جهت مرتب سازی از کاربر.
+- `silver_project/algorithms/` (منطق هم‌تراز + `tests/` + `mutants/`)
+
+اتصال به سناریوی واقعی پروژه:
+
+- `coglearning/assessment/views.py` → `StudentTestListView.list` فراخوانی `process_catalog`
+- `coglearning/accounts/models.py` → ترجیحات `preferred_sort_algorithm`, `preferred_search_algorithm`, `default_sort_field`
+- `cognitive-frontend/src/pages/student/TestListPage.jsx` → UI جستجو/مرتب‌سازی
+- `cognitive-frontend/src/pages/auth/ProfilePage.jsx` → ذخیره ترجیحات پیش‌فرض
+
+### 2.0 وضعیت اتصال (به‌روز)
+
+**متصل است.** پاسخ API:
+
+```json
+{
+  "results": [ ... ],
+  "catalog_meta": {
+    "query": "...",
+    "sort_algorithm": "merge",
+    "search_algorithm": "linear",
+    "sort_field": "min_level",
+    "reverse": false,
+    "total_before": 4,
+    "total_after": 1
+  }
+}
+```
+
+---
 
 ## 2.1. الگوریتم ها دقیقا روی چه خروجی ای از سامانه کار می کنند؟
 
