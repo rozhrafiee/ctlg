@@ -18,7 +18,7 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['category', 'question_type', 'text', 'points', 'order', 'choices']
+        fields = ['category', 'question_type', 'text', 'correct_text_answer', 'points', 'order', 'choices']
 
     def create(self, validated_data):
         choices_data = validated_data.pop('choices', [])
@@ -76,7 +76,7 @@ class QuestionUpdateSerializer(serializers.ModelSerializer):
     choices = ChoiceSerializer(many=True, required=False)
     class Meta:
         model = Question
-        fields = ['category', 'question_type', 'text', 'points', 'order', 'choices']
+        fields = ['category', 'question_type', 'text', 'correct_text_answer', 'points', 'order', 'choices']
 
     def update(self, instance, validated_data):
         choices_data = validated_data.pop('choices', None)

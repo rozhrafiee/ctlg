@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAnalytics } from '../../hooks/useAnalytics';
-import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 
@@ -68,11 +67,7 @@ export default function TeacherDashboard() {
             onChange={(e) => setStudentId(e.target.value)}
           />
           <Button onClick={loadReport}>نمایش گزارش</Button>
-          <Button variant="secondary" disabled>گزارش همه</Button>
         </div>
-        <p className="mt-2 text-xs text-neutral-500">
-          فعلا فقط گزارش یک شهروند با شناسه قابل دریافت است (بک‌اند گزارش همه را ندارد).
-        </p>
         {report && (
           <pre className="mt-4 text-xs bg-primary-soft/30 p-4 rounded-xl overflow-auto border border-primary/10">{JSON.stringify(report, null, 2)}</pre>
         )}

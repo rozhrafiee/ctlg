@@ -1,0 +1,18 @@
+[
+  "days_since_last_login",
+  "days_since_registration",
+  "cognitive_level",
+  "has_taken_placement_test",
+  "test_session_count",
+  "completed_session_count",
+  "avg_test_score",
+  "days_since_last_session",
+  "content_progress_count",
+  "completed_content_count",
+  "recommendation_count",
+  "level_change_count",
+  "avg_memory_score",
+  "avg_focus_score",
+  "avg_logic_score",
+  "login_inactivity"
+]

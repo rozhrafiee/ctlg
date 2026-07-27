@@ -20,6 +20,9 @@ urlpatterns = [
 
     # مسیرهای مربوط به گزارش‌گیری و تحلیل (Analytics)
     path('api/analytics/', include('analytics.urls')),
+
+    # مسیرهای مربوط به موتور یادگیری ماشین (ML Engine)
+    path('api/ml/', include('ml_engine.urls')),
 ]
 
 if settings.DEBUG:

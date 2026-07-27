@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import RetentionBanner from '../RetentionBanner';
 
 export default function AppShell({ children, title }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -20,7 +21,10 @@ export default function AppShell({ children, title }) {
         />
         <div className="flex-1 min-w-0 flex flex-col">
           <Topbar title={title} onMenuClick={() => setMobileMenuOpen(true)} />
-          <main className="container-shell py-6 sm:py-8 flex-1">{children}</main>
+          <main className="container-shell py-6 sm:py-8 flex-1">
+            <RetentionBanner />
+            {children}
+          </main>
         </div>
       </div>
     </div>

@@ -7,9 +7,22 @@ const linkClass = ({ isActive }) =>
     isActive ? 'bg-primary text-white' : 'text-neutral-600 hover:bg-neutral-100'
   }`;
 
+function roleBadgeLabel(role) {
+  if (role === 'student') return 'Citizen';
+  if (role === 'teacher') return 'مسئول شهری (مدرس)';
+  if (role === 'admin') return 'Manager';
+  return role || 'guest';
+}
+
 export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
   const { user } = useAuth();
-  const isTeacher = user?.role === 'teacher' || user?.role === 'admin';
+  const isAdmin = user?.role === 'admin';
+  const isTeacher = user?.role === 'teacher' || isAdmin;
+  const overviewTo = isAdmin
+    ? '/manager/dashboard'
+    : isTeacher
+      ? '/teacher/dashboard'
+      : '/student/dashboard';
 
   const nav = (
     <>
@@ -19,7 +32,7 @@ export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
       </div>
 
       <nav className="px-4 space-y-1 overflow-y-auto flex-1">
-        <NavLink to={isTeacher ? "/teacher/dashboard" : "/student/dashboard"} className={linkClass} onClick={onClose}>
+        <NavLink to={overviewTo} className={linkClass} onClick={onClose}>
           نمای کلی
         </NavLink>
 
@@ -31,6 +44,7 @@ export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
                 <NavLink to="/student/learning-path" className={linkClass} onClick={onClose}>مسیر یادگیری</NavLink>
                 <NavLink to="/student/progress" className={linkClass} onClick={onClose}>پیشرفت</NavLink>
                 <NavLink to="/student/recommended" className={linkClass} onClick={onClose}>پیشنهادهای هوشمند</NavLink>
+                <NavLink to="/student/recommendations" className={linkClass} onClick={onClose}>پیشنهادها</NavLink>
                 <NavLink to="/student/history" className={linkClass} onClick={onClose}>تاریخچه</NavLink>
               </>
             ) : (
@@ -41,6 +55,12 @@ export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
 
         {isTeacher && (
           <>
+            {isAdmin && (
+              <NavLink to="/manager/dashboard" className={linkClass} onClick={onClose}>
+                داشبورد مدیر
+              </NavLink>
+            )}
+            <NavLink to="/teacher/dashboard" className={linkClass} onClick={onClose}>داشبورد مدرس</NavLink>
             <NavLink to="/teacher/test-graphs" className={linkClass} onClick={onClose}>گراف تست</NavLink>
             <NavLink to="/teacher/contents" className={linkClass} onClick={onClose}>محتوا</NavLink>
             <NavLink to="/teacher/tests" className={linkClass} onClick={onClose}>آزمون‌ها</NavLink>
@@ -52,7 +72,9 @@ export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
       </nav>
 
       <div className="px-6 py-6 text-xs text-neutral-500 border-t border-neutral-100">
-        <Badge tone="teal" className="mb-2">{user?.role === 'student' ? 'Citizen' : user?.role === 'teacher' ? 'مسئول شهری (مدرس)' : (user?.role || 'guest')}</Badge>
+        <Badge tone={isAdmin ? 'amber' : 'teal'} className="mb-2">
+          {roleBadgeLabel(user?.role)}
+        </Badge>
         <div className="truncate">{user?.username}</div>
       </div>
     </>

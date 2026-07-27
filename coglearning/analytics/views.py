@@ -46,9 +46,10 @@ class TeacherStudentStatsView(APIView):
             Q(test__related_content__author=request.user) | Q(test__created_by=request.user)
         ).exists()
 
-        if not request.user.is_staff and not is_my_student:
+        is_admin = request.user.role == 'admin' or request.user.is_superuser or request.user.is_staff
+        if not is_admin and not is_my_student:
             return Response(
-                {"error": "شما اجازه دسترسی به تحلیل‌های این کاربر را ندارید."}, 
+                {"error": "شما اجازه دسترسی به تحلیل‌های این کاربر را ندارید."},
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -62,34 +63,32 @@ class TeacherDashboardView(APIView):
 
     def get(self, request):
         user = request.user
-        
-        # ۱. فیلتر کردن محتواها و آزمون‌های مربوط به خود مسئول شهری (مدرس)
-        my_contents = LearningContent.objects.filter(author=user)
-        my_contents_count = my_contents.count()
-        
-        # آزمون‌هایی که یا متعلق به محتوای مسئول شهری (مدرس) هستند یا او سازنده آن‌هاست
-        my_tests = CognitiveTest.objects.filter(
-            Q(related_content__author=user) | Q(created_by=user)
-        ).distinct()
-        my_tests_count = my_tests.count()
+        is_admin = user.role == 'admin' or user.is_superuser
 
-        # ۳. تعداد آزمون‌های در انتظار تصحیح (فقط برای آزمون‌های این مسئول شهری/مدرس)
-        pending_reviews = TestSession.objects.filter(
-            test__in=my_tests,
-            status='pending_review'
-        ).order_by('-started_at')
-        
-        pending_reviews_count = pending_reviews.count()
-        recent_pending_data = TestSessionSerializer(pending_reviews[:5], many=True).data
+        if is_admin:
+            my_contents = LearningContent.objects.all()
+            my_tests = CognitiveTest.objects.all()
+            pending_reviews = TestSession.objects.filter(
+                status='pending_review'
+            ).select_related('user', 'test').order_by('-started_at')
+        else:
+            my_contents = LearningContent.objects.filter(author=user)
+            my_tests = CognitiveTest.objects.filter(
+                Q(related_content__author=user) | Q(created_by=user)
+            ).distinct()
+            pending_reviews = TestSession.objects.filter(
+                test__in=my_tests,
+                status='pending_review'
+            ).select_related('user', 'test').order_by('-started_at')
 
         return Response({
-            "teacher_name": f"{user.first_name} {user.last_name}",
+            "teacher_name": f"{user.first_name} {user.last_name}".strip() or user.username,
             "stats": {
-                "total_contents": my_contents_count,
-                "total_tests": my_tests_count,
-                "pending_grading": pending_reviews_count,
+                "total_contents": my_contents.count(),
+                "total_tests": my_tests.count(),
+                "pending_grading": pending_reviews.count(),
             },
-            "recent_pending_reviews": recent_pending_data,
+            "recent_pending_reviews": TestSessionSerializer(pending_reviews[:5], many=True).data,
             "quick_links": {
                 "create_content": "/api/adaptive-learning/teacher/content/create/",
                 "create_test": "/api/assessment/teacher/tests/create/",

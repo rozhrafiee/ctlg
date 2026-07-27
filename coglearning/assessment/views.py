@@ -157,13 +157,27 @@ def finish_test_session(request, session_id):
 class StudentTestListView(generics.ListAPIView):
     serializer_class = CognitiveTestSerializer
     permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         user = self.request.user
         level = user.cognitive_level or 1
-        if user.role != 'student': return CognitiveTest.objects.filter(is_active=True)
+        base = CognitiveTest.objects.filter(is_active=True).select_related(
+            'created_by', 'related_content'
+        )
+        if user.role != 'student':
+            return base
         if not user.has_taken_placement_test:
-            return CognitiveTest.objects.filter(is_active=True, test_type='placement')
-        return CognitiveTest.objects.filter(is_active=True, min_level__lte=level).exclude(test_type='placement')
+            return base.filter(test_type='placement')
+        return base.filter(min_level__lte=level).exclude(test_type='placement')
+
+    def list(self, request, *args, **kwargs):
+        from .catalog_bridge import apply_catalog
+
+        queryset = self.filter_queryset(self.get_queryset())
+        items = list(queryset)
+        processed, meta = apply_catalog(items, request)
+        serializer = self.get_serializer(processed, many=True)
+        return Response({"results": serializer.data, "catalog_meta": meta})
 
 @api_view(["GET"])
 @permission_classes([permissions.IsAuthenticated])
@@ -241,13 +255,21 @@ def submit_manual_grade(request, session_id):
 
 class UserTestResultDetailView(generics.RetrieveAPIView):
     serializer_class = TestResultDetailSerializer
-    queryset = TestSession.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return TestSession.objects.filter(user=self.request.user)
 
 class StudentHistoryListView(generics.ListAPIView):
     serializer_class = TestSessionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         return TestSession.objects.filter(user=self.request.user).exclude(status='in_progress')
 
 class StudentTestDetailView(generics.RetrieveAPIView):
     serializer_class = TestResultDetailSerializer
-    queryset = TestSession.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return TestSession.objects.filter(user=self.request.user)

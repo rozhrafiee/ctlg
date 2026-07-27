@@ -31,7 +31,23 @@ import EditTestPage from './pages/teacher/EditTestPage';
 import TestQuestionsPage from './pages/teacher/TestQuestionsPage';
 import GradingPage from './pages/teacher/GradingPage';
 
-function ProtectedRoute({ children, requirePlacementTest = false, teacherOnly = false, studentOnly = false }) {
+import ManagerDashboard from './pages/manager/ManagerDashboard';
+
+function homeRedirect(user) {
+  if (!user) return null;
+  if (user.role === 'admin') return <Navigate to="/manager/dashboard" replace />;
+  if (user.role === 'teacher') return <Navigate to="/teacher/dashboard" replace />;
+  if (user.has_taken_placement_test) return <Navigate to="/student/dashboard" replace />;
+  return <Navigate to="/student/placement-test" replace />;
+}
+
+function ProtectedRoute({
+  children,
+  requirePlacementTest = false,
+  teacherOnly = false,
+  studentOnly = false,
+  adminOnly = false,
+}) {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -46,7 +62,13 @@ function ProtectedRoute({ children, requirePlacementTest = false, teacherOnly = 
     return <Navigate to="/login" replace />;
   }
 
+  if (adminOnly && user.role !== 'admin') {
+    if (user.role === 'teacher') return <Navigate to="/teacher/dashboard" replace />;
+    return <Navigate to="/student/dashboard" replace />;
+  }
+
   if (studentOnly && user.role !== 'student') {
+    if (user.role === 'admin') return <Navigate to="/manager/dashboard" replace />;
     return <Navigate to="/teacher/dashboard" replace />;
   }
 
@@ -72,10 +94,7 @@ function PublicRoute({ children }) {
   }
 
   if (user) {
-    if (user.role === 'teacher' || user.role === 'admin') {
-      return <Navigate to="/teacher/dashboard" replace />;
-    }
-    return <Navigate to="/student/dashboard" replace />;
+    return homeRedirect(user);
   }
 
   return children;
@@ -88,15 +107,7 @@ export default function App() {
     <Routes>
       <Route
         path="/"
-        element={
-          user
-            ? (user.role === 'teacher' || user.role === 'admin'
-                ? <Navigate to="/teacher/dashboard" replace />
-                : (user.has_taken_placement_test
-                    ? <Navigate to="/student/dashboard" replace />
-                    : <Navigate to="/student/placement-test" replace />))
-            : <HomePage />
-        }
+        element={user ? homeRedirect(user) : <HomePage />}
       />
 
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
@@ -153,12 +164,12 @@ export default function App() {
         </ProtectedRoute>
       } />
       <Route path="/student/recommended" element={
-        <ProtectedRoute requirePlacementTest>
+        <ProtectedRoute studentOnly requirePlacementTest>
           <AppShell title="پیشنهادهای هوشمند"><RecommendedPage /></AppShell>
         </ProtectedRoute>
       } />
       <Route path="/student/adaptive-dashboard" element={
-        <ProtectedRoute requirePlacementTest>
+        <ProtectedRoute studentOnly requirePlacementTest>
           <AppShell title="داشبورد تطبیقی"><AdaptiveDashboardPage /></AppShell>
         </ProtectedRoute>
       } />
@@ -166,6 +177,12 @@ export default function App() {
       <Route path="/profile" element={
         <ProtectedRoute>
           <AppShell title="پروفایل"><ProfilePage /></AppShell>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/manager/dashboard" element={
+        <ProtectedRoute adminOnly>
+          <AppShell title="داشبورد مدیر سیستم"><ManagerDashboard /></AppShell>
         </ProtectedRoute>
       } />
 
@@ -178,9 +195,6 @@ export default function App() {
         <ProtectedRoute teacherOnly>
           <AppShell title="گراف پوشش و Mutation"><TestGraphsPage /></AppShell>
         </ProtectedRoute>
-      } />
-      <Route path="/teacher/test-graphs-preview" element={
-        <AppShell title="پیش نمایش گراف تست"><TestGraphsPage /></AppShell>
       } />
       <Route path="/teacher/contents" element={
         <ProtectedRoute teacherOnly>
@@ -223,17 +237,7 @@ export default function App() {
         </ProtectedRoute>
       } />
 
-      <Route path="*" element={
-        user ? (
-          user.role === 'teacher' || user.role === 'admin'
-            ? <Navigate to="/teacher/dashboard" replace />
-            : (user.has_taken_placement_test
-                ? <Navigate to="/student/dashboard" replace />
-                : <Navigate to="/student/placement-test" replace />)
-        ) : (
-          <Navigate to="/" replace />
-        )
-      } />
+      <Route path="*" element={user ? homeRedirect(user) : <Navigate to="/" replace />} />
     </Routes>
   );
 }

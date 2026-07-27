@@ -9,12 +9,29 @@ class LevelHistorySerializer(serializers.ModelSerializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    role = serializers.ChoiceField(
+        choices=[('student', 'شهروند'), ('teacher', 'مسئول شهری (مدرس)')],
+        required=False,
+        default='student',
+    )
 
     class Meta:
         model = User
         fields = ['username', 'password', 'email', 'first_name', 'last_name', 'role']
 
+    def validate_role(self, value):
+        if value == 'admin':
+            raise serializers.ValidationError(
+                "ثبت‌نام با نقش مدیر از طریق ثبت‌نام عمومی مجاز نیست."
+            )
+        if value not in ('student', 'teacher'):
+            raise serializers.ValidationError(
+                "نقش مجاز فقط student یا teacher است."
+            )
+        return value
+
     def create(self, validated_data):
+        validated_data.setdefault('role', 'student')
         user = User.objects.create_user(**validated_data)
         return user
 
