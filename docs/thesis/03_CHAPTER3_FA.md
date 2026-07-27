@@ -38,7 +38,7 @@
 | FR08 | شاخص ترک برای ادمین | پیاده |
 | FR09 | قانون ۳۰ روزه ترک‌کرده | پیاده |
 | FR10 | پیش‌بینی ML در API | پیاده‌نشده |
-| FR11 | جستجو/مرتب‌سازی الگوریتمی در لیست آزمون API | پیاده‌نشده (فقط silver_project) |
+| FR11 | جستجو/مرتب‌سازی الگوریتمی در لیست آزمون API | پیاده‌سازی‌شده (`StudentTestListView` + UI) |
 
 ## ۳٫۶ نیازمندی‌های غیرکارکردی
 
@@ -73,14 +73,19 @@ flowchart TB
     PG[(PostgreSQL ctlg)]
   end
 
-  subgraph Side["لایه‌های جانبی"]
-    SIL[silver_project algorithms + tests]
+  subgraph Algos["الگوریتم کاتالوگ"]
+    ALG[coglearning/algorithms process_catalog]
+    SIL[silver_project tests + mutants]
+  end
+
+  subgraph Side["لایه جانبی ML"]
     ML[scripts/train_abandonment_model.py + joblib]
   end
 
   UI --> AuthCtx --> Hooks --> Acc & Asmt & Adp & Anl
   Acc & Asmt & Adp & Anl --> PG
-  SIL -. "فعلاً به API وصل نیست" .-> Asmt
+  Asmt --> ALG
+  SIL -. "سوئیت pytest / mutation" .-> ALG
   ML -. "inference در runtime نیست" .-> Anl
 ```
 

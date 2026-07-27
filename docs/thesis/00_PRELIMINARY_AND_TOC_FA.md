@@ -29,7 +29,7 @@
 
 سامانه سه نقش شهروند، مسئول شهری (مدرس) و مدیر سیستم را پشتیبانی می‌کند و ماژول‌های ارزیابی شناختی، یادگیری تطبیقی، تحلیل عملکرد و داشبوردهای نقش‌محور را پیاده‌سازی کرده است. وضعیت «ترک‌کرده» در زمان اجرا با قانون قطعی بی‌فعالیتی ۳۰ روزه تعیین و در صورت لزوم حساب کاربر غیرفعال می‌شود. افزون بر این، یک خط یادگیری ماشین آفلاین برای پیش‌بینی ترک بر اساس چهار ویژگی رفتاری آموزش داده شده است؛ هرچند خروجی مدل در API زمان اجرا فراخوانی نمی‌شود.
 
-در بخش ارزیابی کیفیت نرم‌افزار، ماژول مستقل الگوریتم‌های جستجو و مرتب‌سازی کاتالوگ (`silver_project`) با ۳۷۶ آزمون شامل ACOC، پوشش گره/یال/مسیر نخستین و آزمون جهش AOR بررسی شده و امتیاز جهش نهایی ۱۱ از ۱۲ (۹۱٫۷٪) به‌دست آمده است. در پایان، دستاوردها، محدودیت‌ها (از جمله نبود اتصال الگوریتم‌ها به API فعال و نبود inference مدل) و مسیر کارهای آینده بیان می‌شود.
+در بخش ارزیابی کیفیت نرم‌افزار، الگوریتم‌های جستجو و مرتب‌سازی کاتالوگ در مسیر تولید (`coglearning/algorithms`) به API لیست آزمون متصل شده‌اند و سوئیت `silver_project` با ۳۷۶ آزمون (ACOC، پوشش گره/یال/مسیر نخستین، آزمون جهش AOR) امتیاز جهش نهایی ۱۱ از ۱۲ (۹۱٫۷٪) را نشان می‌دهد. در پایان، دستاوردها، محدودیت‌ها (از جمله نبود inference مدل ترک در runtime) و مسیر کارهای آینده بیان می‌شود.
 
 **کلیدواژه‌ها:** ارزیابی شناختی، یادگیری تطبیقی، تحلیل رفتار کاربر، پیش‌بینی ترک سامانه، آزمون جهش، پوشش مسیر، Django، React
 
@@ -41,7 +41,7 @@ The spread of misinformation and cognitive threats in urban environments motivat
 
 The system supports citizen, urban officer (teacher), and admin roles, and implements cognitive assessment, adaptive learning, performance analytics, and role-based dashboards. Runtime abandonment is determined by a deterministic 30-day inactivity rule that can deactivate accounts. An offline machine-learning pipeline was also trained on four behavioral features; however, model inference is not wired into the live API.
 
-Software quality evaluation focuses on an independent catalog search/sorting module (`silver_project`) with 376 tests covering ACOC, node/edge/prime-path criteria, and AOR mutation testing, achieving a final mutation score of 11/12 (91.7%). Contributions, limitations, and future work are discussed with strict grounding in the actual repository.
+Software quality evaluation covers catalog search/sorting algorithms wired into the live assessment API (`coglearning/algorithms`), with a 376-test suite in `silver_project` (ACOC, node/edge/prime-path, AOR mutation testing) achieving a final mutation score of 11/12 (91.7%). Contributions, limitations, and future work are discussed with strict grounding in the actual repository.
 
 **Keywords:** Cognitive Assessment, Adaptive Learning, User Behavior Analysis, Dropout Prediction, Mutation Testing, Path Coverage, Django, React
 
@@ -120,7 +120,7 @@ Software quality evaluation focuses on an independent catalog search/sorting mod
 | مدیریت و analytics | بله | بله | analytics + admin engagement |
 | سناریوی اختلال خدمات شهری | بله | در کد جداگانه یافت نشد | — |
 | پیش‌بینی ترک | خیر (در README نیست) | جزئی (قانون ۳۰ روزه + ML آفلاین) | analytics / scripts |
-| تست الگوریتم/جهش | خیر | بله در ماژول جانبی | silver_project |
+| تست الگوریتم/جهش | خیر | بله + اتصال API | `coglearning/algorithms` + `silver_project` |
 
 ---
 
@@ -136,7 +136,7 @@ Software quality evaluation focuses on an independent catalog search/sorting mod
 | Case شهری | پیشنهاد | یافت نشد در کد | پیشنهادی |
 | ترک‌کرده ۳۰ روزه | — | پیاده | پیاده‌سازی‌شده |
 | Inference ML ترک | — | نیست | پیشنهادی / آینده |
-| کاتالوگ الگوریتمی در API | — | نیست (فقط silver) | طراحی‌شده |
+| کاتالوگ الگوریتمی در API | — | پیاده | پیاده‌سازی‌شده |
 | ۳۷۶ تست الگوریتم | — | پیاده | پیاده‌سازی‌شده |
 
 ---

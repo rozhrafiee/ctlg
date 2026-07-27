@@ -62,7 +62,7 @@ PostgreSQL (ctlg)
 ### A.5 یافته‌های حیاتی ممیزی
 
 1. **قانون ۳۰ روزه ترک‌کرده در runtime پیاده است**؛ مدل ML در API فراخوانی نمی‌شود.
-2. **الگوریتم‌های جستجو/مرتب‌سازی فقط در `silver_project` هستند** و به `StudentTestListView` وصل نیستند.
+2. **الگوریتم‌های جستجو/مرتب‌سازی** در `coglearning/algorithms` به `StudentTestListView` متصل‌اند؛ سوئیت تست در `silver_project` است.
 3. **۳۷۶ تست الگوریتم پاس شده‌اند**؛ تست‌های Django خالی‌اند.
 4. **فایل مقاله پژوهشی در مخزن یافت نشد.**
 5. متریک‌های ML با AUC=1.0 ناشی از برچسب قطعی `avg_login_interval_days >= 30` هستند (نه پیش‌بینی زودهنگام واقعی).
@@ -132,7 +132,7 @@ PostgreSQL (ctlg)
 | قانون ترک‌کرده ۳۰ روزه | پیاده‌سازی‌شده | `evaluate_abandonment` |
 | آموزش مدل ML ترک | جزئی | اسکریپت + artifact؛ بدون inference |
 | پیش‌بینی ML در runtime | پیشنهادی | `joblib.load` در Django یافت نشد |
-| جستجو/مرتب‌سازی کاتالوگ در API | طراحی‌شده / پیشنهادی | فقط در `silver_project` |
+| جستجو/مرتب‌سازی کاتالوگ در API | پیاده‌سازی‌شده | `coglearning/algorithms` + TestListPage |
 | ترجیح الگوریتم کاربر | یافت نشد | فیلد در `User` نیست |
 | سیستم اعلان (Notification) مستقل | یافت نشد | فقط alerts داخل داشبورد |
 | تست واحد Django | طراحی‌شده | `tests.py` خالی |
@@ -229,7 +229,7 @@ Migrationها اعمال‌شده‌اند (`showmigrations` همه `[X]`).
 ## G. فهرست الگوریتم‌ها
 
 ### G.1 محل واقعی کد
-`silver_project/algorithms/`
+Runtime: `coglearning/algorithms/` — تست/جهش: `silver_project/algorithms/`
 
 | الگوریتم | فایل | تابع |
 |----------|------|------|
@@ -241,11 +241,10 @@ Migrationها اعمال‌شده‌اند (`showmigrations` همه `[X]`).
 | Utils | `utils.py` | `get_item_value` |
 
 ### G.2 اتصال به سامانه اصلی
-**وضعیت: متصل نیست.**  
-`StudentTestListView` فقط queryset ORM برمی‌گرداند؛ بدون `q` / `sort_algo` / `search_algo` / `catalog_meta`.
+**وضعیت: متصل است.**  
+`StudentTestListView.list` روی queryset فیلترشده `process_catalog` را اجرا می‌کند و `{results, catalog_meta}` برمی‌گرداند.
 
-### G.3 ترجیحات کاربر
-**یافت نشد** در `accounts.User` و پروفایل فرانت‌اند فعال.
+ترجیحات: `preferred_sort_algorithm`, `preferred_search_algorithm`, `default_sort_field` روی مدل `User`.
 
 ---
 
@@ -482,7 +481,7 @@ ACOC، CFG، Node/Edge/Prime Path، Mutation/AOR، Mutation Score، نتایج �
 سامانه واقعی یک **پلتفرم ارزیابی شناختی + یادگیری تطبیقی + analytics** با سه نقش است.  
 **ترک‌کرده** در تولید با **قانون ۳۰ روزه** اعمال می‌شود.  
 **مدل ML** آموزش داده شده ولی به runtime وصل نیست.  
-**الگوریتم‌ها و ۳۷۶ تست** در `silver_project` معتبرند ولی به API فعال وصل نیستند.  
+**الگوریتم‌ها** در API لیست آزمون و UI متصل‌اند؛ سوئیت ۳۷۶ تست در `silver_project` است.  
 **مقاله پژوهشی در مخزن نیست.**
 
 ---

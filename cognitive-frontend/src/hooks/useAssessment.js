@@ -46,9 +46,14 @@ export function useAssessment() {
     submitManualGrade: (sessionId, grades) =>
       request(() => api.post(`/assessment/teacher/sessions/${sessionId}/grade/`, { grades })),
     // Citizen
-    fetchAvailableTests: async () => {
-      const data = await request(() => api.get('/assessment/tests/'));
-      return normalizeList(data);
+    fetchAvailableTests: async (params = {}) => {
+      const data = await request(() =>
+        api.get('/assessment/tests/', { params })
+      );
+      if (data && typeof data === 'object' && !Array.isArray(data) && Array.isArray(data.results)) {
+        return data; // { results, catalog_meta }
+      }
+      return { results: normalizeList(data), catalog_meta: null };
     },
     fetchTestDetail: (id) => request(() => api.get(`/assessment/tests/${id}/`)),
     startTest: (id) => request(() => api.post(`/assessment/tests/${id}/start/`)),

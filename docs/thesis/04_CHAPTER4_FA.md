@@ -31,7 +31,8 @@ ctlg-2/
 │   ├── analytics/
 │   └── coglearning/settings.py
 ├── cognitive-frontend/          # فرانت‌اند فعال
-├── silver_project/algorithms/   # الگوریتم + تست
+├── coglearning/algorithms/      # الگوریتم‌های production (API)
+├── silver_project/algorithms/   # همان منطق + تست/جهش
 ├── scripts/train_abandonment_model.py
 ├── datasets/
 └── models/abandonment_predictor.joblib
@@ -159,7 +160,7 @@ mindmap
 
 ## ۴٫۱۴ تا ۴٫۱۶ الگوریتم‌های کاتالوگ
 
-پیاده‌سازی در `silver_project/algorithms`:
+پیاده‌سازی production در `coglearning/algorithms` (هم‌تراز با `silver_project/algorithms` برای تست):
 
 | تابع | پیچیدگی تقریبی |
 |------|----------------|
@@ -168,19 +169,21 @@ mindmap
 | linear_search | O(n) |
 | binary_search | O(log n) |
 
-**شکل ۴‑۵ — pipeline کاتالوگ**
+**شکل ۴‑۵ — pipeline کاتالوگ (متصل به API)**
 
 ```mermaid
 flowchart LR
-  A[لیست آیتم‌ها] --> B[اعتبارسنجی پارامتر]
-  B --> C[جستجو linear/binary]
-  C --> D[مرتب‌سازی bubble/merge]
-  D --> E["خروجی items + meta"]
+  A[queryset آزمون‌های مجاز] --> B[list به Python]
+  B --> C[process_catalog]
+  C --> D[جستجو linear/binary]
+  D --> E[مرتب‌سازی bubble/merge]
+  E --> F["Response: results + catalog_meta"]
+  F --> G[TestListPage UI]
 ```
 
-**وضعیت اتصال به سامانه اصلی:** در `StudentTestListView` فراخوانی نمی‌شود. در پایان‌نامه باید به‌عنوان ماژول ارزیابی‌شدهٔ جانبی گزارش شود، نه قابلیت runtime فعلی UI.
+**اتصال runtime:** `StudentTestListView.list` پارامترهای `q`, `search_algo`, `sort_algo`, `sort_by`, `sort_order` را می‌خواند؛ در صورت نبود، از ترجیحات پروفایل (`preferred_sort_algorithm`, `preferred_search_algorithm`, `default_sort_field`) استفاده می‌کند.
 
-ترجیحات الگوریتم کاربر در مدل `User` وجود ندارد.
+ترجیحات الگوریتم در مدل `User` و صفحه پروفایل قابل تنظیم است.
 
 ## ۴٫۱۷ ترک سامانه در پیاده‌سازی
 
@@ -198,4 +201,4 @@ if days >= ABANDONMENT_INACTIVITY_DAYS (default 30):
 
 ## ۴٫۱۹ جمع‌بندی
 
-هسته سامانه (کاربر، آزمون، یادگیری، داشبورد، قانون ترک) پیاده است. الگوریتم کاتالوگ و inference ML در مسیر تولید کامل متصل نیستند و باید شفاف گزارش شوند.
+هسته سامانه (کاربر، آزمون، یادگیری، داشبورد، قانون ترک، کاتالوگ الگوریتمی) پیاده است. inference ML در مسیر تولید کامل متصل نیست و باید شفاف گزارش شود.

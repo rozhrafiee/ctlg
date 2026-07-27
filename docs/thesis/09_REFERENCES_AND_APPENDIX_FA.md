@@ -48,10 +48,11 @@ flowchart TB
     Anl[analytics]
   end
   PG[(PostgreSQL)]
-  SIL[silver_project]
-  ML[ML offline scripts]
+  SIL[silver_project tests]
+  ALG[coglearning/algorithms]
   UI --> Acc & Asmt & Adp & Anl --> PG
-  SIL -.-> Asmt
+  Asmt --> ALG
+  SIL -.-> ALG
   ML -.-> Anl
 ```
 
@@ -196,8 +197,8 @@ python scripts/train_abandonment_model.py
 | موتور تطبیقی | `coglearning/adaptive_learning/services.py` |
 | ترک‌کرده | `coglearning/analytics/services.py` |
 | آموزش ML | `scripts/train_abandonment_model.py` |
-| process_catalog | `silver_project/algorithms/catalog.py` |
-| Mutation tests | `silver_project/algorithms/tests/test_mutation_killing.py` |
+| process_catalog (API) | `coglearning/algorithms/catalog.py` |
+| سوئیت تست/جهش | `silver_project/algorithms/tests/` |
 
 ---
 

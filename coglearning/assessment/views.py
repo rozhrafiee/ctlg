@@ -155,15 +155,66 @@ def finish_test_session(request, session_id):
     return Response({"status": session.status, "score": session.total_score})
 
 class StudentTestListView(generics.ListAPIView):
+    """
+    لیست آزمون‌های قابل دسترس + پردازش کاتالوگ با الگوریتم‌های silver_project
+    (جستجو: linear/binary ، مرتب‌سازی: bubble/merge).
+
+    Query params (اختیاری؛ در غیر این صورت از ترجیح پروفایل کاربر):
+      q, search_algo, sort_algo, sort_by, sort_order (asc|desc)
+    """
     serializer_class = CognitiveTestSerializer
     permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         user = self.request.user
         level = user.cognitive_level or 1
-        if user.role != 'student': return CognitiveTest.objects.filter(is_active=True)
+        if user.role != 'student':
+            return CognitiveTest.objects.filter(is_active=True)
         if not user.has_taken_placement_test:
             return CognitiveTest.objects.filter(is_active=True, test_type='placement')
-        return CognitiveTest.objects.filter(is_active=True, min_level__lte=level).exclude(test_type='placement')
+        return CognitiveTest.objects.filter(is_active=True, min_level__lte=level).exclude(
+            test_type='placement'
+        )
+
+    def list(self, request, *args, **kwargs):
+        from algorithms.catalog import process_catalog
+
+        queryset = self.filter_queryset(self.get_queryset())
+        items = list(queryset)
+        user = request.user
+
+        query = request.query_params.get('q', '') or ''
+        sort_algo = (
+            request.query_params.get('sort_algo')
+            or getattr(user, 'preferred_sort_algorithm', None)
+            or 'bubble'
+        )
+        search_algo = (
+            request.query_params.get('search_algo')
+            or getattr(user, 'preferred_search_algorithm', None)
+            or 'linear'
+        )
+        sort_field = (
+            request.query_params.get('sort_by')
+            or getattr(user, 'default_sort_field', None)
+            or 'title'
+        )
+        sort_order = (request.query_params.get('sort_order') or 'asc').lower()
+        reverse = sort_order in ('desc', 'descending', '1', 'true')
+
+        catalog = process_catalog(
+            items,
+            query=query,
+            sort_algo=sort_algo,
+            search_algo=search_algo,
+            sort_field=sort_field,
+            reverse=reverse,
+        )
+        serializer = self.get_serializer(catalog['items'], many=True)
+        return Response({
+            'results': serializer.data,
+            'catalog_meta': catalog['meta'],
+        })
 
 @api_view(["GET"])
 @permission_classes([permissions.IsAuthenticated])
