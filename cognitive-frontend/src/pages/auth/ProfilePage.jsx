@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAnalytics } from '../../hooks/useAnalytics';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -9,6 +10,8 @@ import PageHeader from '../../components/ui/PageHeader';
 
 export default function ProfilePage() {
   const { user, refreshProfile } = useAuth();
+  const { fetchMyStats } = useAnalytics();
+  const [stats, setStats] = useState(null);
   const [form, setForm] = useState({
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
@@ -18,6 +21,13 @@ export default function ProfilePage() {
     default_sort_field: user?.default_sort_field || 'title',
   });
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    if (user?.role !== 'student') return;
+    fetchMyStats()
+      .then(setStats)
+      .catch(() => setStats(null));
+  }, [user?.role, user?.id]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -119,6 +129,34 @@ export default function ProfilePage() {
                     {user?.has_taken_placement_test ? 'انجام شده' : 'انجام نشده'}
                   </span>
                 </div>
+                {stats && (
+                  <>
+                    <div>
+                      حافظه:{' '}
+                      <span className="font-semibold text-neutral-900">
+                        {Number(stats.avg_memory_score ?? 0).toFixed(1)}
+                      </span>
+                    </div>
+                    <div>
+                      تمرکز:{' '}
+                      <span className="font-semibold text-neutral-900">
+                        {Number(stats.avg_focus_score ?? 0).toFixed(1)}
+                      </span>
+                    </div>
+                    <div>
+                      منطق:{' '}
+                      <span className="font-semibold text-neutral-900">
+                        {Number(stats.avg_logic_score ?? 0).toFixed(1)}
+                      </span>
+                    </div>
+                    <div>
+                      آزمون‌های تکمیل‌شده:{' '}
+                      <span className="font-semibold text-neutral-900">
+                        {stats.total_tests_completed ?? 0}
+                      </span>
+                    </div>
+                  </>
+                )}
               </>
             )}
             <div>
@@ -128,7 +166,9 @@ export default function ProfilePage() {
                   ? 'Citizen'
                   : user?.role === 'teacher'
                     ? 'مسئول شهری (مدرس)'
-                    : user?.role}
+                    : user?.role === 'admin'
+                      ? 'Manager'
+                      : user?.role}
               </span>
             </div>
           </div>

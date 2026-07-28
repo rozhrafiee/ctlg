@@ -23,9 +23,12 @@ class LearningContentSerializer(serializers.ModelSerializer):
         return None
 
     def get_related_test_id(self, obj):
-        from assessment.models import CognitiveTest
-        t = CognitiveTest.objects.filter(related_content=obj).first()
-        return t.id if t else None
+        # OneToOne reverse: CognitiveTest.related_content related_name='test'
+        try:
+            related = getattr(obj, 'test', None)
+            return related.id if related else None
+        except Exception:
+            return None
 
 class LearningPathItemSerializer(serializers.ModelSerializer):
     content = LearningContentSerializer(read_only=True)

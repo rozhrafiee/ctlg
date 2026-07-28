@@ -27,5 +27,6 @@ export function useAnalytics() {
     fetchStudentDashboard: () => request(() => api.get('/analytics/student-dashboard/')),
     fetchStudentReport: (studentId) => request(() => api.get(`/analytics/student-report/${studentId}/`)),
     fetchSystemReport: () => request(() => api.get('/analytics/system-report/')),
+    fetchEngagementMetrics: () => request(() => api.get('/analytics/engagement-metrics/')),
   };
 }

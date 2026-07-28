@@ -201,11 +201,10 @@ class PendingReviewsListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated, IsTeacher]
     def get_queryset(self):
         user = self.request.user
+        qs = TestSession.objects.filter(status='pending_review').select_related('user', 'test')
         if user.role == 'admin':
-            return TestSession.objects.filter(status='pending_review')
-        return TestSession.objects.filter(
-            status='pending_review'
-        ).filter(
+            return qs
+        return qs.filter(
             models.Q(test__related_content__author=user) | models.Q(test__created_by=user)
         ).distinct()
 
@@ -213,7 +212,10 @@ class PendingReviewsListView(generics.ListAPIView):
 @permission_classes([permissions.IsAuthenticated, IsTeacher])
 def get_session_details(request, session_id):
     user = request.user
-    session = get_object_or_404(TestSession, id=session_id)
+    session = get_object_or_404(
+        TestSession.objects.select_related('user', 'test'),
+        id=session_id,
+    )
     if user.role != 'admin':
         test = session.test
         if test.related_content:

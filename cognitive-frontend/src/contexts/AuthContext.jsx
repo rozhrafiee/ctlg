@@ -48,7 +48,13 @@ export const AuthProvider = ({ children }) => {
     return login({ username: payload.username, password: payload.password });
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const refresh = localStorage.getItem('refresh_token');
+    try {
+      if (refresh) {
+        await api.post('/accounts/logout/', { refresh });
+      }
+    } catch (_) { /* still clear local */ }
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     setUser(null);

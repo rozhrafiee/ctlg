@@ -77,3 +77,32 @@ class LoginAndProfileTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['username'], 'profileuser')
         self.assertEqual(response.data['role'], 'student')
+
+    def test_logout_blacklists_refresh_token(self):
+        login = self.client.post(
+            reverse('token_obtain_pair'),
+            {'username': 'profileuser', 'password': 'StrongPass123!'},
+            format='json',
+        )
+        self.assertEqual(login.status_code, status.HTTP_200_OK)
+        refresh = login.data['refresh']
+        access = login.data['access']
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access}')
+        logout = self.client.post(
+            reverse('logout'),
+            {'refresh': refresh},
+            format='json',
+        )
+        self.assertIn(
+            logout.status_code,
+            (status.HTTP_200_OK, status.HTTP_205_RESET_CONTENT),
+        )
+        self.assertEqual(logout.data['detail'], 'logged out')
+
+        refresh_again = self.client.post(
+            reverse('token_refresh'),
+            {'refresh': refresh},
+            format='json',
+        )
+        self.assertEqual(refresh_again.status_code, status.HTTP_401_UNAUTHORIZED)

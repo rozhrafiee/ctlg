@@ -1,0 +1,176 @@
+[
+  {
+    "role": "Citizen",
+    "step": "login",
+    "status": "PASS",
+    "detail": ""
+  },
+  {
+    "role": "Citizen",
+    "step": "profile",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "my-stats",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "student-dashboard",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "tests-catalog",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "history",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "recommended",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "learning-path",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "roadmap",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "progress",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "recommendations",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "adaptive-dashboard",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "churn",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "ml-notifications",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Citizen",
+    "step": "logout-blacklist",
+    "status": "PASS",
+    "detail": "HTTP 205"
+  },
+  {
+    "role": "Expert",
+    "step": "login",
+    "status": "PASS",
+    "detail": ""
+  },
+  {
+    "role": "Expert",
+    "step": "teacher-dashboard",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Expert",
+    "step": "contents",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Expert",
+    "step": "tests",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Expert",
+    "step": "pending-reviews",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Expert",
+    "step": "create-content",
+    "status": "PASS",
+    "detail": "id=3"
+  },
+  {
+    "role": "Expert",
+    "step": "create-test",
+    "status": "PASS",
+    "detail": "id=4"
+  },
+  {
+    "role": "Expert",
+    "step": "create-content-test",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Manager",
+    "step": "login",
+    "status": "PASS",
+    "detail": ""
+  },
+  {
+    "role": "Manager",
+    "step": "system-report",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Manager",
+    "step": "engagement-metrics",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Manager",
+    "step": "teacher-dashboard",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Manager",
+    "step": "all-tests",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  },
+  {
+    "role": "Manager",
+    "step": "all-contents",
+    "status": "PASS",
+    "detail": "HTTP 200"
+  }
+]

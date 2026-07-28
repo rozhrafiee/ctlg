@@ -31,6 +31,8 @@ export function useAssessment() {
     // Teacher tests
     fetchTeacherTests: () => request(() => api.get('/assessment/teacher/tests/all/')),
     createTest: (payload) => request(() => api.post('/assessment/teacher/tests/create/', payload)),
+    createPlacementTest: (payload) =>
+      request(() => api.post('/assessment/teacher/tests/placement/create/', payload)),
     createTestForContent: (contentId) =>
       request(() => api.post(`/assessment/content/${contentId}/test/create/`)),
     updateTest: (id, payload) => request(() => api.put(`/assessment/teacher/tests/update/${id}/`, payload)),

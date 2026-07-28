@@ -10,7 +10,15 @@ export default defineConfig({
     },
   },
   build: {
-    sourcemap: false, 
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          charts: ['recharts'],
+        },
+      },
+    },
   },
   server: {
     proxy: {

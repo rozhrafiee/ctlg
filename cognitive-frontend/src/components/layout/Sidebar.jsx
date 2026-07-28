@@ -40,6 +40,7 @@ export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
           <>
             {user?.has_taken_placement_test ? (
               <>
+                <NavLink to="/student/adaptive-dashboard" className={linkClass} onClick={onClose}>داشبورد تطبیقی</NavLink>
                 <NavLink to="/student/tests" className={linkClass} onClick={onClose}>آزمون‌ها</NavLink>
                 <NavLink to="/student/learning-path" className={linkClass} onClick={onClose}>مسیر یادگیری</NavLink>
                 <NavLink to="/student/progress" className={linkClass} onClick={onClose}>پیشرفت</NavLink>
@@ -56,9 +57,14 @@ export default function Sidebar({ isMobileOpen, onClose, mobileOnly }) {
         {isTeacher && (
           <>
             {isAdmin && (
-              <NavLink to="/manager/dashboard" className={linkClass} onClick={onClose}>
-                داشبورد مدیر
-              </NavLink>
+              <>
+                <NavLink to="/manager/dashboard" className={linkClass} onClick={onClose}>
+                  داشبورد مدیر
+                </NavLink>
+                <NavLink to="/manager/engagement" className={linkClass} onClick={onClose}>
+                  شاخص ماندگاری
+                </NavLink>
+              </>
             )}
             <NavLink to="/teacher/dashboard" className={linkClass} onClick={onClose}>داشبورد مدرس</NavLink>
             <NavLink to="/teacher/test-graphs" className={linkClass} onClick={onClose}>گراف تست</NavLink>

@@ -118,7 +118,7 @@ def learning_roadmap(request):
         progress_percent = float(p.progress_percent) if p else 0.0
         content_available = c.min_level <= level
 
-        test = CognitiveTest.objects.filter(related_content=c, is_active=True).first()
+        test = CognitiveTest.objects.filter(related_content_id=c.id, is_active=True).first()
         test_payload = None
         if test:
             test_completed = TestSession.objects.filter(user=user, test=test, status="completed").exists()

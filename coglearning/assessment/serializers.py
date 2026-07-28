@@ -54,7 +54,7 @@ class CognitiveTestDetailSerializer(serializers.ModelSerializer):
         return obj.questions.count()
 
 class CognitiveTestCreateSerializer(serializers.ModelSerializer):
-    questions = QuestionCreateSerializer(many=True, write_only=True)
+    questions = QuestionCreateSerializer(many=True, write_only=True, required=False, default=list)
 
     class Meta:
         model = CognitiveTest

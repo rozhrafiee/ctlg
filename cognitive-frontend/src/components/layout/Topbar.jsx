@@ -26,7 +26,7 @@ export default function Topbar({ title, onMenuClick }) {
           </div>
         </div>
         <div className="flex-shrink-0">
-          <Button variant="primary" onClick={logout} className="w-full sm:w-auto">خروج</Button>
+          <Button variant="primary" onClick={async () => { await logout(); }} className="w-full sm:w-auto">خروج</Button>
         </div>
       </div>
     </div>
