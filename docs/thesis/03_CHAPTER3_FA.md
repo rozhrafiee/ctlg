@@ -78,15 +78,17 @@ flowchart TB
     SIL[silver_project tests + mutants]
   end
 
-  subgraph Side["لایه جانبی ML"]
-    ML[scripts/train_abandonment_model.py + joblib]
+  subgraph Side["لایه جانبی / زنده ML"]
+    ML[scripts/train_abandonment_model.py + joblib آفلاین]
+    MLE[ml_engine: /api/ml/churn/]
   end
 
   UI --> AuthCtx --> Hooks --> Acc & Asmt & Adp & Anl
   Acc & Asmt & Adp & Anl --> PG
   Asmt --> ALG
   SIL -. "سوئیت pytest / mutation" .-> ALG
-  ML -. "inference در runtime نیست" .-> Anl
+  ML -. "مطالعه آفلاین (چهار ویژگی)" .-> Anl
+  MLE --> UI
 ```
 
 ## ۳٫۸ گردش کلی پلتفرم
@@ -379,7 +381,7 @@ UserPerformanceSummary، LevelHistory، LearningAnalytics، peer cohort.
 `teacher_feedback` در مدل موجود است؛ در `submit_manual_grade` فعلاً ست نمی‌شود (محدودیت). alerts داشبورد برای ضعف مهارت‌ها تولید می‌شود.
 
 ### ترک سامانه
-قانون ۳۰ روزه در `AnalyticsService.evaluate_abandonment`؛ ML جدا و آفلاین.
+قانون ۳۰ روزه در `AnalyticsService.evaluate_abandonment`؛ مدل آفلاین چهارویژگی جدا؛ پیش‌بینی زنده در `ml_engine` (`/api/ml/churn/`).
 
 ## ۳٫۲۲ جمع‌بندی فصل
 

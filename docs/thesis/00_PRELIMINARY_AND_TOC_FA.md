@@ -27,9 +27,9 @@
 
 گسترش اطلاعات گمراه‌کننده و تهدیدات شناختی در محیط‌های شهری، نیاز به سامانه‌هایی را برجسته کرده که بتوانند توانمندی‌های شناختی شهروندان را ارزیابی کنند، محتوای آموزشی را به‌صورت تطبیقی ارائه دهند و رفتار کاربر را برای بهبود ماندگاری در سامانه تحلیل نمایند. در این پایان‌نامه، نمونه اولیه پژوهشی «سامانه سنجش شناختی» بر اساس معماری Client–Server با بک‌اند Django REST Framework، احراز هویت JWT، پایگاه‌داده PostgreSQL و فرانت‌اند React/Vite توصیف و ارزیابی می‌شود.
 
-سامانه سه نقش شهروند، مسئول شهری (مدرس) و مدیر سیستم را پشتیبانی می‌کند و ماژول‌های ارزیابی شناختی، یادگیری تطبیقی، تحلیل عملکرد و داشبوردهای نقش‌محور را پیاده‌سازی کرده است. وضعیت «ترک‌کرده» در زمان اجرا با قانون قطعی بی‌فعالیتی ۳۰ روزه تعیین و در صورت لزوم حساب کاربر غیرفعال می‌شود. افزون بر این، یک خط یادگیری ماشین آفلاین برای پیش‌بینی ترک بر اساس چهار ویژگی رفتاری آموزش داده شده است؛ هرچند خروجی مدل در API زمان اجرا فراخوانی نمی‌شود.
+سامانه سه نقش شهروند، مسئول شهری (مدرس) و مدیر سیستم را پشتیبانی می‌کند و ماژول‌های ارزیابی شناختی، یادگیری تطبیقی، تحلیل عملکرد و داشبوردهای نقش‌محور را پیاده‌سازی کرده است. وضعیت «ترک‌کرده» در زمان اجرا با قانون قطعی بی‌فعالیتی ۳۰ روزه تعیین و در صورت لزوم حساب کاربر غیرفعال می‌شود. افزون بر این، یک خط یادگیری ماشین آفلاین برای پیش‌بینی ترک بر اساس چهار ویژگی رفتاری آموزش داده شده است؛ همچنین ماژول `ml_engine` پیش‌بینی ریسک ترک را از طریق `GET /api/ml/churn/` و اعلان ماندگاری در رابط شهروند ارائه می‌دهد (متمایز از قانون ۳۰ روزه و مدل آفلاین چهارویژگی).
 
-در بخش ارزیابی کیفیت نرم‌افزار، الگوریتم‌های جستجو و مرتب‌سازی کاتالوگ در مسیر تولید (`coglearning/algorithms`) به API لیست آزمون متصل شده‌اند و سوئیت `silver_project` با ۳۷۶ آزمون (ACOC، پوشش گره/یال/مسیر نخستین، آزمون جهش AOR) امتیاز جهش نهایی ۱۱ از ۱۲ (۹۱٫۷٪) را نشان می‌دهد. در پایان، دستاوردها، محدودیت‌ها (از جمله نبود inference مدل ترک در runtime) و مسیر کارهای آینده بیان می‌شود.
+در بخش ارزیابی کیفیت نرم‌افزار، الگوریتم‌های جستجو و مرتب‌سازی کاتالوگ در مسیر تولید (`coglearning/algorithms`) به API لیست آزمون متصل شده‌اند و سوئیت `silver_project` با ۳۷۶ آزمون (ACOC، پوشش گره/یال/مسیر نخستین، آزمون جهش AOR) امتیاز جهش نهایی ۱۱ از ۱۲ (۹۱٫۷٪) را نشان می‌دهد. در پایان، دستاوردها، محدودیت‌ها و مسیر کارهای آینده بیان می‌شود.
 
 **کلیدواژه‌ها:** ارزیابی شناختی، یادگیری تطبیقی، تحلیل رفتار کاربر، پیش‌بینی ترک سامانه، آزمون جهش، پوشش مسیر، Django، React
 
@@ -39,7 +39,7 @@
 
 The spread of misinformation and cognitive threats in urban environments motivates digital platforms that assess citizens’ cognitive abilities, deliver adaptive learning content, and analyze user behavior to improve retention. This bachelor’s thesis documents a research prototype—“Cognitive Assessment Platform”—implemented with a Django REST backend, JWT authentication, PostgreSQL, and a React/Vite frontend.
 
-The system supports citizen, urban officer (teacher), and admin roles, and implements cognitive assessment, adaptive learning, performance analytics, and role-based dashboards. Runtime abandonment is determined by a deterministic 30-day inactivity rule that can deactivate accounts. An offline machine-learning pipeline was also trained on four behavioral features; however, model inference is not wired into the live API.
+The system supports citizen, urban officer (teacher), and admin roles, and implements cognitive assessment, adaptive learning, performance analytics, and role-based dashboards. Runtime abandonment is determined by a deterministic 30-day inactivity rule that can deactivate accounts. An offline machine-learning pipeline was trained on four behavioral features; separately, a live `ml_engine` exposes churn risk via `GET /api/ml/churn/` and citizen retention notifications (distinct from the 30-day rule and the offline four-feature study).
 
 Software quality evaluation covers catalog search/sorting algorithms wired into the live assessment API (`coglearning/algorithms`), with a 376-test suite in `silver_project` (ACOC, node/edge/prime-path, AOR mutation testing) achieving a final mutation score of 11/12 (91.7%). Contributions, limitations, and future work are discussed with strict grounding in the actual repository.
 
@@ -119,7 +119,7 @@ Software quality evaluation covers catalog search/sorting algorithms wired into 
 | هشدار/اعلان | بله | جزئی (alerts داشبورد) | StudentDashboardView |
 | مدیریت و analytics | بله | بله | analytics + admin engagement |
 | سناریوی اختلال خدمات شهری | بله | در کد جداگانه یافت نشد | — |
-| پیش‌بینی ترک | خیر (در README نیست) | جزئی (قانون ۳۰ روزه + ML آفلاین) | analytics / scripts |
+| پیش‌بینی ترک | خیر (در README نیست) | جزئی تا خوب (قانون ۳۰ روزه + ML آفلاین + `ml_engine` زنده) | analytics / scripts / ml_engine |
 | تست الگوریتم/جهش | خیر | بله + اتصال API | `coglearning/algorithms` + `silver_project` |
 
 ---

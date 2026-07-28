@@ -1,6 +1,6 @@
 # فاز ۱ — ممیزی کامل پروژه (پایان‌نامه کارشناسی)
 
-**منبع حقیقت:** کد واقعی مخزن `ctlg-2`  
+**منبع حقیقت:** کد واقعی مخزن `ctlg-1`  
 **شاخه بررسی‌شده:** `modification`  
 **تاریخ ممیزی:** ۲۵ تیر ۱۴۰۵ (۲۵ ژوئیه ۲۰۲۶)  
 **مبنای دستورالعمل:** فایل `pro.txt` (Master Prompt)  
@@ -22,7 +22,7 @@
 | بک‌اند | Django REST + JWT + PostgreSQL در `coglearning/` |
 | فرانت‌اند فعال | React + Vite در `cognitive-frontend/` (ریشه مخزن) |
 | ماژول الگوریتم/تست | `silver_project/` (مستقل از API فعال) |
-| ML ترک سامانه | آموزش آفلاین در `scripts/` + artifact در `models/` |
+| ML ترک سامانه | آموزش آفلاین در `scripts/` + artifact در `models/`؛ inference زنده در `ml_engine` |
 
 ### A.2 معماری کلان (وضعیت واقعی)
 
@@ -61,11 +61,11 @@ PostgreSQL (ctlg)
 
 ### A.5 یافته‌های حیاتی ممیزی
 
-1. **قانون ۳۰ روزه ترک‌کرده در runtime پیاده است**؛ مدل ML در API فراخوانی نمی‌شود.
+1. **قانون ۳۰ روزه ترک‌کرده در runtime پیاده است**؛ مدل آفلاین چهارویژگی در API ادمین فراخوانی نمی‌شود، اما `ml_engine` برای شهروند زنده است.
 2. **الگوریتم‌های جستجو/مرتب‌سازی** در `coglearning/algorithms` به `StudentTestListView` متصل‌اند؛ سوئیت تست در `silver_project` است.
-3. **۳۷۶ تست الگوریتم پاس شده‌اند**؛ تست‌های Django خالی‌اند.
+3. **۳۷۶ تست الگوریتم پاس شده‌اند**؛ تست‌های Django دیگر خالی نیستند (چند ده تست + E2E نقش‌محور).
 4. **فایل مقاله پژوهشی در مخزن یافت نشد.**
-5. متریک‌های ML با AUC=1.0 ناشی از برچسب قطعی `avg_login_interval_days >= 30` هستند (نه پیش‌بینی زودهنگام واقعی).
+5. متریک‌های ML آفلاین با AUC=1.0 ناشی از برچسب قطعی `avg_login_interval_days >= 30` هستند (نه پیش‌بینی زودهنگام واقعی).
 
 ---
 
@@ -130,12 +130,12 @@ PostgreSQL (ctlg)
 | داشبورد مدرس | پیاده‌سازی‌شده | `TeacherDashboardView` + UI |
 | پنل engagement ادمین | پیاده‌سازی‌شده | `AdminEngagementMetricsView` |
 | قانون ترک‌کرده ۳۰ روزه | پیاده‌سازی‌شده | `evaluate_abandonment` |
-| آموزش مدل ML ترک | جزئی | اسکریپت + artifact؛ بدون inference |
-| پیش‌بینی ML در runtime | پیشنهادی | `joblib.load` در Django یافت نشد |
+| آموزش مدل ML ترک | جزئی | اسکریپت + artifact آفلاین |
+| پیش‌بینی ML در runtime | پیاده‌سازی‌شده | `ml_engine` + `/api/ml/churn/` (+ اعلان شهروند) |
 | جستجو/مرتب‌سازی کاتالوگ در API | پیاده‌سازی‌شده | `coglearning/algorithms` + TestListPage |
-| ترجیح الگوریتم کاربر | یافت نشد | فیلد در `User` نیست |
-| سیستم اعلان (Notification) مستقل | یافت نشد | فقط alerts داخل داشبورد |
-| تست واحد Django | طراحی‌شده | `tests.py` خالی |
+| ترجیح الگوریتم کاربر | پیاده‌سازی‌شده | فیلد در `User` + Profile UI |
+| سیستم اعلان (Notification) مستقل | جزئی | RetentionBanner / ml_engine؛ Email/Push نیست |
+| تست واحد Django | پیاده‌سازی جزئی | چند ده تست + E2E |
 | تست الگوریتم ACOC/CFG/Mutation | پیاده‌سازی‌شده | `silver_project` — ۳۷۶ پاس |
 
 ---
@@ -260,7 +260,7 @@ Runtime: `coglearning/algorithms/` — تست/جهش: `silver_project/algorithms
 | اجرای کلی pytest | `silver_project` | **۳۷۶ passed in 8.56–8.93s** |
 | Mutation Score (پس از اصلاح assert) | `test_mutation_score_calculation` | **۱۱/۱۲ = ۹۱٫۷٪** |
 | Equivalent mutants | MS-03, BN-03 | ۲ مورد |
-| تست Django apps | `*/tests.py` | خالی / خطا در discovery |
+| تست Django apps | `*/tests.py` | موجود (accounts/assessment/adaptive/analytics/ml_engine) |
 
 **پوشش کد الگوریتم (اجرای واقعی با pytest-cov):** sorting/searching ≈۱۰۰٪؛ catalog ≈۹۷٪؛ کل پکیج ≈۷۷٪ (شامل demo و mutants).
 
@@ -468,7 +468,7 @@ ACOC، CFG، Node/Edge/Prime Path، Mutation/AOR، Mutation Score، نتایج �
 | 3 | اسکرین‌شات‌های واقعی UI | پیوست B |
 | 4 | مشخصات قالب دانشگاه (فونت، حاشیه، شماره فصل) | صفحه‌آرایی ۹۰–۱۲۰ صفحه |
 | 5 | تصمیم درباره یکپارچه‌سازی الگوریتم با API | آیا Future Work است یا باید قبل از پایان‌نامه وصل شود؟ |
-| 6 | تصمیم درباره inference مدل ML در runtime | قانون ۳۰ روزه کافی است یا risk score هم لازم است؟ |
+| 6 | تصمیم درباره گسترش risk score به داشبورد ادمین | شهروند `ml_engine` دارد؛ ادمین هنوز قانون ۳۰ روزه |
 | 7 | هم‌تراز کردن `summary.txt` با `results.json` | جلوگیری از تناقض متریک‌ها |
 | 8 | مشخص کردن فرانت‌اند رسمی (ریشه vs `coglearning/cognitive-frontend`) | حذف سردرگمی مستندات |
 | 9 | نام کامل نویسندگان، استاد راهنما، دانشگاه، سال | صفحات مقدماتی |

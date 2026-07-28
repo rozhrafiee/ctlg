@@ -23,12 +23,13 @@
 ## ۴٫۳ ساختار پروژه
 
 ```
-ctlg-2/
+ctlg-1/
 ├── coglearning/                 # بک‌اند Django
 │   ├── accounts/
 │   ├── assessment/
 │   ├── adaptive_learning/
 │   ├── analytics/
+│   ├── ml_engine/               # churn زنده (/api/ml/)
 │   └── coglearning/settings.py
 ├── cognitive-frontend/          # فرانت‌اند فعال
 ├── coglearning/algorithms/      # الگوریتم‌های production (API)
@@ -68,6 +69,7 @@ flowchart TB
 - `/api/assessment/`
 - `/api/adaptive-learning/`
 - `/api/analytics/`
+- `/api/ml/`
 
 Views عمدتاً `APIView`/`generics` و `@api_view` هستند (بدون ViewSet).
 
@@ -195,10 +197,10 @@ if days >= ABANDONMENT_INACTIVITY_DAYS (default 30):
 
 ورود مجدد (اگر مجاز باشد) با `record_login` پرچم ترک را پاک می‌کند.
 
-## ۴٫۱۸ خط ML آفلاین
+## ۴٫۱۸ خط ML آفلاین و inference زنده
 
-`scripts/train_abandonment_model.py` داده CSV را می‌خواند، مدل‌ها را مقایسه و `models/abandonment_predictor.joblib` را می‌نویسد. جزئیات در فصل ۶.
+`scripts/train_abandonment_model.py` داده CSV را می‌خواند، مدل‌ها را مقایسه و `models/abandonment_predictor.joblib` را می‌نویسد (مطالعه آفلاین؛ جزئیات در فصل ۶). جداگانه، اپ `ml_engine` مدل churn را در `ml_engine/artifacts/churn_model.joblib` نگه می‌دارد و از طریق `GET /api/ml/churn/` به‌همراه اعلان ماندگاری در UI شهروند سرو می‌کند.
 
 ## ۴٫۱۹ جمع‌بندی
 
-هسته سامانه (کاربر، آزمون، یادگیری، داشبورد، قانون ترک، کاتالوگ الگوریتمی) پیاده است. inference ML در مسیر تولید کامل متصل نیست و باید شفاف گزارش شود.
+هسته سامانه (کاربر، آزمون، یادگیری، داشبورد، قانون ترک، کاتالوگ الگوریتمی) پیاده است. inference زنده برای ریسک ترک شهروند در `ml_engine` متصل است؛ مدل آفلاین چهارویژگی همچنان به داشبورد ادمین وصل نیست و ادمین قانون ۳۰ روزه را می‌بیند.

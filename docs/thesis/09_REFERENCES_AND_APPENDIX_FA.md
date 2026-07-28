@@ -123,7 +123,8 @@ sequenceDiagram
 ```mermaid
 flowchart TD
   R[قانون ۳۰ روزه] --> UI[Admin UI]
-  M[مدل joblib] -.-> X[بدون اتصال runtime]
+  M[مدل آفلاین joblib] -.-> X[بدون اتصال به ادمین]
+  L[ml_engine /api/ml/churn/] --> C[RetentionBanner شهروند]
 ```
 
 ## A.8 Pipeline کاتالوگ
