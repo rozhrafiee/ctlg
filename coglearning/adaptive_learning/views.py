@@ -34,30 +34,50 @@ class LearningPathView(generics.RetrieveAPIView):
         if path.items.filter(is_unlocked=False, content__min_level__lte=level).exists():
             return AdaptiveLearningEngine.create_or_refresh_path(self.request.user)
 
-        # اگر کاربر یکی از آیتم‌های مسیر را دیده/شروع کرده، مسیر را تازه‌سازی کن تا آیتم‌های دیده‌شده نمایش داده نشوند
+        # فقط وقتی آیتم تکمیل‌شده هنوز روی مسیر است، مسیر را تازه کن
         content_ids = list(path.items.values_list("content_id", flat=True))
-        if UserContentProgress.objects.filter(user=self.request.user, content_id__in=content_ids).exists():
+        if UserContentProgress.objects.filter(
+            user=self.request.user,
+            content_id__in=content_ids,
+            is_completed=True,
+        ).exists():
             return AdaptiveLearningEngine.create_or_refresh_path(self.request.user)
         return path
 
 @api_view(["POST"])
+@permission_classes([permissions.IsAuthenticated, HasTakenPlacementTest])
 def reset_learning_path(request):
     path = AdaptiveLearningEngine.create_or_refresh_path(request.user)
     return Response(LearningPathSerializer(path).data)
 
 @api_view(["POST"])
+@permission_classes([permissions.IsAuthenticated, HasTakenPlacementTest])
 def update_progress(request, content_id):
-    progress, _ = UserContentProgress.objects.get_or_create(user=request.user, content_id=content_id)
-    progress.progress_percent = request.data.get("percent", 100)
-    if progress.progress_percent >= 100:
-        progress.is_completed = True
-    progress.save()
-    return Response({"status": "updated"})
+    content = get_object_or_404(LearningContent, id=content_id)
+    percent = float(request.data.get("percent", 100) or 100)
+    if percent >= 100:
+        progress = AdaptiveLearningEngine.record_content_completed(request.user, content)
+    else:
+        progress, _ = UserContentProgress.objects.get_or_create(user=request.user, content=content)
+        progress.progress_percent = percent
+        progress.is_completed = False
+        progress.save()
+    return Response({
+        "status": "updated",
+        "progress_percent": progress.progress_percent,
+        "is_completed": progress.is_completed,
+    })
 
 class UserProgressListView(generics.ListAPIView):
     serializer_class = UserContentProgressSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
-        return UserContentProgress.objects.filter(user=self.request.user)
+        user = self.request.user
+        # Older «خوانده شد» clicks only set is_clicked — promote them into progress rows.
+        for rec in ContentRecommendation.objects.filter(user=user, is_clicked=True).select_related("content"):
+            AdaptiveLearningEngine.record_content_completed(user, rec.content)
+        return UserContentProgress.objects.filter(user=user).select_related("content").order_by("-last_accessed")
 
 class RecommendationsListView(generics.ListAPIView):
     serializer_class = RecommendationSerializer
@@ -65,11 +85,13 @@ class RecommendationsListView(generics.ListAPIView):
         return ContentRecommendation.objects.filter(user=self.request.user)
 
 @api_view(["POST"])
+@permission_classes([permissions.IsAuthenticated, HasTakenPlacementTest])
 def mark_recommendation_clicked(request, recommendation_id):
     rec = get_object_or_404(ContentRecommendation, id=recommendation_id, user=request.user)
     rec.is_clicked = True
-    rec.save()
-    return Response({"status": "marked"})
+    rec.save(update_fields=["is_clicked"])
+    AdaptiveLearningEngine.record_content_completed(request.user, rec.content)
+    return Response({"status": "marked", "id": rec.id, "is_clicked": True, "progress_recorded": True})
 
 class LearningContentDetailView(generics.RetrieveAPIView):
     serializer_class = LearningContentSerializer
@@ -99,9 +121,10 @@ def learning_roadmap(request):
         limit = 25
     limit = max(1, min(limit, 100))
 
-    # محتواهایی که کاربر هنوز تکمیل نکرده (می‌تواند شروع شده باشد)
-    upcoming_contents = (
-        LearningContent.objects.filter(is_active=True, min_level__gte=level)
+    # Incomplete content at/near the user's level (not only min_level >= level,
+    # which left the roadmap empty once the student outleveled seeded content).
+    upcoming_contents = list(
+        LearningContent.objects.filter(is_active=True)
         .exclude(usercontentprogress__user=user, usercontentprogress__is_completed=True)
         .order_by("min_level", "id")[:limit]
     )

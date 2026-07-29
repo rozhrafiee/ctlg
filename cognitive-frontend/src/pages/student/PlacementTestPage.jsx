@@ -12,7 +12,8 @@ export default function PlacementTestPage() {
   useEffect(() => {
     const load = async () => {
       const data = await fetchAvailableTests();
-      setTests((data || []).filter((t) => t.test_type === 'placement'));
+      const list = Array.isArray(data) ? data : data?.results || [];
+      setTests(list.filter((t) => t.test_type === 'placement'));
     };
     load();
   }, []);

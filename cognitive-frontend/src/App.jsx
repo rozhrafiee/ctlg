@@ -17,12 +17,10 @@ const LearningPathPage = lazy(() => import('./pages/student/LearningPathPage'));
 const ProgressPage = lazy(() => import('./pages/student/ProgressPage'));
 const ContentDetailPage = lazy(() => import('./pages/student/ContentDetailPage'));
 const History = lazy(() => import('./pages/student/History'));
-const RecommendationsPage = lazy(() => import('./pages/student/RecommendationsPage'));
 const RecommendedPage = lazy(() => import('./pages/student/RecommendedPage'));
 const AdaptiveDashboardPage = lazy(() => import('./pages/student/AdaptiveDashboardPage'));
 
 const TeacherDashboard = lazy(() => import('./pages/teacher/TeacherDashboard'));
-const TestGraphsPage = lazy(() => import('./pages/teacher/TestGraphsPage'));
 const TeacherContentList = lazy(() => import('./pages/teacher/TeacherContentList'));
 const CreateContentPage = lazy(() => import('./pages/teacher/CreateContentPage'));
 const EditContentPage = lazy(() => import('./pages/teacher/EditContentPage'));
@@ -169,11 +167,6 @@ export default function App() {
             <AppShell title="تاریخچه آزمون‌ها"><History /></AppShell>
           </ProtectedRoute>
         } />
-        <Route path="/student/recommendations" element={
-          <ProtectedRoute studentOnly requirePlacementTest>
-            <AppShell title="پیشنهادها"><RecommendationsPage /></AppShell>
-          </ProtectedRoute>
-        } />
         <Route path="/student/recommended" element={
           <ProtectedRoute studentOnly requirePlacementTest>
             <AppShell title="پیشنهادهای هوشمند"><RecommendedPage /></AppShell>
@@ -193,7 +186,7 @@ export default function App() {
 
         <Route path="/manager/dashboard" element={
           <ProtectedRoute adminOnly>
-            <AppShell title="داشبورد مدیر سیستم"><ManagerDashboard /></AppShell>
+            <AppShell title="نمای کلی سامانه"><ManagerDashboard /></AppShell>
           </ProtectedRoute>
         } />
         <Route path="/manager/engagement" element={
@@ -205,11 +198,6 @@ export default function App() {
         <Route path="/teacher/dashboard" element={
           <ProtectedRoute teacherOnly>
             <AppShell title="داشبورد مسئول شهری (مدرس)"><TeacherDashboard /></AppShell>
-          </ProtectedRoute>
-        } />
-        <Route path="/teacher/test-graphs" element={
-          <ProtectedRoute teacherOnly>
-            <AppShell title="گراف پوشش و Mutation"><TestGraphsPage /></AppShell>
           </ProtectedRoute>
         } />
         <Route path="/teacher/contents" element={

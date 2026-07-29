@@ -9,11 +9,20 @@ export default function LearningPathPage() {
   const { fetchLearningPath, resetLearningPath, fetchLearningRoadmap } = useAdaptive();
   const [path, setPath] = useState(null);
   const [roadmap, setRoadmap] = useState(null);
+  const [pathError, setPathError] = useState(null);
   const [roadmapError, setRoadmapError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [resetting, setResetting] = useState(false);
 
   const load = async () => {
-    const data = await fetchLearningPath();
-    setPath(data);
+    setPathError(null);
+    try {
+      const data = await fetchLearningPath();
+      setPath(data);
+    } catch {
+      setPathError('بارگذاری مسیر یادگیری ناموفق بود.');
+      setPath(null);
+    }
   };
 
   const loadRoadmap = async () => {
@@ -28,41 +37,89 @@ export default function LearningPathPage() {
   };
 
   useEffect(() => {
-    load();
-    loadRoadmap();
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      await Promise.all([load(), loadRoadmap()]);
+      if (!cancelled) setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleReset = async () => {
+    setResetting(true);
+    setPathError(null);
+    try {
+      const data = await resetLearningPath();
+      setPath(data);
+      await loadRoadmap();
+    } catch {
+      setPathError('بازنشانی مسیر ناموفق بود.');
+    } finally {
+      setResetting(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
       <PageHeader
         title={path?.name || 'مسیر یادگیری'}
-        subtitle="مسیر فعال شما"
+        subtitle="مسیر فعال شما — محتوا را باز کنید و تکمیل کنید"
         actions={(
-          <Button variant="secondary" onClick={async () => { await resetLearningPath(); load(); }}>
-            بازنشانی مسیر
+          <Button type="button" variant="secondary" disabled={resetting} onClick={handleReset}>
+            {resetting ? 'در حال بازنشانی...' : 'بازنشانی مسیر'}
           </Button>
         )}
       />
-      {path?.items?.map((item) => (
-        <Card key={item.id} className="flex items-center justify-between">
-          <div>
-            <div className="font-semibold">{item.content?.title}</div>
-            <div className="text-xs text-slate-500">سطح مورد نیاز برای باز شدن قفل: {item.content?.min_level ?? '-'}</div>
-          </div>
-          <div className="text-xs text-slate-500">
-            {item.is_unlocked ? 'باز' : 'قفل'}
-          </div>
+
+      {pathError && (
+        <Card className="text-sm text-red-700 bg-red-50 border border-red-100">{pathError}</Card>
+      )}
+
+      {loading && !path && <Card>در حال بارگذاری مسیر...</Card>}
+
+      {path?.items?.map((item) => {
+        const unlocked = item.is_unlocked;
+        const contentId = item.content?.id;
+        return (
+          <Card key={item.id} className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="font-semibold">{item.content?.title}</div>
+              <div className="text-xs text-slate-500">
+                سطح مورد نیاز: {item.content?.min_level ?? '-'}
+                {item.content?.max_level != null ? ` تا ${item.content.max_level}` : ''}
+                {' · '}
+                {unlocked ? 'باز' : 'قفل'}
+              </div>
+            </div>
+            {unlocked && contentId ? (
+              <Link to={`/student/content/${contentId}`}>
+                <Button type="button">مشاهده محتوا</Button>
+              </Link>
+            ) : (
+              <Button type="button" variant="secondary" disabled>
+                قفل
+              </Button>
+            )}
+          </Card>
+        );
+      })}
+      {!loading && path && !path?.items?.length && (
+        <Card>
+          آیتمی در مسیر وجود ندارد. اگر محتوایی باقی مانده، «بازنشانی مسیر» را بزنید؛ در غیر این صورت همه محتواهای فعلی را تکمیل کرده‌اید.
         </Card>
-      ))}
-      {!path?.items?.length && <Card>آیتمی در مسیر وجود ندارد.</Card>}
+      )}
 
       <Card className="border-primary/10 overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <h3 className="section-title text-neutral-800 mb-0">نقشه راه تا سطح‌های بعد</h3>
-          <Button variant="secondary" onClick={loadRoadmap}>به‌روزرسانی</Button>
+          <Button type="button" variant="secondary" onClick={loadRoadmap}>به‌روزرسانی</Button>
         </div>
         <p className="text-sm text-neutral-500 mb-4">
-          این تایم‌لاین بر اساس سطح فعلی شما ساخته می‌شود و هر بار محتوای جدید یا آزمون جدید برای سطح‌های بالاتر اضافه شود، به ادامه مسیر اضافه خواهد شد.
+          این تایم‌لاین بر اساس سطح فعلی شما و محتواهای ناتمام ساخته می‌شود.
         </p>
 
         {roadmapError && (
@@ -104,15 +161,21 @@ export default function LearningPathPage() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 mt-3 items-center">
-                      <Link to={`/student/content/${s.id}`}>
-                        <Button variant="secondary" disabled={locked}>مشاهده محتوا</Button>
-                      </Link>
-                      {test?.id && (
-                        <Link to={`/student/tests/${test.id}/take`}>
-                          <Button disabled={locked || !test.is_available}>
-                            شروع آزمون مرتبط
-                          </Button>
+                      {locked ? (
+                        <Button type="button" variant="secondary" disabled>مشاهده محتوا</Button>
+                      ) : (
+                        <Link to={`/student/content/${s.id}`}>
+                          <Button type="button" variant="secondary">مشاهده محتوا</Button>
                         </Link>
+                      )}
+                      {test?.id && (
+                        locked || !test.is_available ? (
+                          <Button type="button" disabled>شروع آزمون مرتبط</Button>
+                        ) : (
+                          <Link to={`/student/tests/${test.id}/take`}>
+                            <Button type="button">شروع آزمون مرتبط</Button>
+                          </Link>
+                        )
                       )}
                       {!done && !locked && (
                         <div className="text-xs text-neutral-500">
@@ -133,7 +196,9 @@ export default function LearningPathPage() {
             })}
           </div>
         ) : (
-          <div className="text-sm text-neutral-500">فعلاً آیتمی برای نقشه راه پیدا نشد.</div>
+          <div className="text-sm text-neutral-500">
+            {loading ? 'در حال بارگذاری نقشه راه...' : 'فعلاً آیتمی برای نقشه راه پیدا نشد.'}
+          </div>
         )}
       </Card>
     </div>
