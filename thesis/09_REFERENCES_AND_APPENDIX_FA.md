@@ -22,7 +22,7 @@
 
 [9] Ammann, P. and Offutt, J., *Introduction to Software Testing*, Cambridge University Press. *(مرجع کلاسیک پوشش مسیر و جهش)*
 
-[10] مستند داخلی پروژه، `silver_project/ALGORITHM_TESTING_REPORT_FA.md`، ۲۰۲۶. *(با اصلاح مسیرها نسبت به کد واقعی استفاده شود)*
+[10] مستند داخلی پروژه، `archive/2026-audit/ALGORITHM_TESTING_REPORT_FA.md`، ۲۰۲۶. *(با اصلاح مسیرها نسبت به کد واقعی استفاده شود)*
 
 [11] نتایج مدل، `datasets/ml/abandonment_model_results.json`، اجرای آموزش روی CSV فعلی.
 

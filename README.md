@@ -1,29 +1,72 @@
+# Cognitive learning platform
 
-# A Framework for Enhancing Media Literacy and Mitigating Cognitive Threats in Urban Governance
+Research prototype for media literacy and cognitive resilience: citizens take assessments, get adaptive content, and managers see engagement analytics.
 
-This repository contains a research prototype implementing a digital learning–based framework for enhancing media literacy and cognitive resilience in urban governance environments. The system integrates cognitive assessment, adaptive learning, and behavioral analysis to mitigate risks associated with misinformation and cognitively manipulative information.
-
-## Overview
-
-The prototype operationalizes a conceptual framework proposed in an accompanying academic study. It supports the evaluation of cognitive vulnerabilities, delivery of personalized learning content, and analysis of user behavior for feedback and system-level insights.
-
-## Core Modules
-
-	•	Adaptive learning and content management
-	•	Behavior analysis and feedback
-	•	Alert and notification
-	•	Management and analytics
-	•	Cognitive literacy assessment
-## Architecture
-
-The system follows a client–server architecture with a web-based frontend, backend services, and a centralized database. Authentication and access control are implemented using JSON Web Token (JWT).
+**Stack:** React (Vite) + Django REST + JWT. SQLite locally; Postgres via env when you need it.
 
 ## Roles
 
-	•	Citizens: assessment and learning participation
-	•	Domain experts: content and assessment management
-	•	Managers: system administration and analytics
+| In the UI | In the code |
+|-----------|-------------|
+| Citizen | `student` |
+| Domain expert | `teacher` |
+| Manager | `admin` |
 
-## Case Demonstration
+## Run locally
 
-A case-based scenario simulating misinformation propagation during an urban public service disruption is included to demonstrate practical applicability.
+### Backend
+
+```bash
+cd coglearning
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env   # or cp on macOS/Linux
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
+
+API base: `http://127.0.0.1:8000/api/`
+
+### Frontend
+
+```bash
+cd cognitive-frontend
+npm install
+# optional: copy .env.example → .env (defaults to the API above)
+npm run dev
+```
+
+### Useful extras
+
+```bash
+# role workflow smoke test
+python scripts/e2e_role_workflows.py
+
+# train live churn model (writes joblib under ml_engine/artifacts/)
+cd coglearning && python manage.py train_churn_model
+
+# offline abandonment training
+python scripts/train_abandonment_model.py
+```
+
+## Layout
+
+```
+coglearning/           Django API
+cognitive-frontend/    React app
+silver_project/        Algorithm test suite (academic)
+scripts/               E2E + offline ML training
+models/                Offline abandonment artifact
+thesis/                Persian thesis chapters
+docs/ARCHITECTURE.md   Short system map
+archive/               Old audit reports (not maintained)
+```
+
+## Docs
+
+- [Architecture](docs/ARCHITECTURE.md) — apps, request flow, ML tracks
+- [Thesis](thesis/README.md) — academic write-up (Persian)
+
+Endpoint details live in the Django apps under `coglearning/*/urls.py`. Older API tables and audit reports are in [`archive/`](archive/README.md).
